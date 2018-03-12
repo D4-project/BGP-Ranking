@@ -1,0 +1,6 @@
+{
+  "url": "http://www.blocklist.de/lists/mail.txt",
+  "vendor": "blocklist_de",
+  "name": "mail",
+  "impact": 0.1
+}

@@ -1,0 +1,7 @@
+{
+  "url": "http://malc0de.com/bl/IP_Blacklist.txt",
+  "vendor": "malc0de",
+  "name": "blocklist",
+  "impact": 5,
+  "parser": ".parsers.malc0de"
+}

@@ -1,0 +1,6 @@
+{
+  "url": "http://reputation.alienvault.com/reputation.generic",
+  "vendor": "alienvault",
+  "name": "reputation.generic",
+  "impact": 0.01
+}

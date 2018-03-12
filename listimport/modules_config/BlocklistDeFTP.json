@@ -1,0 +1,6 @@
+{
+  "url": "http://www.blocklist.de/lists/ftp.txt",
+  "vendor": "blocklist_de",
+  "name": "ftp",
+  "impact": 3
+}

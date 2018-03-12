@@ -1,0 +1,6 @@
+{
+  "url": "http://www.blocklist.de/lists/apache.txt",
+  "vendor": "blocklist_de",
+  "name": "apache",
+  "impact": 0.1
+}

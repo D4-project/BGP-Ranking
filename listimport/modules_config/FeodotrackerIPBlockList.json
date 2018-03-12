@@ -1,0 +1,7 @@
+{
+  "url": "https://feodotracker.abuse.ch/blocklist/?download=ipblocklist",
+  "vendor": "feodotracker",
+  "name": "ipblocklist",
+  "impact": 5,
+  "parser": ".parsers.abusech"
+}

@@ -1,0 +1,7 @@
+{
+  "url": "http://www.nothink.org/blacklist/blacklist_telnet_day.txt",
+  "vendor": "nothink",
+  "name": "telnet",
+  "impact": 5,
+  "parser": ".parsers.nothink"
+}

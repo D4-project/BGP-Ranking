@@ -1,0 +1,6 @@
+{
+  "url": "http://rules.emergingthreats.net/blockrules/compromised-ips.txt",
+  "vendor": "emergingthreats",
+  "name": "compromized",
+  "impact": 5
+}

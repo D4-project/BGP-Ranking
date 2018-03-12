@@ -1,0 +1,6 @@
+{
+  "url": "http://www.blocklist.de/lists/bots.txt",
+  "vendor": "blocklist_de",
+  "name": "bots",
+  "impact": 3
+}

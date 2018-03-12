@@ -1,0 +1,7 @@
+{
+  "url": "https://ransomwaretracker.abuse.ch/downloads/RW_IPBL.txt",
+  "vendor": "ransomwaretracker",
+  "name": "ipblocklist",
+  "impact": 7,
+  "parser": ".parsers.abusech"
+}

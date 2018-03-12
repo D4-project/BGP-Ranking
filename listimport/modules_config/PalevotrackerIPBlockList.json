@@ -1,0 +1,6 @@
+{
+  "url": "https://palevotracker.abuse.ch/blocklists.php?download=ipblocklist",
+  "vendor": "palevotracker",
+  "name": "ipblocklist",
+  "impact": 5
+}

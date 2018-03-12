@@ -1,0 +1,6 @@
+{
+  "url": "http://www.blocklist.de/lists/sip.txt",
+  "vendor": "blocklist_de",
+  "name": "sip",
+  "impact": 3
+}

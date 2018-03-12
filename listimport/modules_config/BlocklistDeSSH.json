@@ -1,0 +1,6 @@
+{
+  "url": "http://www.blocklist.de/lists/ssh.txt",
+  "vendor": "blocklist_de",
+  "name": "ssh",
+  "impact": 3
+}

@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "title": "BGP Ranking NG module",
+  "id": "https://www.github.com/CIRCL/bgpranking-ng/modules.json",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+      "url": {
+        "type": "string"
+      },
+      "vendor": {
+        "type": "string"
+      },
+      "name": {
+        "type": "string"
+      },
+      "impact": {
+        "type": "number"
+      },
+      "parser": {
+        "type": "string"
+      }
+  },
+  "required": [
+    "name",
+    "vendor",
+    "impact"
+  ]
+}
