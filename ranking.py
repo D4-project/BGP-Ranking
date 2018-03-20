@@ -3,26 +3,28 @@
 
 import logging
 import asyncio
-from listimport.risfetcher import RISPrefixLookup
+from listimport.initranking import ASNLookup
+
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%I:%M:%S')
 
 
-class RISManager():
+class RankingManager():
 
     def __init__(self, loglevel: int=logging.DEBUG):
-        self.ris_fetcher = RISPrefixLookup(loglevel=loglevel)
+        self.asn_fetcher = ASNLookup(loglevel=loglevel)
 
     async def run_fetcher(self):
+        # self.asn_fetcher.get_all_asns()
         await asyncio.gather(
-            self.ris_fetcher.run(),
-            self.ris_fetcher.run(),
-            # self.ris_fetcher.run(2)
+            self.asn_fetcher.get_originating_prefixes(),
+            self.asn_fetcher.get_originating_prefixes(),
+            self.asn_fetcher.get_originating_prefixes()
         )
 
 
 if __name__ == '__main__':
-    modules_manager = RISManager()
+    modules_manager = RankingManager()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(modules_manager.run_fetcher())

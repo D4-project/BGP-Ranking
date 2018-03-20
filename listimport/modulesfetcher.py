@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import requests
+import aiohttp
 from dateutil import parser
 from datetime import datetime, date
 from hashlib import sha512  # Faster than sha256 on 64b machines.
 from pathlib import Path
 import logging
-import asyncio
 from pid import PidFile, PidFileError
 import json
 
@@ -46,13 +45,15 @@ class Fetcher():
                                                           self.vendor, self.listname))
         self.logger.setLevel(loglevel)
 
-    def __get_last_modified(self):
-        r = requests.head(self.url)
-        if 'Last-Modified' in r.headers:
-            return parser.parse(r.headers['Last-Modified'])
-        return None
+    async def __get_last_modified(self):
+        async with aiohttp.ClientSession() as session:
+            async with session.head(self.url) as r:
+                headers = r.headers
+                if 'Last-Modified' in headers:
+                    return parser.parse(headers['Last-Modified'])
+                return None
 
-    def __newer(self):
+    async def __newer(self):
         '''Check if the file available for download is newed than the one
         already downloaded by checking the `Last-Modified` header.
         Note: return False if the file containing the last header content
@@ -66,7 +67,7 @@ class Fetcher():
                 self.logger.debug('No Last-Modified header available')
                 return True
             self.first_fetch = False
-            last_modified = self.__get_last_modified()
+            last_modified = await self.__get_last_modified()
             if last_modified:
                 self.logger.debug('Last-Modified header available')
                 with last_modified_path.open('w') as f:
@@ -75,8 +76,9 @@ class Fetcher():
                 self.logger.debug('No Last-Modified header available')
             return True
         with last_modified_path.open() as f:
-            last_modified_file = parser.parse(f.read())
-        last_modified = self.__get_last_modified()
+            file_content = f.read()
+            last_modified_file = parser.parse(file_content)
+        last_modified = await self.__get_last_modified()
         if not last_modified:
             # No more Last-Modified header Oo
             self.logger.warning('{}: Last-Modified header was present, isn\'t anymore!'.format(self.listname))
@@ -121,20 +123,22 @@ class Fetcher():
                 return True
         return False
 
-    @asyncio.coroutine
     async def fetch_list(self):
         '''Fetch & store the list'''
         if not self.fetcher:
             return
         try:
             with PidFile('{}.pid'.format(self.listname), piddir=self.meta):
-                if not self.__newer():
+                if not await self.__newer():
                     return
-                r = requests.get(self.url)
-                if self.__same_as_last(r.content):
-                    return
-                self.logger.info('Got a new file \o/')
-                with (self.directory / '{}.txt'.format(datetime.now().isoformat())).open('wb') as f:
-                    f.write(r.content)
+
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(self.url) as r:
+                        content = await r.content.read()
+                        if self.__same_as_last(content):
+                            return
+                        self.logger.info('Got a new file \o/')
+                        with (self.directory / '{}.txt'.format(datetime.now().isoformat())).open('wb') as f:
+                            f.write(content)
         except PidFileError:
             self.logger.info('Fetcher already running')

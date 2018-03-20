@@ -1,7 +1,0 @@
-{
-  "url": "http://www.dshield.org/feeds/daily_sources",
-  "vendor": "dshield",
-  "name": "daily",
-  "impact": 0.1,
-  "parser": "parsers.dshield"
-}

@@ -4,7 +4,6 @@
 from datetime import datetime
 from pathlib import Path
 import logging
-import asyncio
 import json
 import re
 from redis import Redis
@@ -51,7 +50,6 @@ class RawFilesParser():
         self.datetime = datetime.now()
         return self.extract_ipv4(f.getvalue())
 
-    @asyncio.coroutine
     async def parse_raw_files(self):
         for filepath in self.files_to_parse:
             self.logger.debug('Parsing {}, {} to go.'.format(filepath, len(self.files_to_parse) - 1))

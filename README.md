@@ -71,6 +71,24 @@ Creates the following hashes:
 IP = {'asn': <asn>, 'prefix': <prefix>, 'description': <description>}
 ```
 
+## Ranking Information cache (redis, port 6382)
+
+*Usage*: Store the current list of known ASNs at RIPE, and the prefixes originating from them.
+
+Creates the following sets:
+
+```python
+asns = set([<asn>, ...])
+<asn>|v4 = set([<ipv4_prefix>, ...])
+<asn>|v6 = set([<ipv6_prefix>, ...])
+```
+
+And the following keys:
+
+```python
+<asn>|v4|ipcount = <Total amount of IP v4 addresses originating this AS>
+<asn>|v6|ipcount = <Total amount of IP v6 addresses originating this AS>
+```
 
 ## Long term storage (ardb, port 16379)
 
