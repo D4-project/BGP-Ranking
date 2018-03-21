@@ -29,7 +29,7 @@ New version of BGP Ranking, complete rewrite in python3.6+ and an ARDB backend
 
 # Databases
 
-## Intake (redis, port 6379)
+## Intake (redis, port 6579)
 
 *Usage*: All the modules push their entries in this database.
 
@@ -42,7 +42,7 @@ UUID = {'ip': <ip>, 'source': <source>, 'datetime': <datetime>}
 Creates a set `intake` for further processing containing all the UUIDs.
 
 
-## Pre-Insert (redis, port 6380)
+## Pre-Insert (redis, port 6580)
 
 
 *Usage*: Make sure th IPs are global, validate input from the intake module.
@@ -59,7 +59,7 @@ Creates a set `to_insert` for further processing containing all the UUIDs.
 
 Creates a set `for_ris_lookup` to lookup on the RIS database. Contains all the IPs.
 
-## Routing Information Service cache (redis, port 6381)
+## Routing Information Service cache (redis, port 6581)
 
 *Usage*: Lookup IPs against the RIPE's RIS database
 
@@ -71,7 +71,7 @@ Creates the following hashes:
 IP = {'asn': <asn>, 'prefix': <prefix>, 'description': <description>}
 ```
 
-## Ranking Information cache (redis, port 6382)
+## Ranking Information cache (redis, port 6582)
 
 *Usage*: Store the current list of known ASNs at RIPE, and the prefixes originating from them.
 
@@ -90,7 +90,7 @@ And the following keys:
 <asn>|v6|ipcount = <Total amount of IP v6 addresses originating this AS>
 ```
 
-## Long term storage (ardb, port 16379)
+## Long term storage (ardb, port 16579)
 
 *Usage*: Stores the IPs with the required meta informations required for ranking.
 

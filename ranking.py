@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import asyncio
-from listimport.initranking import ASNLookup
+from listimport.initranking import PrefixDatabase
 
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
@@ -13,18 +12,12 @@ logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
 class RankingManager():
 
     def __init__(self, loglevel: int=logging.DEBUG):
-        self.asn_fetcher = ASNLookup(loglevel=loglevel)
+        self.prefix_db = PrefixDatabase(loglevel=loglevel)
 
-    async def run_fetcher(self):
-        # self.asn_fetcher.get_all_asns()
-        await asyncio.gather(
-            self.asn_fetcher.get_originating_prefixes(),
-            self.asn_fetcher.get_originating_prefixes(),
-            self.asn_fetcher.get_originating_prefixes()
-        )
+    def load_prefixes(self):
+        self.prefix_db.load_prefixes()
 
 
 if __name__ == '__main__':
-    modules_manager = RankingManager()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(modules_manager.run_fetcher())
+    rm = RankingManager()
+    rm.load_prefixes()

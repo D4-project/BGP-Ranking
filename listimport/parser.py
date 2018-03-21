@@ -31,7 +31,7 @@ class RawFilesParser():
         self.directory = storage_directory / self.vendor / self.listname
         safe_create_dir(self.directory)
         self.__init_logger(loglevel)
-        self.redis_intake = Redis(host='localhost', port=6379, db=0)
+        self.redis_intake = Redis(host='localhost', port=6579, db=0)
         self.logger.debug('Starting intake on {}'.format(self.source))
 
     def __init_logger(self, loglevel):
@@ -45,6 +45,11 @@ class RawFilesParser():
 
     def extract_ipv4(self, bytestream: bytes) -> List[bytes]:
         return re.findall(rb'[0-9]+(?:\.[0-9]+){3}', bytestream)
+
+    def strip_leading_zeros(self, ips: List[bytes]) -> List[bytes]:
+        '''Helper to get rid of leading 0s in an IP list.
+        Only run it when needed, it is nasty and slow'''
+        return ['.'.join(str(int(part)) for part in ip.split(b'.')).encode() for ip in ips]
 
     def parse_raw_file(self, f: BytesIO):
         self.datetime = datetime.now()

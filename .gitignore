@@ -99,3 +99,14 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Redis
+*.rdb
+
+# Storage
+rawdata
+
+# ardb
+storage/ardb.pid
+storage/data
+storage/repl

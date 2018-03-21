@@ -10,9 +10,9 @@ class DatabaseInsert():
 
     def __init__(self, loglevel: int=logging.DEBUG):
         self.__init_logger(loglevel)
-        self.ardb_storage = StrictRedis(host='localhost', port=16379, decode_responses=True)
-        self.redis_sanitized = Redis(host='localhost', port=6380, db=0, decode_responses=True)
-        self.ris_cache = Redis(host='localhost', port=6381, db=0, decode_responses=True)
+        self.ardb_storage = StrictRedis(host='localhost', port=16579, decode_responses=True)
+        self.redis_sanitized = Redis(host='localhost', port=6580, db=0, decode_responses=True)
+        self.ris_cache = Redis(host='localhost', port=6581, db=0, decode_responses=True)
         self.logger.debug('Starting import')
 
     def __init_logger(self, loglevel):

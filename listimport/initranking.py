@@ -2,75 +2,65 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import json
 from redis import Redis
-import asyncio
-
-from telnetlib import Telnet
-
-from .libs.StatsRipeText import RIPECaching
 from ipaddress import ip_network
+import requests
+import gzip
+from io import BytesIO
+from collections import defaultdict
+import re
+
+# Dataset source: Routeviews Prefix to AS mappings Dataset for IPv4 and IPv6
+# http://www.caida.org/data/routing/routeviews-prefix2as.xml
 
 
-class ASNLookup(RIPECaching):
+class PrefixDatabase():
 
-    def __init__(self, sourceapp: str='bgpranking-ng', loglevel: int=logging.DEBUG):
-        super().__init__(sourceapp, loglevel)
-        self.redis_cache = Redis(host='localhost', port=6382, db=0, decode_responses=True)
-        self.logger.debug('Starting ASN lookup cache')
+    def __init__(self, loglevel: int=logging.DEBUG):
+        self.__init_logger(loglevel)
+        self.redis_cache = Redis(host='localhost', port=6582, db=0, decode_responses=True)
+        self.ipv6_url = 'http://data.caida.org/datasets/routing/routeviews6-prefix2as/{}'
+        self.ipv4_url = 'http://data.caida.org/datasets/routing/routeviews-prefix2as/{}'
 
-    def get_all_asns(self):
-        with Telnet(self.hostname, self.port) as tn:
-            tn.write(b'-k\n')
-            to_send = '-d ris-asns list_asns=true asn_types=o sourceapp={}\n'.format(self.sourceapp)
-            tn.write(to_send.encode())
-            ris_asns = json.loads(tn.read_until(b'\n}\n'))
-            all_asns = ris_asns['asns']['originating']
-            if not all_asns:
-                self.logger.warning('No ASNs in ris-asns, something went wrong.')
-            else:
-                self.redis_cache.sadd('asns', *all_asns)
-                self.redis_cache.sadd('asns_to_lookup', *all_asns)
-            tn.write(b'-k\n')
+    def __init_logger(self, loglevel):
+        self.logger = logging.getLogger('{}'.format(self.__class__.__name__))
+        self.logger.setLevel(loglevel)
 
-    def fix_ipv4_networks(self, networks):
-        '''Because we can't have nice things.
-        Some netorks come without the last(s) bytes (i.e. 170.254.25/24)'''
-        to_return = []
-        for net in networks:
-            try:
-                to_return.append(ip_network(net))
-            except ValueError:
-                ip, mask = net.split('/')
-                iplist = ip.split('.')
-                iplist = iplist + ['0'] * (4 - len(iplist))
-                to_return.append(ip_network('{}/{}'.format('.'.join(iplist), mask)))
-        return to_return
+    def _has_new(self, address_family, root_url):
+        r = requests.get(root_url.format('pfx2as-creation.log'))
+        last_entry = r.text.split('\n')[-2]
+        path = last_entry.split('\t')[-1]
+        if path == self.redis_cache.get('current|{}'.format(address_family)):
+            self.logger.debug('Same file already loaded: {}'.format(path))
+            return False, path
+        return True, path
 
-    async def get_originating_prefixes(self):
-        reader, writer = await asyncio.open_connection(self.hostname, self.port)
-        writer.write(b'-k\n')
-        while True:
-            asn = self.redis_cache.spop('asns_to_lookup')
-            if not asn:
-                break
-            self.logger.debug('ASN lookup: {}'.format(asn))
-            to_send = '-d ris-prefixes {} list_prefixes=true types=o af=v4,v6 noise=filter sourceapp={}\n'.format(asn, self.sourceapp)
-            writer.write(to_send.encode())
-            data = await reader.readuntil(b'\n}\n')
-            ris_prefixes = json.loads(data)
-            p = self.redis_cache.pipeline()
-            if ris_prefixes['prefixes']['v4']['originating']:
-                self.logger.debug('{} has ipv4'.format(asn))
-                fixed_networks = self.fix_ipv4_networks(ris_prefixes['prefixes']['v4']['originating'])
-                p.sadd('{}|v4'.format(asn), *[str(net) for net in fixed_networks])
-                total_ipv4 = sum([net.num_addresses for net in fixed_networks])
-                p.set('{}|v4|ipcount'.format(asn), total_ipv4)
-            if ris_prefixes['prefixes']['v6']['originating']:
-                self.logger.debug('{} has ipv6'.format(asn))
-                p.sadd('{}|v6'.format(asn), *ris_prefixes['prefixes']['v6']['originating'])
-                total_ipv6 = sum([ip_network(prefix).num_addresses for prefix in ris_prefixes['prefixes']['v6']['originating']])
-                p.set('{}|v4|ipcount'.format(asn), total_ipv6)
-            p.execute()
-        writer.write(b'-k\n')
-        writer.close()
+    def _init_routes(self, address_family, root_url, path):
+        self.logger.debug('Loading {}'.format(path))
+        r = requests.get(root_url.format(path))
+        to_import = defaultdict(lambda: {address_family: set(), 'ipcount': 0})
+        with gzip.open(BytesIO(r.content), 'r') as f:
+            for line in f:
+                prefix, length, asns = line.decode().strip().split('\t')
+                for asn in re.split('[,_]', asns):
+                    network = ip_network('{}/{}'.format(prefix, length))
+                    to_import[asn][address_family].add(str(network))
+                    to_import[asn]['ipcount'] += network.num_addresses
+
+        p = self.redis_cache.pipeline()
+        p.sadd('asns', *to_import.keys())
+        for asn, data in to_import.items():
+            p.sadd('{}|{}'.format(asn, address_family), *data[address_family])
+            p.set('{}|{}|ipcount'.format(asn, address_family), data['ipcount'])
+        p.set('current|{}'.format(address_family), path)
+        p.execute()
+        return True
+
+    def load_prefixes(self):
+        v4_is_new, v4_path = self._has_new('v4', self.ipv4_url)
+        v6_is_new, v6_path = self._has_new('v6', self.ipv6_url)
+
+        if v4_is_new or v6_is_new:
+            self.redis_cache.flushdb()
+            self._init_routes('v6', self.ipv6_url, v6_path)
+            self._init_routes('v4', self.ipv4_url, v4_path)

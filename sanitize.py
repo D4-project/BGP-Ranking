@@ -6,12 +6,12 @@ import asyncio
 from listimport.sanitizer import Sanitizer
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
-                    level=logging.INFO, datefmt='%I:%M:%S')
+                    level=logging.WARNING, datefmt='%I:%M:%S')
 
 
 class SanitizerManager():
 
-    def __init__(self, loglevel: int=logging.INFO):
+    def __init__(self, loglevel: int=logging.WARNING):
         self.loglevel = loglevel
         self.sanitizer = Sanitizer(loglevel)
 

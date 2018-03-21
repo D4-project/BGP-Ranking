@@ -28,7 +28,7 @@ class RISPrefixLookup(RIPECaching):
         p.execute()
 
     async def run(self):
-        redis_cache = Redis(host='localhost', port=6381, db=0, decode_responses=True)
+        redis_cache = Redis(host='localhost', port=6581, db=0, decode_responses=True)
         reader, writer = await asyncio.open_connection(self.hostname, self.port)
 
         writer.write(b'-k\n')

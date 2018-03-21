@@ -18,6 +18,10 @@ class RISManager():
         await asyncio.gather(
             self.ris_fetcher.run(),
             self.ris_fetcher.run(),
+            self.ris_fetcher.run(),
+            self.ris_fetcher.run(),
+            self.ris_fetcher.run(),
+            self.ris_fetcher.run(),
             # self.ris_fetcher.run(2)
         )
 
