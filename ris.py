@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import asyncio
 from listimport.risfetcher import RISPrefixLookup
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
@@ -14,19 +13,10 @@ class RISManager():
     def __init__(self, loglevel: int=logging.DEBUG):
         self.ris_fetcher = RISPrefixLookup(loglevel=loglevel)
 
-    async def run_fetcher(self):
-        await asyncio.gather(
-            self.ris_fetcher.run(),
-            self.ris_fetcher.run(),
-            self.ris_fetcher.run(),
-            self.ris_fetcher.run(),
-            self.ris_fetcher.run(),
-            self.ris_fetcher.run(),
-            # self.ris_fetcher.run(2)
-        )
+    def run_fetcher(self):
+        self.ris_fetcher.run()
 
 
 if __name__ == '__main__':
     modules_manager = RISManager()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(modules_manager.run_fetcher())
+    modules_manager.run_fetcher()

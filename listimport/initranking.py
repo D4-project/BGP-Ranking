@@ -42,10 +42,11 @@ class PrefixDatabase():
         with gzip.open(BytesIO(r.content), 'r') as f:
             for line in f:
                 prefix, length, asns = line.decode().strip().split('\t')
-                for asn in re.split('[,_]', asns):
-                    network = ip_network('{}/{}'.format(prefix, length))
-                    to_import[asn][address_family].add(str(network))
-                    to_import[asn]['ipcount'] += network.num_addresses
+                # The meaning of AS set and multi-origin AS in unclear. Tacking the first ASN in the list only.
+                asn = re.split('[,_]', asns)[0]
+                network = ip_network('{}/{}'.format(prefix, length))
+                to_import[asn][address_family].add(str(network))
+                to_import[asn]['ipcount'] += network.num_addresses
 
         p = self.redis_cache.pipeline()
         p.sadd('asns', *to_import.keys())
