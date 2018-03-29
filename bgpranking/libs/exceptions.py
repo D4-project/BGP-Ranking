@@ -16,3 +16,7 @@ class ArchiveException(BGPRankingException):
 
 class CreateDirectoryException(BGPRankingException):
     pass
+
+
+class MissingEnv(BGPRankingException):
+    pass

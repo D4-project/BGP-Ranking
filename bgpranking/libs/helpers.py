@@ -4,7 +4,7 @@
 import os
 import sys
 from pathlib import Path
-from .exceptions import CreateDirectoryException
+from .exceptions import CreateDirectoryException, MissingEnv
 from redis import StrictRedis
 from redis.exceptions import ConnectionError
 from datetime import datetime, timedelta
@@ -16,10 +16,14 @@ def get_config_path():
 
 
 def get_list_storage_path():
+    if not os.environ.get('VIRTUAL_ENV'):
+        raise MissingEnv("VIRTUAL_ENV is missing. This project really wants to run from a virtual envoronment.")
     return Path(os.environ['VIRTUAL_ENV'])
 
 
 def get_homedir():
+    if not os.environ.get('BGPRANKING_HOME'):
+        raise MissingEnv("BGPRANKING_HOME is missing. Run the following from the home directory of the repository: export BGPRANKING_HOME='./'")
     return Path(os.environ['BGPRANKING_HOME'])
 
 
