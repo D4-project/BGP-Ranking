@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import asyncio
-from listimport.sanitizer import Sanitizer
+from bgpranking.sanitizer import Sanitizer
+from bgpranking.libs.helpers import long_sleep, shutdown_requested
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
                     level=logging.WARNING, datefmt='%I:%M:%S')
@@ -15,11 +15,15 @@ class SanitizerManager():
         self.loglevel = loglevel
         self.sanitizer = Sanitizer(loglevel)
 
-    async def run_sanitizer(self):
-        await asyncio.gather(self.sanitizer.sanitize())
+    def run_sanitizer(self):
+        self.sanitizer.sanitize()
 
 
 if __name__ == '__main__':
     modules_manager = SanitizerManager()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(modules_manager.run_sanitizer())
+    while True:
+        if shutdown_requested():
+            break
+        modules_manager.run_sanitizer()
+        if not long_sleep(120):
+            break

@@ -10,7 +10,7 @@ import zipfile
 import logging
 import json
 
-from .libs.helpers import safe_create_dir
+from .libs.helpers import safe_create_dir, set_running, unset_running
 
 
 class DeepArchive():
@@ -34,6 +34,8 @@ class DeepArchive():
         self.logger.setLevel(loglevel)
 
     def archive(self):
+        set_running(self.__class__.__name__)
+
         to_archive = defaultdict(list)
         today = date.today()
         last_day_to_keep = date(today.year, today.month, 1) - relativedelta(months=2)
@@ -54,3 +56,4 @@ class DeepArchive():
                     z.write(f, f.name)
             # Delete all the files if the archiving worked out properly
             [f.unlink() for f in path_list]
+        unset_running(self.__class__.__name__)

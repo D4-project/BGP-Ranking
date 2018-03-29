@@ -4,6 +4,7 @@
 import logging
 from redis import Redis
 from redis import StrictRedis
+from .libs.helpers import shutdown_requested, set_running, unset_running
 
 
 class DatabaseInsert():
@@ -19,8 +20,11 @@ class DatabaseInsert():
         self.logger = logging.getLogger('{}'.format(self.__class__.__name__))
         self.logger.setLevel(loglevel)
 
-    async def insert(self):
+    def insert(self):
+        set_running(self.__class__.__name__)
         while True:
+            if shutdown_requested():
+                break
             uuid = self.redis_sanitized.spop('to_insert')
             if not uuid:
                 break
@@ -32,7 +36,6 @@ class DatabaseInsert():
             ris_entry = self.ris_cache.hgetall(data['ip'])
             if not ris_entry:
                 # RIS data not available yet, retry later
-                # FIXME: an IP can sometimes not be announced, we need to discard it
                 self.redis_sanitized.sadd('to_insert', uuid)
                 # In case this IP is missing in the set to process
                 self.ris_cache.sadd('for_ris_lookup', data['ip'])
@@ -53,3 +56,4 @@ class DatabaseInsert():
                                                         ris_entry['prefix']),
                                    '{}|{}'.format(data['ip'], data['datetime']))
             self.redis_sanitized.delete(uuid)
+        unset_running(self.__class__.__name__)

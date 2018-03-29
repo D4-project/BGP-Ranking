@@ -10,7 +10,7 @@ import logging
 from pid import PidFile, PidFileError
 import json
 
-from .libs.helpers import safe_create_dir
+from .libs.helpers import safe_create_dir, set_running, unset_running
 
 
 class Fetcher():
@@ -127,11 +127,12 @@ class Fetcher():
         '''Fetch & store the list'''
         if not self.fetcher:
             return
+        set_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
         try:
             with PidFile('{}.pid'.format(self.listname), piddir=self.meta):
                 if not await self.__newer():
+                    unset_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
                     return
-
                 async with aiohttp.ClientSession() as session:
                     async with session.get(self.url) as r:
                         content = await r.content.read()
@@ -140,5 +141,8 @@ class Fetcher():
                         self.logger.info('Got a new file \o/')
                         with (self.directory / '{}.txt'.format(datetime.now().isoformat())).open('wb') as f:
                             f.write(content)
+                        unset_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
         except PidFileError:
             self.logger.info('Fetcher already running')
+        finally:
+            unset_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))

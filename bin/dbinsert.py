@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import asyncio
-from listimport.dbinsert import DatabaseInsert
+from bgpranking.dbinsert import DatabaseInsert
+from bgpranking.libs.helpers import long_sleep, shutdown_requested
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%I:%M:%S')
@@ -15,11 +15,15 @@ class DBInsertManager():
         self.loglevel = loglevel
         self.dbinsert = DatabaseInsert(loglevel)
 
-    async def run_insert(self):
-        await asyncio.gather(self.dbinsert.insert())
+    def run_insert(self):
+        self.dbinsert.insert()
 
 
 if __name__ == '__main__':
     modules_manager = DBInsertManager()
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(modules_manager.run_insert())
+    while True:
+        if shutdown_requested():
+            break
+        modules_manager.run_insert()
+        if not long_sleep(120):
+            break

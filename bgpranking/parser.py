@@ -14,7 +14,7 @@ import importlib
 from typing import List
 import types
 
-from .libs.helpers import safe_create_dir
+from .libs.helpers import safe_create_dir, set_running, unset_running
 
 
 class RawFilesParser():
@@ -26,7 +26,7 @@ class RawFilesParser():
         self.vendor = module_parameters['vendor']
         self.listname = module_parameters['name']
         if 'parser' in module_parameters:
-            self.parse_raw_file = types.MethodType(importlib.import_module(module_parameters['parser'], 'listimport').parse_raw_file, self)
+            self.parse_raw_file = types.MethodType(importlib.import_module(module_parameters['parser'], 'bgpranking').parse_raw_file, self)
         self.source = '{}-{}'.format(self.vendor, self.listname)
         self.directory = storage_directory / self.vendor / self.listname
         safe_create_dir(self.directory)
@@ -55,7 +55,8 @@ class RawFilesParser():
         self.datetime = datetime.now()
         return self.extract_ipv4(f.getvalue())
 
-    async def parse_raw_files(self):
+    def parse_raw_files(self):
+        set_running(self.source)
         for filepath in self.files_to_parse:
             self.logger.debug('Parsing {}, {} to go.'.format(filepath, len(self.files_to_parse) - 1))
             with open(filepath, 'rb') as f:
@@ -68,6 +69,7 @@ class RawFilesParser():
                 p.sadd('intake', uuid)
             p.execute()
             self._archive(filepath)
+        unset_running(self.source)
 
     def _archive(self, filepath: Path):
         '''After processing, move file to the archive directory'''
