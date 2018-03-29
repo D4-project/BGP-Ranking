@@ -56,7 +56,7 @@ class RawFilesParser():
         return self.extract_ipv4(f.getvalue())
 
     def parse_raw_files(self):
-        set_running(self.source)
+        set_running('{}-{}'.format(self.__class__.__name__, self.source))
         for filepath in self.files_to_parse:
             self.logger.debug('Parsing {}, {} to go.'.format(filepath, len(self.files_to_parse) - 1))
             with open(filepath, 'rb') as f:
@@ -69,7 +69,7 @@ class RawFilesParser():
                 p.sadd('intake', uuid)
             p.execute()
             self._archive(filepath)
-        unset_running(self.source)
+        unset_running('{}-{}'.format(self.__class__.__name__, self.source))
 
     def _archive(self, filepath: Path):
         '''After processing, move file to the archive directory'''
