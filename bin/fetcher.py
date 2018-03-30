@@ -4,21 +4,20 @@
 import logging
 import asyncio
 from pathlib import Path
-from bgpranking.libs.helpers import long_sleep, shutdown_requested
 import aiohttp
 
+from bgpranking.abstractmanager import AbstractManager
 from bgpranking.modulesfetcher import Fetcher
 from bgpranking.libs.helpers import get_config_path, get_list_storage_path
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%I:%M:%S')
 
-logger = logging.getLogger('Fetcher')
 
-
-class ModulesManager():
+class ModulesManager(AbstractManager):
 
     def __init__(self, config_dir: Path=None, storage_directory: Path=None, loglevel: int=logging.DEBUG):
+        super().__init__(loglevel)
         if not config_dir:
             config_dir = get_config_path()
         if not storage_directory:
@@ -27,23 +26,18 @@ class ModulesManager():
         modules_paths = [modulepath for modulepath in modules_config.glob('*.json')]
         self.modules = [Fetcher(path, storage_directory, loglevel) for path in modules_paths]
 
-    async def run_fetchers(self):
-        await asyncio.gather(
-            *[module.fetch_list() for module in self.modules if module.fetcher]
-        )
+    def _to_run_forever(self):
+        loop = asyncio.get_event_loop()
+        try:
+            loop.run_until_complete(asyncio.gather(
+                *[module.fetch_list() for module in self.modules if module.fetcher])
+            )
+        except aiohttp.client_exceptions.ClientConnectorError as e:
+            self.logger.critical('Exception while fetching lists: {}'.format(e))
+        finally:
+            loop.close()
 
 
 if __name__ == '__main__':
     modules_manager = ModulesManager()
-    loop = asyncio.get_event_loop()
-    while True:
-        if shutdown_requested():
-            break
-        try:
-            loop.run_until_complete(modules_manager.run_fetchers())
-        except aiohttp.client_exceptions.ClientConnectorError:
-            logger.critical('Exception while fetching lists.')
-            long_sleep(60)
-            continue
-        if not long_sleep(3600):
-            break
+    modules_manager.run(sleep_in_sec=3600)

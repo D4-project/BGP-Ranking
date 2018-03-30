@@ -2,28 +2,23 @@
 # -*- coding: utf-8 -*-
 
 import logging
+from bgpranking.abstractmanager import AbstractManager
 from bgpranking.dbinsert import DatabaseInsert
-from bgpranking.libs.helpers import long_sleep, shutdown_requested
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%I:%M:%S')
 
 
-class DBInsertManager():
+class DBInsertManager(AbstractManager):
 
     def __init__(self, loglevel: int=logging.DEBUG):
-        self.loglevel = loglevel
+        super().__init__(loglevel)
         self.dbinsert = DatabaseInsert(loglevel)
 
-    def run_insert(self):
+    def _to_run_forever(self):
         self.dbinsert.insert()
 
 
 if __name__ == '__main__':
-    modules_manager = DBInsertManager()
-    while True:
-        if shutdown_requested():
-            break
-        modules_manager.run_insert()
-        if not long_sleep(120):
-            break
+    dbinsert = DBInsertManager()
+    dbinsert.run(sleep_in_sec=120)

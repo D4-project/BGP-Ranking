@@ -6,6 +6,7 @@ from subprocess import Popen
 import time
 from pathlib import Path
 from redis import Redis
+from redis.exceptions import ConnectionError
 
 import argparse
 
@@ -13,7 +14,8 @@ import argparse
 def launch_cache(storage_directory: Path=None):
     if not storage_directory:
         storage_directory = get_homedir()
-    Popen(["./run_redis.sh"], cwd=(storage_directory / 'cache'))
+    if not check_running('127.0.0.1', 6581) and not check_running('127.0.0.1', 6582):
+        Popen(["./run_redis.sh"], cwd=(storage_directory / 'cache'))
 
 
 def shutdown_cache(storage_directory: Path=None):
@@ -25,7 +27,8 @@ def shutdown_cache(storage_directory: Path=None):
 def launch_temp(storage_directory: Path=None):
     if not storage_directory:
         storage_directory = get_homedir()
-    Popen(["./run_redis.sh"], cwd=(storage_directory / 'temp'))
+    if not check_running('127.0.0.1', 6579) and not check_running('127.0.0.1', 6580):
+        Popen(["./run_redis.sh"], cwd=(storage_directory / 'temp'))
 
 
 def shutdown_temp(storage_directory: Path=None):
@@ -37,7 +40,8 @@ def shutdown_temp(storage_directory: Path=None):
 def launch_storage(storage_directory: Path=None):
     if not storage_directory:
         storage_directory = get_homedir()
-    Popen(["./run_ardb.sh"], cwd=(storage_directory / 'storage'))
+    if not check_running('127.0.0.1', 16579):
+        Popen(["./run_ardb.sh"], cwd=(storage_directory / 'storage'))
 
 
 def shutdown_storage(storage_directory: Path=None):
@@ -47,8 +51,11 @@ def shutdown_storage(storage_directory: Path=None):
 
 
 def check_running(host, port):
-    r = Redis(host=host, port=port)
-    return r.ping()
+    try:
+        r = Redis(host=host, port=port)
+        return r.ping()
+    except ConnectionError:
+        return False
 
 
 def launch_all():

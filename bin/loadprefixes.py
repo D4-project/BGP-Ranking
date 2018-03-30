@@ -2,39 +2,29 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from bgpranking.prefixdb import PrefixDatabase
-from bgpranking.libs.helpers import long_sleep, shutdown_requested
 import requests
+
+from bgpranking.abstractmanager import AbstractManager
+from bgpranking.prefixdb import PrefixDatabase
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%I:%M:%S')
 
-logger = logging.getLogger('PrefixDB Fetcher')
 
-
-class PrefixDBManager():
+class PrefixDBManager(AbstractManager):
 
     def __init__(self, loglevel: int=logging.DEBUG):
+        super().__init__(loglevel)
         self.prefix_db = PrefixDatabase(loglevel=loglevel)
 
-    def load_prefixes(self):
-        self.prefix_db.load_prefixes()
-
-    def needs_update(self):
-        return self.prefix_db.update_required()
+    def _to_run_forever(self):
+        try:
+            if self.prefix_db.update_required():
+                self.prefix_db.load_prefixes()
+        except requests.exceptions.ConnectionError as e:
+            self.logger.critical('Unable to download the prefix database: {}'.format(e))
 
 
 if __name__ == '__main__':
     p = PrefixDBManager()
-    while True:
-        if shutdown_requested():
-            break
-        try:
-            if p.needs_update():
-                p.load_prefixes()
-        except requests.exceptions.ConnectionError:
-            logger.critical('Unable to download the prefix database.')
-            long_sleep(60)
-            continue
-        if not long_sleep(3600):
-            break
+    p.run(sleep_in_sec=3600)
