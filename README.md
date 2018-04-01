@@ -1,17 +1,54 @@
 # BGP-Ranking
 New version of BGP Ranking, complete rewrite in python3.6+ and an ARDB backend
 
+# Installation
+
+**IMPORTANT**: run it in a virtualenv, seriously. This install guide assumes you know what it is, and use one.
+
+## Install redis
+
+```bash
+git clone https://github.com/antirez/redis.git
+cd redis
+git checkout 4.0
+make
+make test
+cd ..
+```
+
+## Install ardb
+
+```bash
+git clone https://github.com/yinqiwen/ardb.git
+cd ardb
+make
+cd ..
+```
+
+## Install BGP Ranking
+
+```bash
+git clone https://github.com/D4-project/BGP-Ranking.git
+cd BGP-Ranking
+pip install -r requirements.txt
+pip install -e .
+export BGPRANKING_HOME='./'
+start.py
+```
+
 # Directory structure
 
-*Config files*: `listimport / modules_config / *.json`
+*Config files*: `bgpranking / config / *.json`
 
-*Per-module parsers*: `listimport / parsers`
+*Per-module parsers*: `bgpraking / parsers`
 
-*Libraries* : `listimport / libs`
+*Libraries* : `brpranking / libs`
 
 # Raw dataset directory structure
 
 ## Files to import
+
+*Note*: The default location of `<storage_directory>` is the root directory of the repo.
 
 `<storage_directory> / <vendor> / <listname>`
 

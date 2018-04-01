@@ -21,7 +21,7 @@ class ModulesManager(AbstractManager):
         if not config_dir:
             config_dir = get_config_path()
         if not storage_directory:
-            storage_directory = get_homedir()
+            storage_directory = get_homedir() / 'rawdata'
         modules_config = config_dir / 'modules'
         modules_paths = [modulepath for modulepath in modules_config.glob('*.json')]
         self.modules = [Fetcher(path, storage_directory, loglevel) for path in modules_paths]
