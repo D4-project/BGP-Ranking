@@ -4,7 +4,7 @@
 from bgpranking.archive import DeepArchive
 import logging
 from pathlib import Path
-from bgpranking.libs.helpers import get_config_path, get_list_storage_path
+from bgpranking.libs.helpers import get_config_path, get_homedir
 from pid import PidFile, PidFileError
 
 
@@ -22,7 +22,7 @@ class ModulesArchiver():
         if not config_dir:
             config_dir = get_config_path()
         if not storage_directory:
-            self.storage_directory = get_list_storage_path()
+            self.storage_directory = get_homedir()
         modules_config = config_dir / 'modules'
         modules_paths = [modulepath for modulepath in modules_config.glob('*.json')]
         self.modules = [DeepArchive(path, self.storage_directory, loglevel) for path in modules_paths]

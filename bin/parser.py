@@ -6,7 +6,7 @@ from pathlib import Path
 
 from bgpranking.abstractmanager import AbstractManager
 from bgpranking.parser import RawFilesParser
-from bgpranking.libs.helpers import get_config_path, get_list_storage_path
+from bgpranking.libs.helpers import get_config_path, get_homedir
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
                     level=logging.INFO, datefmt='%I:%M:%S')
@@ -19,7 +19,7 @@ class ParserManager(AbstractManager):
         if not config_dir:
             config_dir = get_config_path()
         if not storage_directory:
-            storage_directory = get_list_storage_path()
+            storage_directory = get_homedir()
         modules_config = config_dir / 'modules'
         modules_paths = [modulepath for modulepath in modules_config.glob('*.json')]
         self.modules = [RawFilesParser(path, storage_directory, loglevel) for path in modules_paths]

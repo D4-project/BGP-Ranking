@@ -12,6 +12,9 @@ import time
 
 
 def get_config_path():
+    if Path('bgpranking', 'config').exists():
+        # Running from the repository
+        return Path('bgpranking', 'config')
     return Path(sys.modules['bgpranking'].__file__).parent / 'config'
 
 
