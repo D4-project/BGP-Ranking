@@ -23,7 +23,10 @@ class AbstractManager(ABC):
         while True:
             if shutdown_requested():
                 break
-            self._to_run_forever()
+            try:
+                self._to_run_forever()
+            except Exception:
+                self.logger.exception('Something went terribly wrong in {}.'.format(self.__class__.__name__))
             if not long_sleep(sleep_in_sec):
                 break
         self.logger.info('Shutting down {}'.format(self.__class__.__name__))
