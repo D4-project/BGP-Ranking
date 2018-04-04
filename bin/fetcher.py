@@ -30,7 +30,8 @@ class ModulesManager(AbstractManager):
         loop = asyncio.get_event_loop()
         try:
             loop.run_until_complete(asyncio.gather(
-                *[module.fetch_list() for module in self.modules if module.fetcher])
+                *[module.fetch_list() for module in self.modules if module.fetcher],
+                return_exceptions=True)
             )
         except aiohttp.client_exceptions.ClientConnectorError as e:
             self.logger.critical('Exception while fetching lists: {}'.format(e))
