@@ -35,8 +35,6 @@ class ModulesManager(AbstractManager):
             )
         except aiohttp.client_exceptions.ClientConnectorError as e:
             self.logger.critical('Exception while fetching lists: {}'.format(e))
-        finally:
-            loop.close()
 
 
 if __name__ == '__main__':
