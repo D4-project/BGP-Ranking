@@ -133,18 +133,15 @@ class Fetcher():
                 if not await self.__newer():
                     unset_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
                     return
-                try:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(self.url) as r:
-                            content = await r.content.read()
-                            if self.__same_as_last(content):
-                                return
-                            self.logger.info('Got a new file \o/')
-                            with (self.directory / '{}.txt'.format(datetime.now().isoformat())).open('wb') as f:
-                                f.write(content)
-                            unset_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
-                except aiohttp.ClientError as e:
-                    self.logger.exception('Fetching the list failed: {}'.format(e))
+                async with aiohttp.ClientSession() as session:
+                    async with session.get(self.url) as r:
+                        content = await r.content.read()
+                        if self.__same_as_last(content):
+                            return
+                        self.logger.info('Got a new file \o/')
+                        with (self.directory / '{}.txt'.format(datetime.now().isoformat())).open('wb') as f:
+                            f.write(content)
+                        unset_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
         except PidFileError:
             self.logger.info('Fetcher already running')
         finally:
