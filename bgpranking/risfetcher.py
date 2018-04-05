@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from redis import Redis
+from redis import StrictRedis
 
 import time
 import pytricia
 import ipaddress
-from .libs.helpers import shutdown_requested, set_running, unset_running
+from .libs.helpers import shutdown_requested, set_running, unset_running, get_socket_path
 
 
 class RISPrefixLookup():
@@ -15,8 +15,8 @@ class RISPrefixLookup():
     def __init__(self, loglevel: int=logging.DEBUG):
         self.__init_logger(loglevel)
         self.logger.info('Starting RIS Prefix fetcher')
-        self.prefix_db = Redis(host='localhost', port=6582, db=0, decode_responses=True)
-        self.longest_prefix_matching = Redis(host='localhost', port=6581, db=0, decode_responses=True)
+        self.prefix_db = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=0, decode_responses=True)
+        self.longest_prefix_matching = StrictRedis(unix_socket_path=get_socket_path('ris'), db=0, decode_responses=True)
         self.tree_v4 = pytricia.PyTricia()
         self.tree_v6 = pytricia.PyTricia(128)
         self.init_tree()

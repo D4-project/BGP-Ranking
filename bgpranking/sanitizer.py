@@ -4,7 +4,7 @@
 from dateutil import parser
 import logging
 from redis import StrictRedis
-from .libs.helpers import shutdown_requested, set_running, unset_running
+from .libs.helpers import shutdown_requested, set_running, unset_running, get_socket_path
 
 import ipaddress
 
@@ -13,9 +13,9 @@ class Sanitizer():
 
     def __init__(self, loglevel: int=logging.DEBUG):
         self.__init_logger(loglevel)
-        self.redis_intake = StrictRedis(host='localhost', port=6579, db=0, decode_responses=True)
-        self.redis_sanitized = StrictRedis(host='localhost', port=6580, db=0, decode_responses=True)
-        self.ris_cache = StrictRedis(host='localhost', port=6581, db=0, decode_responses=True)
+        self.redis_intake = StrictRedis(unix_socket_path=get_socket_path('intake'), db=0, decode_responses=True)
+        self.redis_sanitized = StrictRedis(unix_socket_path=get_socket_path('prepare'), db=0, decode_responses=True)
+        self.ris_cache = StrictRedis(unix_socket_path=get_socket_path('ris'), db=0, decode_responses=True)
         self.logger.debug('Starting import')
 
     def __init_logger(self, loglevel):

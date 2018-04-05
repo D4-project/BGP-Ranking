@@ -6,7 +6,7 @@ from pathlib import Path
 import logging
 import json
 import re
-from redis import Redis
+from redis import StrictRedis
 from uuid import uuid4
 from io import BytesIO
 import importlib
@@ -14,7 +14,7 @@ import importlib
 from typing import List
 import types
 
-from .libs.helpers import safe_create_dir, set_running, unset_running
+from .libs.helpers import safe_create_dir, set_running, unset_running, get_socket_path
 
 
 class RawFilesParser():
@@ -31,7 +31,7 @@ class RawFilesParser():
         self.directory = storage_directory / self.vendor / self.listname
         safe_create_dir(self.directory)
         self.__init_logger(loglevel)
-        self.redis_intake = Redis(host='localhost', port=6579, db=0)
+        self.redis_intake = StrictRedis(unix_socket_path=get_socket_path('intake'), db=0)
         self.logger.debug('Starting intake on {}'.format(self.source))
 
     def __init_logger(self, loglevel):

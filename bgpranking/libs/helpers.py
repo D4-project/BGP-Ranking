@@ -37,23 +37,43 @@ def safe_create_dir(to_create: Path):
 
 
 def set_running(name: str):
-    r = StrictRedis(host='localhost', port=6582, db=1, decode_responses=True)
+    r = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=1, decode_responses=True)
     r.hset('running', name, 1)
 
 
 def unset_running(name: str):
-    r = StrictRedis(host='localhost', port=6582, db=1, decode_responses=True)
+    r = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=1, decode_responses=True)
     r.hdel('running', name)
 
 
 def is_running():
-    r = StrictRedis(host='localhost', port=6582, db=1, decode_responses=True)
+    r = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=1, decode_responses=True)
     return r.hgetall('running')
+
+
+def get_socket_path(name: str):
+    mapping = {
+        'ris': Path('cache', 'ris.sock'),
+        'prefixes': Path('cache', 'prefixes.sock'),
+        'storage': Path('storage', 'storage.sock'),
+        'intake': Path('temp', 'intake.sock'),
+        'prepare': Path('temp', 'prepare.sock'),
+    }
+    return str(get_homedir() / mapping[name])
+
+
+def check_running(name: str):
+    socket_path = get_socket_path(name)
+    try:
+        r = StrictRedis(unix_socket_path=socket_path)
+        return r.ping()
+    except ConnectionError:
+        return False
 
 
 def shutdown_requested():
     try:
-        r = StrictRedis(host='localhost', port=6582, db=1, decode_responses=True)
+        r = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=1, decode_responses=True)
         return r.exists('shutdown')
     except ConnectionRefusedError:
         return True

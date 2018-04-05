@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from bgpranking.libs.helpers import get_homedir
+from bgpranking.libs.helpers import get_homedir, check_running
 from subprocess import Popen
 import time
 from pathlib import Path
-from redis import Redis
-from redis.exceptions import ConnectionError
 
 import argparse
 
@@ -14,7 +12,7 @@ import argparse
 def launch_cache(storage_directory: Path=None):
     if not storage_directory:
         storage_directory = get_homedir()
-    if not check_running('127.0.0.1', 6581) and not check_running('127.0.0.1', 6582):
+    if not check_running('ris') and not check_running('prefixes'):
         Popen(["./run_redis.sh"], cwd=(storage_directory / 'cache'))
 
 
@@ -27,7 +25,7 @@ def shutdown_cache(storage_directory: Path=None):
 def launch_temp(storage_directory: Path=None):
     if not storage_directory:
         storage_directory = get_homedir()
-    if not check_running('127.0.0.1', 6579) and not check_running('127.0.0.1', 6580):
+    if not check_running('intake') and not check_running('prepare'):
         Popen(["./run_redis.sh"], cwd=(storage_directory / 'temp'))
 
 
@@ -40,7 +38,7 @@ def shutdown_temp(storage_directory: Path=None):
 def launch_storage(storage_directory: Path=None):
     if not storage_directory:
         storage_directory = get_homedir()
-    if not check_running('127.0.0.1', 16579):
+    if not check_running('storage'):
         Popen(["./run_ardb.sh"], cwd=(storage_directory / 'storage'))
 
 
@@ -50,14 +48,6 @@ def shutdown_storage(storage_directory: Path=None):
     Popen(["./shutdown_ardb.sh"], cwd=(storage_directory / 'storage'))
 
 
-def check_running(host, port):
-    try:
-        r = Redis(host=host, port=port)
-        return r.ping()
-    except ConnectionError:
-        return False
-
-
 def launch_all():
     launch_cache()
     launch_temp()
@@ -65,26 +55,25 @@ def launch_all():
 
 
 def check_all(stop=False):
-    backends = [['127.0.0.1', 6579, False], ['127.0.0.1', 6580, False],
-                ['127.0.0.1', 6581, False], ['127.0.0.1', 6582, False],
-                ['127.0.0.1', 16579, False]]
+    backends = [['ris', False], ['prefixes', False], ['storage', False],
+                ['intake', False], ['prepare', False]]
     while True:
         for b in backends:
             try:
-                b[2] = check_running(b[0], b[1])
+                b[1] = check_running(b[0])
             except Exception:
-                b[2] = False
+                b[1] = False
         if stop:
-            if not any(b[2] for b in backends):
+            if not any(b[1] for b in backends):
                 break
         else:
-            if all(b[2] for b in backends):
+            if all(b[1] for b in backends):
                 break
         for b in backends:
-            if not stop and not b[2]:
-                print('Waiting on {}:{}'.format(b[0], b[1]))
-            if stop and b[2]:
-                print('Waiting on {}:{}'.format(b[0], b[1]))
+            if not stop and not b[1]:
+                print('Waiting on {}'.format(b[0]))
+            if stop and b[1]:
+                print('Waiting on {}'.format(b[0]))
         time.sleep(1)
 
 

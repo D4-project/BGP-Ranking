@@ -3,5 +3,5 @@
 set -e
 set -x
 
-../../redis/src/redis-server ./6579.conf
-../../redis/src/redis-server ./6580.conf
+../../redis/src/redis-server ./intake.conf
+../../redis/src/redis-server ./prepare.conf

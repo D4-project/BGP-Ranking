@@ -3,4 +3,4 @@
 set -e
 set -x
 
-../../redis/src/redis-cli -p 16579 shutdown save
+../../redis/src/redis-cli -s ./storage.sock shutdown save

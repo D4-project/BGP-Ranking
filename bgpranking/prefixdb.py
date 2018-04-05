@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from redis import Redis
+from redis import StrictRedis
 from ipaddress import ip_network
 import requests
 import gzip
@@ -10,7 +10,7 @@ from io import BytesIO
 from collections import defaultdict
 import re
 import time
-from .libs.helpers import set_running, unset_running
+from .libs.helpers import set_running, unset_running, get_socket_path
 
 
 # Dataset source: Routeviews Prefix to AS mappings Dataset for IPv4 and IPv6
@@ -21,7 +21,7 @@ class PrefixDatabase():
 
     def __init__(self, loglevel: int=logging.DEBUG):
         self.__init_logger(loglevel)
-        self.prefix_cache = Redis(host='localhost', port=6582, db=0, decode_responses=True)
+        self.prefix_cache = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=0, decode_responses=True)
         self.ipv6_url = 'http://data.caida.org/datasets/routing/routeviews6-prefix2as/{}'
         self.ipv4_url = 'http://data.caida.org/datasets/routing/routeviews-prefix2as/{}'
 

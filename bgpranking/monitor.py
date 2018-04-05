@@ -2,17 +2,18 @@
 # -*- coding: utf-8 -*-
 
 from redis import StrictRedis
+from .libs.helpers import get_socket_path
 
 
 class Monitor():
 
     def __init__(self):
-        self.intake = StrictRedis(host='localhost', port=6579, db=0, decode_responses=True)
-        self.sanitize = StrictRedis(host='localhost', port=6580, db=0, decode_responses=True)
-        self.ris_cache = StrictRedis(host='localhost', port=6581, db=0, decode_responses=True)
-        self.prefix_cache = StrictRedis(host='localhost', port=6582, db=0, decode_responses=True)
-        self.running = StrictRedis(host='localhost', port=6582, db=1, decode_responses=True)
-        self.storage = StrictRedis(host='localhost', port=16579, decode_responses=True)
+        self.intake = StrictRedis(unix_socket_path=get_socket_path('intake'), db=0, decode_responses=True)
+        self.sanitize = StrictRedis(unix_socket_path=get_socket_path('prepare'), db=0, decode_responses=True)
+        self.ris_cache = StrictRedis(unix_socket_path=get_socket_path('ris'), db=0, decode_responses=True)
+        self.prefix_cache = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=0, decode_responses=True)
+        self.running = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=1, decode_responses=True)
+        self.storage = StrictRedis(unix_socket_path=get_socket_path('storage'), decode_responses=True)
 
     def get_runinng(self):
         return self.running.hgetall('running')
