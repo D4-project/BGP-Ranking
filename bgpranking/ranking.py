@@ -30,6 +30,7 @@ class Ranking():
         v6_last = self.asn_meta.get('v6|last')
         if not v4_last or not v6_last:
             '''Failsafe if asn_meta has not been populated yet'''
+            unset_running(self.__class__.__name__)
             return
         for source in self.storage.smembers(f'{today}|sources'):
             self.logger.info(f'{today} - Ranking source: {source}')
