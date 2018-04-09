@@ -16,7 +16,6 @@ class Ranking():
         self.storage = StrictRedis(unix_socket_path=get_socket_path('storage'), decode_responses=True)
         self.ranking = StrictRedis(unix_socket_path=get_socket_path('storage'), db=1, decode_responses=True)
         self.asn_meta = StrictRedis(unix_socket_path=get_socket_path('storage'), db=2, decode_responses=True)
-        self.prefix_cache = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=0, decode_responses=True)
         self.config_files = load_config_files(config_dir)
 
     def __init_logger(self, loglevel):
@@ -32,27 +31,33 @@ class Ranking():
         if not v4_last or not v6_last:
             '''Failsafe if asn_meta has not been populated yet'''
             return
-        for source in self.ardb_storage.smembers(f'{today}|sources'):
+        for source in self.storage.smembers(f'{today}|sources'):
             self.logger.info(f'{today} - Ranking source: {source}')
             r_pipeline = self.ranking.pipeline()
-            for asn in self.ardb_storage.smembers(f'{today}|{source}'):
+            for asn in self.storage.smembers(f'{today}|{source}'):
+                if asn == '0':
+                    # Default ASN when no matches. Probably spoofed.
+                    continue
                 self.logger.debug(f'{today} - Ranking source: {source} / ASN: {asn}')
                 asn_rank_v4 = 0.0
                 asn_rank_v6 = 0.0
-                for prefix in self.ardb_storage.smembers(f'{today}|{source}|{asn}'):
+                for prefix in self.storage.smembers(f'{today}|{source}|{asn}'):
                     ips = set([ip_ts.split('|')[0]
-                               for ip_ts in self.ardb_storage.smembers(f'{today}|{source}|{asn}|{prefix}')])
-                    prefix_rank = float(len(ips)) / ip_network(prefix).num_addresses
-                    r_pipeline.zadd(f'{today}|{source}|{asn}|rankv{prefix_rank.version}|prefixes', prefix, prefix_rank)
-                    if prefix_rank.version == 4:
+                               for ip_ts in self.storage.smembers(f'{today}|{source}|{asn}|{prefix}')])
+                    py_prefix = ip_network(prefix)
+                    prefix_rank = float(len(ips)) / py_prefix.num_addresses
+                    r_pipeline.zadd(f'{today}|{source}|{asn}|rankv{py_prefix.version}|prefixes', prefix_rank, prefix)
+                    if py_prefix.version == 4:
                         asn_rank_v4 += len(ips) * self.config_files[source]['impact']
                     else:
                         asn_rank_v6 += len(ips) * self.config_files[source]['impact']
-                asn_rank_v4 /= int(self.asn_meta.get(f'{v4_last}|{asn}|v4|ipcount'))
-                asn_rank_v6 /= int(self.asn_meta.get(f'{v6_last}|{asn}|v6|ipcount'))
-                if asn_rank_v4:
+                v4count = self.asn_meta.get(f'{v4_last}|{asn}|v4|ipcount')
+                v6count = self.asn_meta.get(f'{v6_last}|{asn}|v6|ipcount')
+                if v4count:
+                    asn_rank_v4 /= int(v4count)
                     r_pipeline.set(f'{today}|{source}|{asn}|rankv4', asn_rank_v4)
-                if asn_rank_v6:
+                if v6count:
+                    asn_rank_v6 /= int(v6count)
                     r_pipeline.set(f'{today}|{source}|{asn}|rankv6', asn_rank_v6)
             r_pipeline.execute()
         unset_running(self.__class__.__name__)

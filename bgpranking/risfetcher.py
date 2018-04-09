@@ -19,7 +19,9 @@ class RISPrefixLookup():
         self.longest_prefix_matching = StrictRedis(unix_socket_path=get_socket_path('ris'), db=0, decode_responses=True)
         self.tree_v4 = pytricia.PyTricia()
         self.tree_v6 = pytricia.PyTricia(128)
-        self.init_tree()
+        self.force_init = True
+        self.current_v4 = None
+        self.current_v6 = None
 
     def __init_logger(self, loglevel):
         self.logger = logging.getLogger(f'{self.__class__.__name__}')
@@ -36,7 +38,9 @@ class RISPrefixLookup():
             for prefix in self.prefix_db.smembers(f'{asn}|v6'):
                 self.tree_v6[prefix] = asn
         self.tree_v4['0.0.0.0/0'] = 0
-        self.tree_v4['::/0'] = 0
+        self.tree_v6['::/0'] = 0
+        self.current_v4 = self.prefix_db.get('current|v4')
+        self.current_v6 = self.prefix_db.get('current|v6')
 
     def run(self):
         set_running(self.__class__.__name__)
@@ -46,7 +50,14 @@ class RISPrefixLookup():
             if not self.prefix_db.get('ready'):
                 self.logger.debug('Prefix database not ready.')
                 time.sleep(5)
+                self.force_init = True
                 continue
+            if (self.force_init or
+                    (self.current_v4 != self.prefix_db.get('current|v4')) or
+                    (self.current_v6 != self.prefix_db.get('current|v6'))):
+                self.init_tree()
+                self.force_init = False
+
             ips = self.longest_prefix_matching.spop('for_ris_lookup', 100)
             if not ips:  # TODO: add a check against something to stop the loop
                 self.logger.debug('Nothing to lookup')

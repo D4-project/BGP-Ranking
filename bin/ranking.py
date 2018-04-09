@@ -12,7 +12,7 @@ logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
 
 class RankingManager(AbstractManager):
 
-    def __init__(self, config_dir: Path=None, loglevel: int=logging.DEBUG):
+    def __init__(self, config_dir: Path=None, loglevel: int=logging.INFO):
         super().__init__(loglevel)
         self.ranking = Ranking(config_dir, loglevel)
 

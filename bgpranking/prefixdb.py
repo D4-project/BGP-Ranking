@@ -50,7 +50,7 @@ class PrefixDatabase():
 
     def _init_routes(self, address_family, root_url, path) -> bool:
         self.logger.debug(f'Loading {path}')
-        date = parse(re.findall('http://data.caida.org/datasets/routing/routeviews[6]?-prefix2as/(?:.*)/(?:.*)/routeviews-rv[2,6]-(.*)-(?:.*).pfx2as.gz', path)[0]).date().isoformat()
+        date = parse(re.findall('(?:.*)/(?:.*)/routeviews-rv[2,6]-(.*)-(?:.*).pfx2as.gz', path)[0]).date().isoformat()
         r = requests.get(root_url.format(path))
         to_import = defaultdict(lambda: {address_family: set(), 'ipcount': 0})
         with gzip.open(BytesIO(r.content), 'r') as f:
@@ -65,7 +65,7 @@ class PrefixDatabase():
         p = self.prefix_cache.pipeline()
         p_asn_meta = self.asn_meta.pipeline()
         p.sadd('asns', *to_import.keys())
-        p_asn_meta.sadd(f'{address_family}|last', date)  # Not necessarely today
+        p_asn_meta.set(f'{address_family}|last', date)  # Not necessarely today
         p_asn_meta.sadd(f'{date}|asns|{address_family}', *to_import.keys())
         for asn, data in to_import.items():
             p.sadd(f'{asn}|{address_family}', *data[address_family])
@@ -80,6 +80,8 @@ class PrefixDatabase():
     def load_prefixes(self):
         set_running(self.__class__.__name__)
         self.prefix_cache.delete('ready')
+        self.asn_meta.delete('v4|last')
+        self.asn_meta.delete('v6|last')
         self.logger.info('Prefix update starting in a few seconds.')
         time.sleep(15)
         v4_is_new, v4_path = self._has_new('v4', self.ipv4_url)
