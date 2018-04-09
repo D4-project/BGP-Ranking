@@ -16,7 +16,7 @@ class DatabaseInsert():
         self.logger.debug('Starting import')
 
     def __init_logger(self, loglevel):
-        self.logger = logging.getLogger('{}'.format(self.__class__.__name__))
+        self.logger = logging.getLogger(f'{self.__class__.__name__}')
         self.logger.setLevel(loglevel)
 
     def insert(self):
@@ -38,7 +38,7 @@ class DatabaseInsert():
             for i, uuid in enumerate(uuids):
                 data = sanitized_data[i]
                 if not data:
-                    self.logger.warning('No data for UUID {}. This should not happen, but lets move on.'.format(uuid))
+                    self.logger.warning(f'No data for UUID {uuid}. This should not happen, but lets move on.')
                     continue
                 # Data gathered from the RIS queries:
                 # * IP Block of the IP -> https://stat.ripe.net/docs/data_api#NetworkInfo
@@ -52,17 +52,16 @@ class DatabaseInsert():
                     prefix_missing.append(data['ip'])
                     continue
                 # Format: <YYYY-MM-DD>|sources -> set([<source>, ...])
-                ardb_pipeline.sadd('{}|sources'.format(data['date']), data['source'])
+                ardb_pipeline.sadd(f"{data['date']}|sources", data['source'])
 
                 # Format: <YYYY-MM-DD>|<source> -> set([<asn>, ...])
-                ardb_pipeline.sadd('{}|{}'.format(data['date'], data['source']), ris_entry['asn'])
+                ardb_pipeline.sadd(f"{data['date']}|{data['source']}", ris_entry['asn'])
                 # Format: <YYYY-MM-DD>|<source>|<asn> -> set([<prefix>, ...])
-                ardb_pipeline.sadd('{}|{}|{}'.format(data['date'], data['source'], ris_entry['asn']),
-                                   ris_entry['prefix'])
+                ardb_pipeline.sadd(f"{data['date']}|{data['source']}|{ris_entry['asn']}", ris_entry['prefix'])
 
                 # Format: <YYYY-MM-DD>|<source>|<asn>|<prefix> -> set([<ip>|<datetime>, ...])
-                ardb_pipeline.sadd('{}|{}|{}|{}'.format(data['date'], data['source'], ris_entry['asn'], ris_entry['prefix']),
-                                   '{}|{}'.format(data['ip'], data['datetime']))
+                ardb_pipeline.sadd(f"{data['date']}|{data['source']}|{ris_entry['asn']}|{ris_entry['prefix']}",
+                                   f"{data['ip']}|{data['datetime']}")
                 done.append(uuid)
             ardb_pipeline.execute()
             if prefix_missing:

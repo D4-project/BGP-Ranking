@@ -27,16 +27,15 @@ class RawFilesParser():
         self.listname = module_parameters['name']
         if 'parser' in module_parameters:
             self.parse_raw_file = types.MethodType(importlib.import_module(module_parameters['parser'], 'bgpranking').parse_raw_file, self)
-        self.source = '{}-{}'.format(self.vendor, self.listname)
+        self.source = f'{self.vendor}-{self.listname}'
         self.directory = storage_directory / self.vendor / self.listname
         safe_create_dir(self.directory)
         self.__init_logger(loglevel)
         self.redis_intake = StrictRedis(unix_socket_path=get_socket_path('intake'), db=0)
-        self.logger.debug('Starting intake on {}'.format(self.source))
+        self.logger.debug(f'Starting intake on {self.source}')
 
     def __init_logger(self, loglevel):
-        self.logger = logging.getLogger('{}-{}-{}'.format(self.__class__.__name__,
-                                                          self.vendor, self.listname))
+        self.logger = logging.getLogger(f'{self.__class__.__name__}-{self.vendor}-{self.listname}')
         self.logger.setLevel(loglevel)
 
     @property
@@ -56,7 +55,7 @@ class RawFilesParser():
         return self.extract_ipv4(f.getvalue())
 
     def parse_raw_files(self):
-        set_running('{}-{}'.format(self.__class__.__name__, self.source))
+        set_running(f'{self.__class__.__name__}-{self.source}')
         for filepath in self.files_to_parse:
             self.logger.debug('Parsing {}, {} to go.'.format(filepath, len(self.files_to_parse) - 1))
             with open(filepath, 'rb') as f:
@@ -69,7 +68,7 @@ class RawFilesParser():
                 p.sadd('intake', uuid)
             p.execute()
             self._archive(filepath)
-        unset_running('{}-{}'.format(self.__class__.__name__, self.source))
+        unset_running(f'{self.__class__.__name__}-{self.source}')
 
     def _archive(self, filepath: Path):
         '''After processing, move file to the archive directory'''

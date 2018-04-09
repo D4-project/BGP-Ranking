@@ -22,7 +22,7 @@ class PrefixDBManager(AbstractManager):
             if self.prefix_db.update_required():
                 self.prefix_db.load_prefixes()
         except requests.exceptions.ConnectionError as e:
-            self.logger.critical('Unable to download the prefix database: {}'.format(e))
+            self.logger.critical(f'Unable to download the prefix database: {e}')
 
 
 if __name__ == '__main__':

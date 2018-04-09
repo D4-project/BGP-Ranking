@@ -22,7 +22,7 @@ class RISPrefixLookup():
         self.init_tree()
 
     def __init_logger(self, loglevel):
-        self.logger = logging.getLogger('{}'.format(self.__class__.__name__))
+        self.logger = logging.getLogger(f'{self.__class__.__name__}')
         self.logger.setLevel(loglevel)
 
     def cache_prefix(self, pipe, ip, prefix, asns):
@@ -31,9 +31,9 @@ class RISPrefixLookup():
 
     def init_tree(self):
         for asn in self.prefix_db.smembers('asns'):
-            for prefix in self.prefix_db.smembers('{}|{}'.format(asn, 'v4')):
+            for prefix in self.prefix_db.smembers(f'{asn}|v4'):
                 self.tree_v4[prefix] = asn
-            for prefix in self.prefix_db.smembers('{}|{}'.format(asn, 'v6')):
+            for prefix in self.prefix_db.smembers(f'{asn}|v6'):
                 self.tree_v6[prefix] = asn
         self.tree_v4['0.0.0.0/0'] = 0
         self.tree_v4['::/0'] = 0
@@ -54,7 +54,7 @@ class RISPrefixLookup():
             pipe = self.longest_prefix_matching.pipeline(transaction=False)
             for ip in ips:
                 if self.longest_prefix_matching.exists(ip):
-                    self.logger.debug('Already cached: {}'.format(ip))
+                    self.logger.debug(f'Already cached: {ip}')
                     continue
                 ip = ipaddress.ip_address(ip)
                 if ip.version == 4:
@@ -64,7 +64,7 @@ class RISPrefixLookup():
                     prefix = self.tree_v6.get_key(ip)
                     asns = self.tree_v6.get(ip)
                 if not prefix:
-                    self.logger.warning('The IP {} does not seem to be announced'.format(ip))
+                    self.logger.warning(f'The IP {ip} does not seem to be announced')
                     continue
                 self.cache_prefix(pipe, ip, prefix, asns)
             pipe.execute()

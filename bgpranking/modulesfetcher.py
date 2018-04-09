@@ -31,7 +31,7 @@ class Fetcher():
             self.fetcher = False
             return
         self.url = module_parameters['url']
-        self.logger.debug('Starting fetcher on {}'.format(self.url))
+        self.logger.debug(f'Starting fetcher on {self.url}')
         self.directory = storage_directory / self.vendor / self.listname
         safe_create_dir(self.directory)
         self.meta = self.directory / 'meta'
@@ -41,8 +41,7 @@ class Fetcher():
         self.first_fetch = True
 
     def __init_logger(self, loglevel):
-        self.logger = logging.getLogger('{}-{}-{}'.format(self.__class__.__name__,
-                                                          self.vendor, self.listname))
+        self.logger = logging.getLogger(f'{self.__class__.__name__}-{self.vendor}-{self.listname}')
         self.logger.setLevel(loglevel)
 
     async def __get_last_modified(self):
@@ -81,7 +80,7 @@ class Fetcher():
         last_modified = await self.__get_last_modified()
         if not last_modified:
             # No more Last-Modified header Oo
-            self.logger.warning('{}: Last-Modified header was present, isn\'t anymore!'.format(self.listname))
+            self.logger.warning(f'{self.listname}: Last-Modified header was present, isn\'t anymore!')
             last_modified_path.unlink()
             return True
         if last_modified > last_modified_file:
@@ -127,11 +126,11 @@ class Fetcher():
         '''Fetch & store the list'''
         if not self.fetcher:
             return
-        set_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
+        set_running(f'{self.__class__.__name__}-{self.vendor}-{self.listname}')
         try:
-            with PidFile('{}.pid'.format(self.listname), piddir=self.meta):
+            with PidFile(f'{self.listname}.pid', piddir=self.meta):
                 if not await self.__newer():
-                    unset_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
+                    unset_running(f'{self.__class__.__name__}-{self.vendor}-{self.listname}')
                     return
                 async with aiohttp.ClientSession() as session:
                     async with session.get(self.url) as r:
@@ -141,8 +140,8 @@ class Fetcher():
                         self.logger.info('Got a new file \o/')
                         with (self.directory / '{}.txt'.format(datetime.now().isoformat())).open('wb') as f:
                             f.write(content)
-                        unset_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
+                        unset_running(f'{self.__class__.__name__}-{self.vendor}-{self.listname}')
         except PidFileError:
             self.logger.info('Fetcher already running')
         finally:
-            unset_running('{}-{}-{}'.format(self.__class__.__name__, self.vendor, self.listname))
+            unset_running(f'{self.__class__.__name__}-{self.vendor}-{self.listname}')

@@ -71,9 +71,9 @@ def check_all(stop=False):
                 break
         for b in backends:
             if not stop and not b[1]:
-                print('Waiting on {}'.format(b[0]))
+                print(f"Waiting on {b[0]}")
             if stop and b[1]:
-                print('Waiting on {}'.format(b[0]))
+                print(f"Waiting on {b[0]}")
         time.sleep(1)
 
 

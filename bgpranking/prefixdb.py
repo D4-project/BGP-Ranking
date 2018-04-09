@@ -11,7 +11,7 @@ from collections import defaultdict
 import re
 import time
 from .libs.helpers import set_running, unset_running, get_socket_path
-
+from dateutil.parser import parse
 
 # Dataset source: Routeviews Prefix to AS mappings Dataset for IPv4 and IPv6
 # http://www.caida.org/data/routing/routeviews-prefix2as.xml
@@ -22,11 +22,12 @@ class PrefixDatabase():
     def __init__(self, loglevel: int=logging.DEBUG):
         self.__init_logger(loglevel)
         self.prefix_cache = StrictRedis(unix_socket_path=get_socket_path('prefixes'), db=0, decode_responses=True)
+        self.asn_meta = StrictRedis(unix_socket_path=get_socket_path('storage'), db=2, decode_responses=True)
         self.ipv6_url = 'http://data.caida.org/datasets/routing/routeviews6-prefix2as/{}'
         self.ipv4_url = 'http://data.caida.org/datasets/routing/routeviews-prefix2as/{}'
 
     def __init_logger(self, loglevel):
-        self.logger = logging.getLogger('{}'.format(self.__class__.__name__))
+        self.logger = logging.getLogger(f'{self.__class__.__name__}')
         self.logger.setLevel(loglevel)
 
     def update_required(self):
@@ -42,13 +43,14 @@ class PrefixDatabase():
         r = requests.get(root_url.format('pfx2as-creation.log'))
         last_entry = r.text.split('\n')[-2]
         path = last_entry.split('\t')[-1]
-        if path == self.prefix_cache.get('current|{}'.format(address_family)):
-            self.logger.debug('Same file already loaded: {}'.format(path))
+        if path == self.prefix_cache.get(f'current|{address_family}'):
+            self.logger.debug(f'Same file already loaded: {path}')
             return False, path
         return True, path
 
-    def _init_routes(self, address_family, root_url, path):
-        self.logger.debug('Loading {}'.format(path))
+    def _init_routes(self, address_family, root_url, path) -> bool:
+        self.logger.debug(f'Loading {path}')
+        date = parse(re.findall('http://data.caida.org/datasets/routing/routeviews[6]?-prefix2as/(?:.*)/(?:.*)/routeviews-rv[2,6]-(.*)-(?:.*).pfx2as.gz', path)[0]).date().isoformat()
         r = requests.get(root_url.format(path))
         to_import = defaultdict(lambda: {address_family: set(), 'ipcount': 0})
         with gzip.open(BytesIO(r.content), 'r') as f:
@@ -56,17 +58,23 @@ class PrefixDatabase():
                 prefix, length, asns = line.decode().strip().split('\t')
                 # The meaning of AS set and multi-origin AS in unclear. Taking the first ASN in the list only.
                 asn = re.split('[,_]', asns)[0]
-                network = ip_network('{}/{}'.format(prefix, length))
+                network = ip_network(f'{prefix}/{length}')
                 to_import[asn][address_family].add(str(network))
                 to_import[asn]['ipcount'] += network.num_addresses
 
         p = self.prefix_cache.pipeline()
+        p_asn_meta = self.asn_meta.pipeline()
         p.sadd('asns', *to_import.keys())
+        p_asn_meta.sadd(f'{address_family}|last', date)  # Not necessarely today
+        p_asn_meta.sadd(f'{date}|asns|{address_family}', *to_import.keys())
         for asn, data in to_import.items():
-            p.sadd('{}|{}'.format(asn, address_family), *data[address_family])
-            p.set('{}|{}|ipcount'.format(asn, address_family), data['ipcount'])
-        p.set('current|{}'.format(address_family), path)
+            p.sadd(f'{asn}|{address_family}', *data[address_family])
+            p.set(f'{asn}|{address_family}|ipcount', data['ipcount'])
+            p_asn_meta.sadd(f'{date}|{asn}|{address_family}', *data[address_family])
+            p_asn_meta.set(f'{date}|{asn}|{address_family}|ipcount', data['ipcount'])
+        p.set(f'current|{address_family}', path)
         p.execute()
+        p_asn_meta.execute()
         return True
 
     def load_prefixes(self):

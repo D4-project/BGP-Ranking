@@ -19,7 +19,7 @@ class Sanitizer():
         self.logger.debug('Starting import')
 
     def __init_logger(self, loglevel):
-        self.logger = logging.getLogger('{}'.format(self.__class__.__name__))
+        self.logger = logging.getLogger(f'{self.__class__.__name__}')
         self.logger.setLevel(loglevel)
 
     def sanitize(self):
@@ -37,10 +37,10 @@ class Sanitizer():
                 try:
                     ip = ipaddress.ip_address(data['ip'])
                 except ValueError:
-                    self.logger.info('Invalid IP address: {}'.format(data['ip']))
+                    self.logger.info(f"Invalid IP address: {data['ip']}")
                     continue
                 if not ip.is_global:
-                    self.logger.info('The IP address {} is not global'.format(data['ip']))
+                    self.logger.info(f"The IP address {data['ip']} is not global")
                     continue
 
                 date = parser.parse(data['datetime']).date().isoformat()

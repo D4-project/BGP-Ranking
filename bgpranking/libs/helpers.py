@@ -9,6 +9,20 @@ from redis import StrictRedis
 from redis.exceptions import ConnectionError
 from datetime import datetime, timedelta
 import time
+import json
+
+
+def load_config_files(config_dir: Path=None) -> dict:
+    if not config_dir:
+        config_dir = get_config_path()
+    modules_config = config_dir / 'modules'
+    modules_paths = [modulepath for modulepath in modules_config.glob('*.json')]
+    configs = {}
+    for p in modules_paths:
+        with open(p, 'r') as f:
+            j = json.load(f)
+            configs[f"{j['vendor']}-{j['name']}"] = j
+    return configs
 
 
 def get_config_path():
@@ -32,7 +46,7 @@ def get_homedir():
 
 def safe_create_dir(to_create: Path):
     if to_create.exists() and not to_create.is_dir():
-        raise CreateDirectoryException('The path {} already exists and is not a directory'.format(to_create))
+        raise CreateDirectoryException(f'The path {to_create} already exists and is not a directory')
     os.makedirs(to_create, exist_ok=True)
 
 

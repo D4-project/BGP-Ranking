@@ -29,8 +29,7 @@ class DeepArchive():
         self.__init_logger(loglevel)
 
     def __init_logger(self, loglevel):
-        self.logger = logging.getLogger('{}-{}-{}'.format(self.__class__.__name__,
-                                                          self.vendor, self.listname))
+        self.logger = logging.getLogger(f'{self.__class__.__name__}-{self.vendor}-{self.listname}')
         self.logger.setLevel(loglevel)
 
     def archive(self):
