@@ -20,3 +20,7 @@ class CreateDirectoryException(BGPRankingException):
 
 class MissingEnv(BGPRankingException):
     pass
+
+
+class InvalidDateFormat(BGPRankingException):
+    pass
