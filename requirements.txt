@@ -1,4 +1,5 @@
 git+https://github.com/andymccurdy/redis-py.git
+hiredis
 python-dateutil
 git+https://github.com/jsommers/pytricia.git
 git+https://github.com/trbs/pid.git
