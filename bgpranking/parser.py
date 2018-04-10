@@ -51,7 +51,8 @@ class RawFilesParser():
         return ['.'.join(str(int(part)) for part in ip.split(b'.')).encode() for ip in ips]
 
     def parse_raw_file(self, f: BytesIO):
-        self.datetime = datetime.now()
+        # If the list doesn't provide a time, fallback to current day, midnight
+        self.datetime = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         return self.extract_ipv4(f.getvalue())
 
     def parse_raw_files(self):
