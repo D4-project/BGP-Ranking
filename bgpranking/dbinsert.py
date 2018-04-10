@@ -24,7 +24,7 @@ class DatabaseInsert():
         while True:
             if shutdown_requested():
                 break
-            uuids = self.redis_sanitized.spop('to_insert', 1000)
+            uuids = self.redis_sanitized.spop('to_insert', 100)
             if not uuids:
                 break
             p = self.redis_sanitized.pipeline(transaction=False)
