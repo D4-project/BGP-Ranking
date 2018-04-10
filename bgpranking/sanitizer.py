@@ -52,6 +52,6 @@ class Sanitizer():
                                       'date': date, 'datetime': data['datetime']})
                 pipeline.sadd('to_insert', uuid)
             pipeline.execute()
-            self.redis_intake.delete(*uuid)
+            self.redis_intake.delete(*uuids)
             self.ris_cache.sadd('for_ris_lookup', *for_ris_lookup)
         unset_running(self.__class__.__name__)
