@@ -62,20 +62,20 @@ class Ranking():
                     r_pipeline.zadd(f'{today}|{source}|{asn}|rankv{py_prefix.version}|prefixes', prefix_rank, prefix)
                     if py_prefix.version == 4:
                         asn_rank_v4 += len(ips) * self.config_files[source]['impact']
-                        r_pipeline.zincrby(prefixes_aggregation_key_v4, prefix_rank * self.config_files[source]['impact'], prefix)
+                        r_pipeline.zincrby(prefixes_aggregation_key_v4, prefix, prefix_rank * self.config_files[source]['impact'])
                     else:
                         asn_rank_v6 += len(ips) * self.config_files[source]['impact']
-                        r_pipeline.zincrby(prefixes_aggregation_key_v6, prefix_rank * self.config_files[source]['impact'], prefix)
+                        r_pipeline.zincrby(prefixes_aggregation_key_v6, prefix, prefix_rank * self.config_files[source]['impact'])
                 v4count = self.asn_meta.get(f'{v4_last}|{asn}|v4|ipcount')
                 v6count = self.asn_meta.get(f'{v6_last}|{asn}|v6|ipcount')
                 if v4count:
                     asn_rank_v4 /= int(v4count)
                     r_pipeline.set(f'{today}|{source}|{asn}|rankv4', asn_rank_v4)
-                    r_pipeline.zincrby(asns_aggregation_key_v4, asn_rank_v4, asn)
+                    r_pipeline.zincrby(asns_aggregation_key_v4, asn, asn_rank_v4)
                 if v6count:
                     asn_rank_v6 /= int(v6count)
                     r_pipeline.set(f'{today}|{source}|{asn}|rankv6', asn_rank_v6)
-                    r_pipeline.zincrby(asns_aggregation_key_v6, asn_rank_v6, asn)
+                    r_pipeline.zincrby(asns_aggregation_key_v6, asn, asn_rank_v6)
             r_pipeline.execute()
 
         unset_running(self.__class__.__name__)
