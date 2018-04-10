@@ -69,13 +69,15 @@ class Ranking():
                 v4count = self.asn_meta.get(f'{v4_last}|{asn}|v4|ipcount')
                 v6count = self.asn_meta.get(f'{v6_last}|{asn}|v6|ipcount')
                 if v4count:
-                    asn_rank_v4 /= int(v4count)
-                    r_pipeline.set(f'{today}|{source}|{asn}|rankv4', asn_rank_v4)
-                    r_pipeline.zincrby(asns_aggregation_key_v4, asn, asn_rank_v4)
+                    asn_rank_v4 /= float(v4count)
+                    if asn_rank_v4:
+                        r_pipeline.set(f'{today}|{source}|{asn}|rankv4', asn_rank_v4)
+                        r_pipeline.zincrby(asns_aggregation_key_v4, asn, asn_rank_v4)
                 if v6count:
-                    asn_rank_v6 /= int(v6count)
-                    r_pipeline.set(f'{today}|{source}|{asn}|rankv6', asn_rank_v6)
-                    r_pipeline.zincrby(asns_aggregation_key_v6, asn, asn_rank_v6)
+                    asn_rank_v6 /= float(v6count)
+                    if asn_rank_v6:
+                        r_pipeline.set(f'{today}|{source}|{asn}|rankv6', asn_rank_v6)
+                        r_pipeline.zincrby(asns_aggregation_key_v6, asn, asn_rank_v6)
             r_pipeline.execute()
 
         unset_running(self.__class__.__name__)
