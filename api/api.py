@@ -60,7 +60,7 @@ class BGPRanking():
         '''Get the rank of a single ASN, weighted by source.'''
         d = self.__normalize_date(date)
         key = f'{d}|asns|{ipversion.value}'
-        return self.ranking.zrank(key, asn)
+        return self.ranking.zscore(key, asn)
 
     def asn_rank_by_source(self, asn: int, source: str, date: Dates= datetime.date.today(), ipversion: IPVersion=IPVersion.v4):
         '''Get the rank of a single ASN, not weighted by source.'''
