@@ -20,3 +20,10 @@ def index():
     q = Querying()
     ranks = q.asns_global_ranking(limit=-1)
     return render_template('index.html', ranks=ranks)
+
+
+@app.route('/asn/<int:asn>', methods=['GET'])
+def asn_details(asn):
+    q = Querying()
+    ranks = q.asn_details(asn)
+    return render_template('asn.html', asn=asn, ranks=ranks)

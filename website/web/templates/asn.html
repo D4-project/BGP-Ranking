@@ -1,19 +1,19 @@
 {% extends "main.html" %}
 
-{% block title %}BGP Ranking{% endblock %}
+{% block title %}Ranking - {{ asn }}{% endblock %}
 
 {% block content %}
   <center>
-    <h1>BGP Ranking</h1></br></br>
+      <h1>Ranking - {{asn}}</h1></br></br>
   </center>
   <table class="table">
       <tr>
-          <th>ASN</th>
+          <th>Prefix</th>
           <th>Rank</th>
       </tr>
-      {% for asn, rank in ranks %}
+      {% for prefix, rank in ranks %}
         <tr>
-            <td><a href="{{ url_for('asn', asn=asn) }}">{{ asn }}</a></td>
+            <td>{{ prefix }}</td>
             <td>{{ rank }}</td>
         </tr>
       {% endfor %}
