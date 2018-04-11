@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
 
 from bgpranking.querying import Querying
@@ -22,8 +22,12 @@ def index():
     return render_template('index.html', ranks=ranks)
 
 
-@app.route('/asn/<int:asn>', methods=['GET'])
-def asn_details(asn):
+@app.route('/asn', methods=['GET', 'POST'])
+def asn_details():
     q = Querying()
+    if request.method == 'POST':
+        asn = request.form['asn']
+    if request.method == 'GET':
+        asn = request.args['asn']
     ranks = q.asn_details(asn)
     return render_template('asn.html', asn=asn, ranks=ranks)

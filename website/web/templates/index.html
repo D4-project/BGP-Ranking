@@ -6,7 +6,7 @@
   <center>
     <h1>BGP Ranking</h1></br></br>
   </center>
-  <form action="{{ url_for('asn_details', asn=asn) }}" method=get>
+  <form action="{{ url_for('asn_details') }}" method=post>
       ASN to search: <input type=number name=asn>
       <input type="submit" value="Search">
   </form>
