@@ -9,8 +9,8 @@ from dateutil.parser import parse
 import logging
 from redis import StrictRedis
 
-from bgpranking.libs.helpers import get_socket_path
-from bgpranking.libs.exceptions import InvalidDateFormat
+from .libs.helpers import get_socket_path
+from .libs.exceptions import InvalidDateFormat
 
 Dates = TypeVar('Dates', datetime.datetime, datetime.date, str)
 
@@ -20,7 +20,7 @@ class IPVersion(Enum):
     v6 = 'v6'
 
 
-class BGPRanking():
+class Querying():
 
     def __init__(self, loglevel: int=logging.DEBUG):
         self.__init_logger(loglevel)

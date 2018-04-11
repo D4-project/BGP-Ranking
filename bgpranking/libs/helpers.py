@@ -40,7 +40,10 @@ def get_list_storage_path():
 
 def get_homedir():
     if not os.environ.get('BGPRANKING_HOME'):
-        raise MissingEnv("BGPRANKING_HOME is missing. Run the following from the home directory of the repository: export BGPRANKING_HOME='./'")
+        guessed_home = Path(__file__).resolve().parent.parent.parent
+        raise MissingEnv(f"BGPRANKING_HOME is missing. \
+Run the following command (assuming you run the code from the clonned repository):\
+    export BGPRANKING_HOME='{guessed_home}'")
     return Path(os.environ['BGPRANKING_HOME'])
 
 

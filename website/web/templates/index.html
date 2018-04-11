@@ -1,0 +1,21 @@
+{% extends "main.html" %}
+
+{% block title %}BGP Ranking{% endblock %}
+
+{% block content %}
+  <center>
+    <h1>BGP Ranking</h1></br></br>
+  </center>
+  <table class="table">
+      <tr>
+          <th>ASN</th>
+          <th>Rank</th>
+      </tr>
+      {% for asn, rank in ranks %}
+        <tr>
+            <td>{{asn}}</td>
+            <td>{{rank}}</td>
+        </tr>
+      {% endfor %}
+  </table>
+{% endblock %}
