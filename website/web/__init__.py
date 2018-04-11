@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
 from flask import Flask, render_template, request
 from flask_bootstrap import Bootstrap
+from flask_datepicker import datepicker
 
 from bgpranking.querying import Querying
 
@@ -11,6 +11,7 @@ app = Flask(__name__)
 
 Bootstrap(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+datepicker(app=app, local=['static/jquery-ui.js', 'static/jquery-ui.css'])
 
 app.debug = True
 

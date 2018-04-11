@@ -2,6 +2,8 @@
 
 {% block scripts %}
     {{ super() }}
+    {{ datepicker.loader() }}
+    {{ datepicker.picker(id=".dp") }}
 {% endblock %}
 
 {% block head %}
