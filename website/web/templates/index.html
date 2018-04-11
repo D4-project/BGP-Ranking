@@ -6,6 +6,10 @@
   <center>
     <h1>BGP Ranking</h1></br></br>
   </center>
+  <form action="{{ url_for('asn_details', asn=asn) }}" method=get>
+      ASN to search: <input type=number name=asn>
+      <input type="submit" value="Search">
+  </form>
   <table class="table">
       <tr>
           <th>ASN</th>
@@ -13,7 +17,7 @@
       </tr>
       {% for asn, rank in ranks %}
         <tr>
-            <td><a href="{{ url_for('asn', asn=asn) }}">{{ asn }}</a></td>
+            <td><a href="{{ url_for('asn_details', asn=asn) }}">{{ asn }}</a></td>
             <td>{{ rank }}</td>
         </tr>
       {% endfor %}
