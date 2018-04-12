@@ -50,7 +50,7 @@ class Querying():
         '''Aggregated ranking of all the prefixes anounced by the given ASN, weighted by source.'''
         d = self.__normalize_date(date)
         if source:
-            key = f'{d}|{source}|{asn}|rank{ipversion}|prefixes'
+            key = f'{d}|{source}|{asn}|{ipversion}|prefixes'
         else:
             key = f'{d}|{asn}|{ipversion}'
         return self.ranking.zrevrange(key, start=0, end=-1, withscores=True)
@@ -59,7 +59,7 @@ class Querying():
         '''Get the rank of a single ASN, weighted by source.'''
         d = self.__normalize_date(date)
         if source:
-            key = f'{d}|{source}|{asn}|rank{ipversion}'
+            key = f'{d}|{source}|{asn}|{ipversion}'
         else:
             key = f'{d}|asns|{ipversion}'
         return self.ranking.zscore(key, asn)

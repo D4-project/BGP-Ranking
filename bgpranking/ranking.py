@@ -55,7 +55,7 @@ class Ranking():
                                for ip_ts in self.storage.smembers(f'{today}|{source}|{asn}|{prefix}')])
                     py_prefix = ip_network(prefix)
                     prefix_rank = float(len(ips)) / py_prefix.num_addresses
-                    r_pipeline.zadd(f'{today}|{source}|{asn}|rankv{py_prefix.version}|prefixes', prefix_rank, prefix)
+                    r_pipeline.zadd(f'{today}|{source}|{asn}|v{py_prefix.version}|prefixes', prefix_rank, prefix)
                     if py_prefix.version == 4:
                         asn_rank_v4 += len(ips) * self.config_files[source]['impact']
                         r_pipeline.zincrby(prefixes_aggregation_key_v4, prefix, prefix_rank * self.config_files[source]['impact'])
@@ -66,13 +66,13 @@ class Ranking():
                 if v4count:
                     asn_rank_v4 /= float(v4count)
                     if asn_rank_v4:
-                        r_pipeline.set(f'{today}|{source}|{asn}|rankv4', asn_rank_v4)
+                        r_pipeline.set(f'{today}|{source}|{asn}|v4', asn_rank_v4)
                         r_pipeline.zincrby(asns_aggregation_key_v4, asn, asn_rank_v4)
                         r_pipeline.zadd(source_aggregation_key_v4, asn_rank_v4, asn)
                 if v6count:
                     asn_rank_v6 /= float(v6count)
                     if asn_rank_v6:
-                        r_pipeline.set(f'{today}|{source}|{asn}|rankv6', asn_rank_v6)
+                        r_pipeline.set(f'{today}|{source}|{asn}|v6', asn_rank_v6)
                         r_pipeline.zincrby(asns_aggregation_key_v6, asn, asn_rank_v6)
                         r_pipeline.zadd(source_aggregation_key_v6, asn_rank_v4, asn)
         self.ranking.delete(*to_delete)
