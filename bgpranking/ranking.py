@@ -37,6 +37,9 @@ class Ranking():
         r_pipeline = self.ranking.pipeline()
         for source in self.storage.smembers(f'{today}|sources'):
             self.logger.info(f'{today} - Ranking source: {source}')
+            source_aggregation_key_v4 = f'{today}|{source}|asns|v4'
+            source_aggregation_key_v6 = f'{today}|{source}|asns|v6'
+            to_delete.update([source_aggregation_key_v4, source_aggregation_key_v6])
             for asn in self.storage.smembers(f'{today}|{source}'):
                 prefixes_aggregation_key_v4 = f'{today}|{asn}|v4'
                 prefixes_aggregation_key_v6 = f'{today}|{asn}|v6'
@@ -65,11 +68,13 @@ class Ranking():
                     if asn_rank_v4:
                         r_pipeline.set(f'{today}|{source}|{asn}|rankv4', asn_rank_v4)
                         r_pipeline.zincrby(asns_aggregation_key_v4, asn, asn_rank_v4)
+                        r_pipeline.zadd(source_aggregation_key_v4, asn_rank_v4, asn)
                 if v6count:
                     asn_rank_v6 /= float(v6count)
                     if asn_rank_v6:
                         r_pipeline.set(f'{today}|{source}|{asn}|rankv6', asn_rank_v6)
                         r_pipeline.zincrby(asns_aggregation_key_v6, asn, asn_rank_v6)
+                        r_pipeline.zadd(source_aggregation_key_v6, asn_rank_v4, asn)
         self.ranking.delete(*to_delete)
         r_pipeline.execute()
 

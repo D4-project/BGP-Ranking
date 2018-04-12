@@ -3,7 +3,6 @@
 
 from typing import TypeVar
 import datetime
-from enum import Enum
 from dateutil.parser import parse
 
 import logging
@@ -13,11 +12,6 @@ from .libs.helpers import get_socket_path
 from .libs.exceptions import InvalidDateFormat
 
 Dates = TypeVar('Dates', datetime.datetime, datetime.date, str)
-
-
-class IPVersion(Enum):
-    v4 = 'v4'
-    v6 = 'v6'
 
 
 class Querying():
@@ -43,34 +37,35 @@ class Querying():
             except ValueError:
                 raise InvalidDateFormat('Unable to parse the date. Should be YYYY-MM-DD.')
 
-    def asns_global_ranking(self, date: Dates=datetime.date.today(),
-                            ipversion: IPVersion=IPVersion.v4, limit: int=100):
+    def asns_global_ranking(self, date: Dates=datetime.date.today(), source: str='', ipversion: str='v4', limit: int=100):
         '''Aggregated ranking of all the ASNs known in the system, weighted by source.'''
         d = self.__normalize_date(date)
-        key = f'{d}|asns|{ipversion.value}'
+        if source:
+            key = f'{d}|{source}|asns|{ipversion}'
+        else:
+            key = f'{d}|asns|{ipversion}'
         return self.ranking.zrevrange(key, start=0, end=limit, withscores=True)
 
-    def asn_details(self, asn: int, date: Dates= datetime.date.today(), ipversion: IPVersion=IPVersion.v4):
+    def asn_details(self, asn: int, date: Dates= datetime.date.today(), source: str='', ipversion: str='v4'):
         '''Aggregated ranking of all the prefixes anounced by the given ASN, weighted by source.'''
         d = self.__normalize_date(date)
-        key = f'{d}|{asn}|{ipversion.value}'
+        if source:
+            key = f'{d}|{source}|{asn}|rank{ipversion}|prefixes'
+        else:
+            key = f'{d}|{asn}|{ipversion}'
         return self.ranking.zrevrange(key, start=0, end=-1, withscores=True)
 
-    def asn_rank(self, asn: int, date: Dates= datetime.date.today(), ipversion: IPVersion=IPVersion.v4):
+    def asn_rank(self, asn: int, date: Dates= datetime.date.today(), source: str='', ipversion: str='v4'):
         '''Get the rank of a single ASN, weighted by source.'''
         d = self.__normalize_date(date)
-        key = f'{d}|asns|{ipversion.value}'
+        if source:
+            key = f'{d}|{source}|{asn}|rank{ipversion}'
+        else:
+            key = f'{d}|asns|{ipversion}'
         return self.ranking.zscore(key, asn)
 
-    def asn_rank_by_source(self, asn: int, source: str, date: Dates= datetime.date.today(), ipversion: IPVersion=IPVersion.v4):
-        '''Get the rank of a single ASN, not weighted by source.'''
+    def get_sources(self, date: Dates= datetime.date.today()):
+        '''Get the sources availables for a specific day (default: today).'''
         d = self.__normalize_date(date)
-        key = f'{d}|{source}|{asn}|rank{ipversion.value}'
-        return self.ranking.get(key)
-
-    def asn_details_by_source(self, source: str, asn: int, date: Dates= datetime.date.today(),
-                              ipversion: IPVersion=IPVersion.v4):
-        '''Get the rank of all the prefixes announced by an ASN, not weighted by source.'''
-        d = self.__normalize_date(date)
-        key = f'{d}|{source}|{asn}|rank{ipversion.value}|prefixes'
-        return self.ranking.zrevrange(key, start=0, end=-1, withscores=True)
+        key = f'{d}|sources'
+        return self.storage.smembers(key)

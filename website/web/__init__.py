@@ -1,34 +1,60 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, session
 from flask_bootstrap import Bootstrap
-from flask_datepicker import datepicker
 
 from bgpranking.querying import Querying
+from pathlib import Path
+from datetime import date, timedelta
+
 
 app = Flask(__name__)
 
+app.secret_key = '\xeb\xfd\x1b\xee\xed<\xa5~\xd5H\x85\x00\xa5r\xae\x80t5@\xa2&>\x03S'
+
 Bootstrap(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
-datepicker(app=app, local=['static/jquery-ui.js', 'static/jquery-ui.css'])
 
-app.debug = True
+jquery_js = Path('static', 'jquery-ui.js')
+jquery_css = Path('static', 'jquery-ui.css')
 
 
-@app.route('/', methods=['GET'])
+def load_session():
+    if request.method == 'POST':
+        d = request.form
+    elif request.method == 'GET':
+        d = request.args
+
+    if 'date' in d:
+        session['date'] = d['date']
+    if 'ipversion' in d:
+        session['ipversion'] = d['ipversion']
+    if 'source' in d:
+        session['source'] = d['source']
+    if 'asn' in d:
+        session['asn'] = d['asn']
+    set_default_date_session()
+
+
+def set_default_date_session():
+    if 'date' not in session:
+        session['date'] = (date.today() - timedelta(days=1)).isoformat()
+
+
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    load_session()
     q = Querying()
-    ranks = q.asns_global_ranking(limit=-1)
-    return render_template('index.html', ranks=ranks)
+    sources = q.get_sources(date=session['date'])
+    session.pop('asn', None)
+    ranks = q.asns_global_ranking(limit=-1, **session)
+    return render_template('index.html', ranks=ranks, sources=sources, **session)
 
 
 @app.route('/asn', methods=['GET', 'POST'])
 def asn_details():
+    load_session()
     q = Querying()
-    if request.method == 'POST':
-        asn = request.form['asn']
-    if request.method == 'GET':
-        asn = request.args['asn']
-    ranks = q.asn_details(asn)
-    return render_template('asn.html', asn=asn, ranks=ranks)
+    ranks = q.asn_details(**session)
+    return render_template('asn.html', ranks=ranks, **session)
