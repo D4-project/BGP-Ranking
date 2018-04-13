@@ -69,3 +69,9 @@ class Querying():
         d = self.__normalize_date(date)
         key = f'{d}|sources'
         return self.storage.smembers(key)
+
+    def get_asn_descriptions(self, asn: int, all_descriptions=False):
+        descriptions = self.asn_meta.hgetall(f'{asn}|descriptions')
+        if all_descriptions or not descriptions:
+            return descriptions
+        return descriptions[sorted(descriptions.keys(), reverse=True)[0]]

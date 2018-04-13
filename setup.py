@@ -14,7 +14,7 @@ setup(
     packages=['bgpranking'],
     scripts=['bin/archiver.py', 'bin/dbinsert.py', 'bin/fetcher.py', 'bin/parser.py',
              'bin/loadprefixes.py', 'bin/rislookup.py', 'bin/sanitizer.py', 'bin/run_backend.py',
-             'bin/monitor.py', 'bin/ranking.py', 'bin/start.py', 'bin/stop.py', 'bin/shutdown.py'],
+             'bin/monitor.py', 'bin/ranking.py', 'bin/asn_descriptions.py', 'bin/start.py', 'bin/stop.py', 'bin/shutdown.py'],
     classifiers=[
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Development Status :: 3 - Alpha',

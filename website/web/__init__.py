@@ -49,7 +49,9 @@ def index():
     sources = q.get_sources(date=session['date'])
     session.pop('asn', None)
     ranks = q.asns_global_ranking(limit=-1, **session)
-    return render_template('index.html', ranks=ranks, sources=sources, **session)
+    descriptions = [q.get_asn_descriptions(int(asn)) for asn, rank in ranks]
+    r = zip(ranks, descriptions)
+    return render_template('index.html', ranks=r, sources=sources, **session)
 
 
 @app.route('/asn', methods=['GET', 'POST'])
