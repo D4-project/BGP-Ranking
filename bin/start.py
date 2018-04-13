@@ -17,3 +17,4 @@ if __name__ == '__main__':
     Popen(['sanitizer.py'])
     Popen(['dbinsert.py'])
     Popen(['ranking.py'])
+    Popen(['asn_descriptions.py'])
