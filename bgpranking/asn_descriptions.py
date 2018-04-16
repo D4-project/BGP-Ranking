@@ -17,7 +17,7 @@ class ASNDescriptions():
         self.__init_logger(loglevel)
         self.asn_meta = StrictRedis(unix_socket_path=get_socket_path('storage'), db=2, decode_responses=True)
         self.logger.debug('Starting ASN History')
-        self.directory = storage_directory / 'ans_descriptions'
+        self.directory = storage_directory / 'asn_descriptions'
         safe_create_dir(self.directory)
         self.archives = self.directory / 'archive'
         safe_create_dir(self.archives)
@@ -63,4 +63,7 @@ class ASNDescriptions():
         p.set('ans_description_last_update', last_modified)
         p.execute()
         self.logger.info(f'Done with import. New ASNs: {new_asn}, new descriptions: {new_description}')
+        if new_asn or new_description:
+            with open(self.archives / f'{last_modified}.html', 'w') as f:
+                f.write(r.text)
         unset_running(self.__class__.__name__)
