@@ -63,7 +63,6 @@ def asn_details():
 @app.route('/asn_history', methods=['GET', 'POST'])
 def asn_history():
     load_session()
-    print(session.keys())
     session.pop('date')
     q = Querying()
     return json.dumps(q.get_asn_history(**session))

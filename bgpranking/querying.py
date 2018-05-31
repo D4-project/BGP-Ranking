@@ -77,10 +77,13 @@ class Querying():
             return descriptions
         return descriptions[sorted(descriptions.keys(), reverse=True)[0]]
 
-    def get_asn_history(self, asn: int, period: int=200, source: str='', ipversion: str='v4'):
+    def get_asn_history(self, asn: int, period: int=100, source: str='', ipversion: str='v4'):
         to_return = []
         today = datetime.date.today()
         for i in range(period):
             date = today - timedelta(days=i)
-            to_return.insert(0, (date.isoformat(), self.asn_rank(asn, date, source, ipversion)))
+            rank = self.asn_rank(asn, date, source, ipversion)
+            if rank is None:
+                rank = 0
+            to_return.insert(0, (date.isoformat(), rank))
         return to_return
