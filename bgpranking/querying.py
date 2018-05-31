@@ -3,6 +3,7 @@
 
 from typing import TypeVar
 import datetime
+from datetime import timedelta
 from dateutil.parser import parse
 
 import logging
@@ -55,7 +56,7 @@ class Querying():
             key = f'{d}|{asn}|{ipversion}'
         return self.ranking.zrevrange(key, start=0, end=-1, withscores=True)
 
-    def asn_rank(self, asn: int, date: Dates= datetime.date.today(), source: str='', ipversion: str='v4'):
+    def asn_rank(self, asn: int, date: Dates=datetime.date.today(), source: str='', ipversion: str='v4'):
         '''Get the rank of a single ASN, weighted by source.'''
         d = self.__normalize_date(date)
         if source:
@@ -64,7 +65,7 @@ class Querying():
             key = f'{d}|asns|{ipversion}'
         return self.ranking.zscore(key, asn)
 
-    def get_sources(self, date: Dates= datetime.date.today()):
+    def get_sources(self, date: Dates=datetime.date.today()):
         '''Get the sources availables for a specific day (default: today).'''
         d = self.__normalize_date(date)
         key = f'{d}|sources'
@@ -75,3 +76,11 @@ class Querying():
         if all_descriptions or not descriptions:
             return descriptions
         return descriptions[sorted(descriptions.keys(), reverse=True)[0]]
+
+    def get_asn_history(self, asn: int, period: int=200, source: str='', ipversion: str='v4'):
+        to_return = []
+        today = datetime.date.today()
+        for i in range(period):
+            date = today - timedelta(days=i)
+            to_return.insert(0, (date.isoformat(), self.asn_rank(asn, date, source, ipversion)))
+        return to_return

@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
+
 from flask import Flask, render_template, request, session
 from flask_bootstrap import Bootstrap
 
 from bgpranking.querying import Querying
-from pathlib import Path
 from datetime import date, timedelta
 
 
@@ -15,9 +16,6 @@ app.secret_key = '\xeb\xfd\x1b\xee\xed<\xa5~\xd5H\x85\x00\xa5r\xae\x80t5@\xa2&>\
 
 Bootstrap(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
-
-jquery_js = Path('static', 'jquery-ui.js')
-jquery_css = Path('static', 'jquery-ui.css')
 
 
 def load_session():
@@ -48,7 +46,7 @@ def index():
     q = Querying()
     sources = q.get_sources(date=session['date'])
     session.pop('asn', None)
-    ranks = q.asns_global_ranking(limit=-1, **session)
+    ranks = q.asns_global_ranking(limit=100, **session)
     descriptions = [q.get_asn_descriptions(int(asn)) for asn, rank in ranks]
     r = zip(ranks, descriptions)
     return render_template('index.html', ranks=r, sources=sources, **session)
@@ -60,3 +58,12 @@ def asn_details():
     q = Querying()
     ranks = q.asn_details(**session)
     return render_template('asn.html', ranks=ranks, **session)
+
+
+@app.route('/asn_history', methods=['GET', 'POST'])
+def asn_history():
+    load_session()
+    print(session.keys())
+    session.pop('date')
+    q = Querying()
+    return json.dumps(q.get_asn_history(**session))
