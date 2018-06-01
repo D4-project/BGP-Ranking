@@ -9,13 +9,21 @@ from flask_bootstrap import Bootstrap
 from bgpranking.querying import Querying
 from datetime import date, timedelta
 
-
 app = Flask(__name__)
 
 app.secret_key = '\xeb\xfd\x1b\xee\xed<\xa5~\xd5H\x85\x00\xa5r\xae\x80t5@\xa2&>\x03S'
 
 Bootstrap(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+
+
+def get_request_parameter(parameter):
+    if request.method == 'POST':
+        d = request.form
+    elif request.method == 'GET':
+        d = request.args
+
+    return d.get(parameter, None)
 
 
 def load_session():
@@ -57,12 +65,19 @@ def asn_details():
     load_session()
     q = Querying()
     ranks = q.asn_details(**session)
-    return render_template('asn.html', ranks=ranks, **session)
+    prefix = get_request_parameter('prefix')
+    if prefix:
+        prefix_ips = q.get_prefix_ips(prefix=prefix, **session)
+        prefix_ips = [(ip, sorted(sources)) for ip, sources in prefix_ips.items()]
+        prefix_ips.sort(key=lambda entry: len(entry[1]), reverse=True)
+    else:
+        prefix_ips = []
+    return render_template('asn.html', ranks=ranks, prefix_ips=prefix_ips, **session)
 
 
 @app.route('/asn_history', methods=['GET', 'POST'])
 def asn_history():
     load_session()
-    session.pop('date')
+    session.pop('date', None)
     q = Querying()
     return json.dumps(q.get_asn_history(**session))

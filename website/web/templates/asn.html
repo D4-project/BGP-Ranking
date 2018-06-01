@@ -2,7 +2,6 @@
 
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='linegraph.css') }}">
 {% endblock %}
 
 
@@ -17,6 +16,7 @@
   <center>
       <h1>Ranking - {{asn}}</h1></br></br>
   </center>
+  {% include ['top_forms.html'] %}
   <table class="table">
       <tr>
           <th>Prefix</th>
@@ -24,10 +24,24 @@
       </tr>
       {% for prefix, rank in ranks %}
         <tr>
-            <td>{{ prefix }}</td>
+            <td><a href="{{ url_for('asn_details', asn=asn, prefix=prefix) }}">{{ prefix }}</a></td>
             <td>{{ rank }}</td>
         </tr>
       {% endfor %}
   </table>
   <canvas width="960" height="500"></canvas>
+  {% if prefix_ips %}
+  <table class="table">
+      <tr>
+          <th>IP</th>
+          <th>Source(s)</th>
+      </tr>
+      {% for ip, sources in prefix_ips %}
+        <tr>
+            <td>{{ ip }}</td>
+            <td>{{ ', '.join(sources) }}</td>
+        </tr>
+      {% endfor %}
+  </table>
+  {% endif %}
 {% endblock %}

@@ -5,6 +5,7 @@ from typing import TypeVar
 import datetime
 from datetime import timedelta
 from dateutil.parser import parse
+from collections import defaultdict
 
 import logging
 from redis import StrictRedis
@@ -76,6 +77,19 @@ class Querying():
         if all_descriptions or not descriptions:
             return descriptions
         return descriptions[sorted(descriptions.keys(), reverse=True)[0]]
+
+    def get_prefix_ips(self, asn: int, prefix: str, date: Dates=datetime.date.today(), source: str=''):
+        if source:
+            sources = [source]
+        else:
+            sources = self.get_sources(date)
+        prefix_ips = defaultdict(list)
+        d = self.__normalize_date(date)
+        for source in sources:
+            ips = set([ip_ts.split('|')[0]
+                       for ip_ts in self.storage.smembers(f'{d}|{source}|{asn}|{prefix}')])
+            [prefix_ips[ip].append(source) for ip in ips]
+        return prefix_ips
 
     def get_asn_history(self, asn: int, period: int=100, source: str='', ipversion: str='v4'):
         to_return = []
