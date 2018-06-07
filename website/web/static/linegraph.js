@@ -60,7 +60,7 @@ function xAxis() {
 
 function yAxis() {
   var tickCount = 20,
-      tickSize = 3,
+      tickSize = 1,
       tickPadding = 1,
       ticks = y.ticks(tickCount),
       tickFormat = y.tickFormat(tickCount);

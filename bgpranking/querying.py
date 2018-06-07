@@ -62,9 +62,10 @@ class Querying():
         d = self.__normalize_date(date)
         if source:
             key = f'{d}|{source}|{asn}|{ipversion}'
+            return self.ranking.get(key)
         else:
             key = f'{d}|asns|{ipversion}'
-        return self.ranking.zscore(key, asn)
+            return self.ranking.zscore(key, asn)
 
     def get_sources(self, date: Dates=datetime.date.today()):
         '''Get the sources availables for a specific day (default: today).'''
@@ -78,7 +79,7 @@ class Querying():
             return descriptions
         return descriptions[sorted(descriptions.keys(), reverse=True)[0]]
 
-    def get_prefix_ips(self, asn: int, prefix: str, date: Dates=datetime.date.today(), source: str=''):
+    def get_prefix_ips(self, asn: int, prefix: str, date: Dates=datetime.date.today(), source: str='', ipversion: str='v4'):
         if source:
             sources = [source]
         else:
@@ -91,13 +92,19 @@ class Querying():
             [prefix_ips[ip].append(source) for ip in ips]
         return prefix_ips
 
-    def get_asn_history(self, asn: int, period: int=100, source: str='', ipversion: str='v4'):
+    def get_asn_history(self, asn: int, period: int=100, source: str='', ipversion: str='v4', date: Dates=datetime.date.today()):
         to_return = []
-        today = datetime.date.today()
+
+        if isinstance(date, str):
+            date = parse(date).date()
+        if date + timedelta(days=period / 3) > datetime.date.today():
+            # the period to display will be around the date passed at least 2/3 before the date, at most 1/3 after
+            date = datetime.date.today()
+
         for i in range(period):
-            date = today - timedelta(days=i)
-            rank = self.asn_rank(asn, date, source, ipversion)
+            d = date - timedelta(days=i)
+            rank = self.asn_rank(asn, d, source, ipversion)
             if rank is None:
                 rank = 0
-            to_return.insert(0, (date.isoformat(), rank))
+            to_return.insert(0, (d.isoformat(), rank))
         return to_return
