@@ -19,6 +19,18 @@
   {% include ['top_forms.html'] %}
   <table class="table">
       <tr>
+          <th>Timestamp</th>
+          <th>ASN Description</th>
+      </tr>
+      {% for timestamp in asn_descriptions.keys()|sort %}
+        <tr>
+            <td>{{ timestamp }}</td>
+            <td>{{ asn_descriptions[timestamp] }}</td>
+        </tr>
+      {% endfor %}
+  </table>
+  <table class="table">
+      <tr>
           <th>Prefix</th>
           <th>Rank</th>
       </tr>

@@ -64,6 +64,7 @@ def index():
 def asn_details():
     load_session()
     q = Querying()
+    asn_descriptions = q.get_asn_descriptions(asn=session['asn'], all_descriptions=True)
     sources = q.get_sources(date=session['date'])
     ranks = q.asn_details(**session)
     prefix = get_request_parameter('prefix')
@@ -73,7 +74,7 @@ def asn_details():
         prefix_ips.sort(key=lambda entry: len(entry[1]), reverse=True)
     else:
         prefix_ips = []
-    return render_template('asn.html', sources=sources, ranks=ranks, prefix_ips=prefix_ips, **session)
+    return render_template('asn.html', sources=sources, ranks=ranks, prefix_ips=prefix_ips, asn_descriptions=asn_descriptions, **session)
 
 
 @app.route('/asn_history', methods=['GET', 'POST'])
