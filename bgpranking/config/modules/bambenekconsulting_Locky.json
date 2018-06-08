@@ -1,0 +1,6 @@
+{
+  "url": "http://osint.bambenekconsulting.com/feeds//feeds/locky-iplist.txt",
+  "name": "Locky",
+  "vendor": "bambenekconsulting",
+  "impact": 3
+}

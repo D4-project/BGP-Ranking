@@ -1,0 +1,6 @@
+{
+  "url": "http://osint.bambenekconsulting.com/feeds//feeds/sphinx-iplist.txt",
+  "name": "Sphinx",
+  "vendor": "bambenekconsulting",
+  "impact": 3
+}

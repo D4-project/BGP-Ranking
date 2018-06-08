@@ -1,0 +1,6 @@
+{
+  "url": "http://osint.bambenekconsulting.com/feeds//feeds/qakbot-iplist.txt",
+  "name": "Qakbot",
+  "vendor": "bambenekconsulting",
+  "impact": 3
+}
