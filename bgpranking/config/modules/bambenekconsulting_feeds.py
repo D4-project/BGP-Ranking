@@ -8,8 +8,8 @@ from bs4 import BeautifulSoup
 
 
 def get_paths():
-    root = 'http://osint.bambenekconsulting.com/feeds/'
-    r = requests.get(root)
+    root = 'http://osint.bambenekconsulting.com'
+    r = requests.get(f'{root}/feeds/')
     soup = BeautifulSoup(r.text, 'html.parser')
 
     to_return = []

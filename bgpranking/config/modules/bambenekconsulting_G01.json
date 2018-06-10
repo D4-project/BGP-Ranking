@@ -1,5 +1,5 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds//feeds/g01-iplist.txt",
+  "url": "http://osint.bambenekconsulting.com/feeds/g01-iplist.txt",
   "name": "G01",
   "vendor": "bambenekconsulting",
   "impact": 3

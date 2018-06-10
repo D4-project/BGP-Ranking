@@ -1,5 +1,5 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds//feeds/kraken-iplist.txt",
+  "url": "http://osint.bambenekconsulting.com/feeds/kraken-iplist.txt",
   "name": "Kraken",
   "vendor": "bambenekconsulting",
   "impact": 3

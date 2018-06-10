@@ -1,5 +1,5 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds//feeds/padcrypt-iplist.txt",
+  "url": "http://osint.bambenekconsulting.com/feeds/padcrypt-iplist.txt",
   "name": "Padcrypt",
   "vendor": "bambenekconsulting",
   "impact": 3

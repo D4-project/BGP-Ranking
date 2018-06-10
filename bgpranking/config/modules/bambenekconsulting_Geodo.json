@@ -1,5 +1,5 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds//feeds/geodo-iplist.txt",
+  "url": "http://osint.bambenekconsulting.com/feeds/geodo-iplist.txt",
   "name": "Geodo",
   "vendor": "bambenekconsulting",
   "impact": 3
