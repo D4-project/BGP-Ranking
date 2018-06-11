@@ -59,7 +59,7 @@ class RawFilesParser():
 
     def parse_raw_files(self):
         set_running(f'{self.__class__.__name__}-{self.source}')
-        self.logger.warning('Was unable to parse {} files.'.format(len([self.unparsable_dir.iterdir()])))
+        self.logger.warning('Was unable to parse {} files.'.format(len([f for f in self.unparsable_dir.iterdir() if f.is_file()])))
         try:
             for filepath in self.files_to_parse:
                 self.logger.debug('Parsing {}, {} to go.'.format(filepath, len(self.files_to_parse) - 1))
