@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/ramnit-iplist.txt",
   "name": "Ramnit",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/ranbyus-iplist.txt",
   "name": "Ranbyus",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

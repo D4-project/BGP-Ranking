@@ -30,6 +30,8 @@ class RawFilesParser():
         self.source = f'{self.vendor}-{self.listname}'
         self.directory = storage_directory / self.vendor / self.listname
         safe_create_dir(self.directory)
+        self.unparsable_dir = self.directory / 'unparsable'
+        safe_create_dir(self.unparsable_dir)
         self.__init_logger(loglevel)
         self.redis_intake = StrictRedis(unix_socket_path=get_socket_path('intake'), db=0)
         self.logger.debug(f'Starting intake on {self.source}')
@@ -57,6 +59,7 @@ class RawFilesParser():
 
     def parse_raw_files(self):
         set_running(f'{self.__class__.__name__}-{self.source}')
+        self.logger.warning('Was unable to parse {} files.'.format(len([self.unparsable_dir.iterdir()])))
         try:
             for filepath in self.files_to_parse:
                 self.logger.debug('Parsing {}, {} to go.'.format(filepath, len(self.files_to_parse) - 1))
@@ -72,9 +75,14 @@ class RawFilesParser():
                 self._archive(filepath)
         except Exception as e:
             self.logger.exception("That didn't go well")
+            self._unparsable(filepath)
         finally:
             unset_running(f'{self.__class__.__name__}-{self.source}')
 
     def _archive(self, filepath: Path):
         '''After processing, move file to the archive directory'''
         filepath.rename(self.directory / 'archive' / filepath.name)
+
+    def _unparsable(self, filepath: Path):
+        '''After processing, move file to the archive directory'''
+        filepath.rename(self.unparsable_dir / filepath.name)

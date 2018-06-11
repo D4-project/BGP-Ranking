@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/dyre-nsiplist.txt",
   "name": "Dyre_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

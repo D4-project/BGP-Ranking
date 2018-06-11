@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/tinba-nsiplist.txt",
   "name": "Tinba_/_TinyBanker_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

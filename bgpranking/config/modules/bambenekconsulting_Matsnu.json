@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/matsnu-iplist.txt",
   "name": "Matsnu",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

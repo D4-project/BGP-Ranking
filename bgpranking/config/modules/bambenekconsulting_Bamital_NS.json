@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/bamital-nsiplist.txt",
   "name": "Bamital_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

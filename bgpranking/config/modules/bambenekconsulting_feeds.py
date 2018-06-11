@@ -27,7 +27,7 @@ def get_paths():
 
 def make_config(entry):
     name = entry[0].replace(' ', '_')
-    config = {'url': entry[1], 'name': name, 'vendor': 'bambenekconsulting', 'impact': 3}
+    config = {'url': entry[1], 'name': name, 'vendor': 'bambenekconsulting', 'impact': 3, 'parser': '.parsers.bambenekconsulting'}
     filename = re.sub('[^0-9a-zA-Z]+', '_', name)
     with open(f'bambenekconsulting_{filename}.json', 'w') as f:
         json.dump(config, f, indent=2)

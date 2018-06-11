@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/sphinx-iplist.txt",
   "name": "Sphinx",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

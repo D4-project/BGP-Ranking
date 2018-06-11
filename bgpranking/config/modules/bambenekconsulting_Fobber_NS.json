@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/fobber-nsiplist.txt",
   "name": "Fobber_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

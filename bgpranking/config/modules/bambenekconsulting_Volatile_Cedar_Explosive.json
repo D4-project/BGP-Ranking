@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/volatile-iplist.txt",
   "name": "Volatile_Cedar_/_Explosive",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

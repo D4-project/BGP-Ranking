@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/qadars-nsiplist.txt",
   "name": "Qadars_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

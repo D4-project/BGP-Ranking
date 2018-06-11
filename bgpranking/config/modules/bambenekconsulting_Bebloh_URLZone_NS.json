@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/bebloh-nsiplist.txt",
   "name": "Bebloh/URLZone_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

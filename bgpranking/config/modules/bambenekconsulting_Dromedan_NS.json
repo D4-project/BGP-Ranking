@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/dromedan-nsiplist.txt",
   "name": "Dromedan_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

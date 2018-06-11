@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/beebone-iplist.txt",
   "name": "Beebone",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

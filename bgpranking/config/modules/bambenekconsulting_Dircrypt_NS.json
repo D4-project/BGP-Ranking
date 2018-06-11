@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/dircrypt-nsiplist.txt",
   "name": "Dircrypt_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }

@@ -2,5 +2,6 @@
   "url": "http://osint.bambenekconsulting.com/feeds/tempedreve-iplist.txt",
   "name": "Tempedreve",
   "vendor": "bambenekconsulting",
-  "impact": 3
+  "impact": 3,
+  "parser": ".parsers.bambenekconsulting"
 }
