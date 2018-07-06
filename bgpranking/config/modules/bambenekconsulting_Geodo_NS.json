@@ -3,5 +3,9 @@
   "name": "Geodo_NS",
   "vendor": "bambenekconsulting",
   "impact": 3,
-  "parser": ".parsers.bambenekconsulting"
+  "parser": ".parsers.bambenekconsulting",
+  "tags": [
+    "misp-galaxy:tool=\"Emotet\"",
+    "misp-galaxy:banker=\"Geodo\""
+  ]
 }

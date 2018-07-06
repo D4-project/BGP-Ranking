@@ -3,5 +3,9 @@
   "name": "Tinba_/_TinyBanker",
   "vendor": "bambenekconsulting",
   "impact": 3,
-  "parser": ".parsers.bambenekconsulting"
+  "parser": ".parsers.bambenekconsulting",
+  "tags": [
+    "misp-galaxy:banker=\"Tinba\"",
+    "misp-galaxy:tool=\"Tinba\""
+  ]
 }
