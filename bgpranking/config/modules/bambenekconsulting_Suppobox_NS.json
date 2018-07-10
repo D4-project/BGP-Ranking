@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/suppobox-nsiplist.txt",
-  "name": "Suppobox_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 1,
+  "name": "Suppobox_NS",
+  "url": "http://osint.bambenekconsulting.com/feeds/suppobox-nsiplist.txt",
   "tags": [
     "false-positive:risk=\"high\""
   ]

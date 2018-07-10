@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/dromedan-iplist.txt",
-  "name": "Dromedan",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Dromedan",
+  "url": "http://osint.bambenekconsulting.com/feeds/dromedan-iplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]

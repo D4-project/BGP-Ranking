@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/shifu-iplist.txt",
-  "name": "Shifu",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 3,
+  "name": "Shifu",
+  "url": "http://osint.bambenekconsulting.com/feeds/shifu-iplist.txt",
   "tags": [
     "false-positive:risk=\"medium\"",
     "misp-galaxy:tool=\"Shifu\""

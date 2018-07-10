@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/beebone-iplist.txt",
-  "name": "Beebone",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Beebone",
+  "url": "http://osint.bambenekconsulting.com/feeds/beebone-iplist.txt",
   "tags": [
     "false-positive:risk=\"low\"",
     "misp-galaxy:botnet=\"Beebone\""

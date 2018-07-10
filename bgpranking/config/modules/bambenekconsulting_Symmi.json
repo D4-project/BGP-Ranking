@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/symmi-iplist.txt",
-  "name": "Symmi",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Symmi",
+  "url": "http://osint.bambenekconsulting.com/feeds/symmi-iplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]

@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/vidro-iplist.txt",
-  "name": "Vidro",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Vidro",
+  "url": "http://osint.bambenekconsulting.com/feeds/vidro-iplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]

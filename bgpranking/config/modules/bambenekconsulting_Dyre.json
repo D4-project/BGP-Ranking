@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/dyre-iplist.txt",
-  "name": "Dyre",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Dyre",
+  "url": "http://osint.bambenekconsulting.com/feeds/dyre-iplist.txt",
   "tags": [
     "false-positive:risk=\"low\"",
     "misp-galaxy:banker=\"Dyre\""

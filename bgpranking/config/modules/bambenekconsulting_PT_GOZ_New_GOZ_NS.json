@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/ptgoz-nsiplist.txt",
-  "name": "PT_GOZ_/_New_GOZ_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "PT_GOZ_/_New_GOZ_NS",
+  "url": "http://osint.bambenekconsulting.com/feeds/ptgoz-nsiplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]

@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/suppobox-iplist.txt",
-  "name": "Suppobox",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 1,
+  "name": "Suppobox",
+  "url": "http://osint.bambenekconsulting.com/feeds/suppobox-iplist.txt",
   "tags": [
     "false-positive:risk=\"high\""
   ]

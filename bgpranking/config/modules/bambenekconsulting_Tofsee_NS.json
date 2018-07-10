@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/tofsee-nsiplist.txt",
-  "name": "Tofsee_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 3,
+  "name": "Tofsee_NS",
+  "url": "http://osint.bambenekconsulting.com/feeds/tofsee-nsiplist.txt",
   "tags": [
     "false-positive:risk=\"medium\"",
     "misp-galaxy:botnet=\"Gheg\""

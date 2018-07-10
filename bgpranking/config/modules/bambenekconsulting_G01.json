@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/g01-iplist.txt",
-  "name": "G01",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "G01",
+  "url": "http://osint.bambenekconsulting.com/feeds/g01-iplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]

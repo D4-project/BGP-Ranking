@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/vidro-nsiplist.txt",
-  "name": "Vidro_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Vidro_NS",
+  "url": "http://osint.bambenekconsulting.com/feeds/vidro-nsiplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]

@@ -28,14 +28,17 @@ def get_paths():
     root = 'http://osint.bambenekconsulting.com'
     r = requests.get(f'{root}/feeds/')
     soup = BeautifulSoup(r.text, 'html.parser')
-    to_return = []
     for entry in soup.find_all('p'):
+        config = {'vendor': 'bambenekconsulting', 'parser': '.parsers.bambenekconsulting'}
         if 'FP Risk: Low' in str(entry):
             tags = ['false-positive:risk="low"']
+            config['impact'] = 5
         if 'FP Risk: Medium' in str(entry):
             tags = ['false-positive:risk="medium"']
+            config['impact'] = 3
         if 'FP Risk: High' in str(entry):
             tags = ['false-positive:risk="high"']
+            config['impact'] = 1
         name = entry.b.string
         tags += find_tags(name)
         if name:
@@ -44,16 +47,14 @@ def get_paths():
                     path = link.get('href')
                     if link.get('href').endswith('nsiplist.txt'):
                         name = f'{name}_NS'
-                    to_return.append((name, f'{root}{path}', tags))
-    return to_return
+                    config['name'] = name.replace(' ', '_')
+                    config['url'] = f'{root}{path}'
+                    config['tags'] = tags
+                    yield config
 
 
-def make_config(entry):
-    name = entry[0].replace(' ', '_')
-    config = {'url': entry[1], 'name': name, 'vendor': 'bambenekconsulting',
-              'impact': 3, 'parser': '.parsers.bambenekconsulting'}
-    config['tags'] = entry[2]
-    filename = re.sub('[^0-9a-zA-Z]+', '_', name)
+def make_config(config):
+    filename = re.sub('[^0-9a-zA-Z]+', '_', config['name'])
     with open(f'bambenekconsulting_{filename}.json', 'w') as f:
         json.dump(config, f, indent=2)
 

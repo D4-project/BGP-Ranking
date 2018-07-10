@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/madmax-iplist.txt",
-  "name": "Madmax",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Madmax",
+  "url": "http://osint.bambenekconsulting.com/feeds/madmax-iplist.txt",
   "tags": [
     "false-positive:risk=\"low\"",
     "misp-galaxy:botnet=\"Madmax\""

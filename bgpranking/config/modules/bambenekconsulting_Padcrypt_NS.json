@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/padcrypt-nsiplist.txt",
-  "name": "Padcrypt_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Padcrypt_NS",
+  "url": "http://osint.bambenekconsulting.com/feeds/padcrypt-nsiplist.txt",
   "tags": [
     "false-positive:risk=\"low\"",
     "misp-galaxy:ransomware=\"PadCrypt\""

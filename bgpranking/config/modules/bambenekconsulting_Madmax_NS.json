@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/madmax-nsiplist.txt",
-  "name": "Madmax_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Madmax_NS",
+  "url": "http://osint.bambenekconsulting.com/feeds/madmax-nsiplist.txt",
   "tags": [
     "false-positive:risk=\"low\"",
     "misp-galaxy:botnet=\"Madmax\""

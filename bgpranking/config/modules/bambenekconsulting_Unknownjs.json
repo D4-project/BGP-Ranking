@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/unknownjs-iplist.txt",
-  "name": "Unknownjs",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Unknownjs",
+  "url": "http://osint.bambenekconsulting.com/feeds/unknownjs-iplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]

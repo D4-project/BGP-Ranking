@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/tempedreve-nsiplist.txt",
-  "name": "Tempedreve_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Tempedreve_NS",
+  "url": "http://osint.bambenekconsulting.com/feeds/tempedreve-nsiplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]

@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/banjori-nsiplist.txt",
-  "name": "Banjori_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 3,
+  "name": "Banjori_NS",
+  "url": "http://osint.bambenekconsulting.com/feeds/banjori-nsiplist.txt",
   "tags": [
     "false-positive:risk=\"medium\"",
     "misp-galaxy:banker=\"Banjori\""

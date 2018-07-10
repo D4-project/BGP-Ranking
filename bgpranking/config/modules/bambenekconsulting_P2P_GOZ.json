@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/p2pgoz-iplist.txt",
-  "name": "P2P_GOZ",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "P2P_GOZ",
+  "url": "http://osint.bambenekconsulting.com/feeds/p2pgoz-iplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]

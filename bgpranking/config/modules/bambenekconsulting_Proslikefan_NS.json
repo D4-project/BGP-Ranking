@@ -1,9 +1,9 @@
 {
-  "url": "http://osint.bambenekconsulting.com/feeds/proslikefan-nsiplist.txt",
-  "name": "Proslikefan_NS",
   "vendor": "bambenekconsulting",
-  "impact": 3,
   "parser": ".parsers.bambenekconsulting",
+  "impact": 5,
+  "name": "Proslikefan_NS",
+  "url": "http://osint.bambenekconsulting.com/feeds/proslikefan-nsiplist.txt",
   "tags": [
     "false-positive:risk=\"low\""
   ]
