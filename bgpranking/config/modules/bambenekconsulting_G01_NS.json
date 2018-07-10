@@ -3,5 +3,8 @@
   "name": "G01_NS",
   "vendor": "bambenekconsulting",
   "impact": 3,
-  "parser": ".parsers.bambenekconsulting"
+  "parser": ".parsers.bambenekconsulting",
+  "tags": [
+    "false-positive:risk=\"low\""
+  ]
 }

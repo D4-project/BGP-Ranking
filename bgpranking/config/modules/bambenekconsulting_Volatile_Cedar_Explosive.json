@@ -5,7 +5,8 @@
   "impact": 3,
   "parser": ".parsers.bambenekconsulting",
   "tags": [
-    "misp-galaxy:threat-actor=\"Volatile Cedar\"",
-    "misp-galaxy:tool=\"Explosive\""
+    "false-positive:risk=\"low\"",
+    "misp-galaxy:tool=\"Explosive\"",
+    "misp-galaxy:threat-actor=\"Volatile Cedar\""
   ]
 }

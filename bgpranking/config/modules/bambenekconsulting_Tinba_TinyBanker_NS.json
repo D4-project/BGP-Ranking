@@ -5,7 +5,8 @@
   "impact": 3,
   "parser": ".parsers.bambenekconsulting",
   "tags": [
-    "misp-galaxy:banker=\"Tinba\"",
-    "misp-galaxy:tool=\"Tinba\""
+    "false-positive:risk=\"low\"",
+    "misp-galaxy:tool=\"Tinba\"",
+    "misp-galaxy:banker=\"Tinba\""
   ]
 }

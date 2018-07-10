@@ -5,7 +5,8 @@
   "impact": 3,
   "parser": ".parsers.bambenekconsulting",
   "tags": [
-    "misp-galaxy:tool=\"Vawtrak\"",
-    "misp-galaxy:banker=\"Vawtrak\""
+    "false-positive:risk=\"low\"",
+    "misp-galaxy:banker=\"Vawtrak\"",
+    "misp-galaxy:tool=\"Vawtrak\""
   ]
 }

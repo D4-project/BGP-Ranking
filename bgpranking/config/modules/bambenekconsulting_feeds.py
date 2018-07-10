@@ -19,6 +19,8 @@ def find_tags(name):
         responses = c.search(name.strip(), return_tags=True)
         for _, t in responses:
             tags += t
+    if not tags:
+        print('No tags for', name)
     return list(set(tags))
 
 
@@ -28,8 +30,14 @@ def get_paths():
     soup = BeautifulSoup(r.text, 'html.parser')
     to_return = []
     for entry in soup.find_all('p'):
+        if 'FP Risk: Low' in str(entry):
+            tags = ['false-positive:risk="low"']
+        if 'FP Risk: Medium' in str(entry):
+            tags = ['false-positive:risk="medium"']
+        if 'FP Risk: High' in str(entry):
+            tags = ['false-positive:risk="high"']
         name = entry.b.string
-        tags = find_tags(name)
+        tags += find_tags(name)
         if name:
             for link in entry.find_all('a'):
                 if link.get('href').endswith('iplist.txt'):
@@ -44,10 +52,7 @@ def make_config(entry):
     name = entry[0].replace(' ', '_')
     config = {'url': entry[1], 'name': name, 'vendor': 'bambenekconsulting',
               'impact': 3, 'parser': '.parsers.bambenekconsulting'}
-    if len(entry) >= 3 and entry[2]:
-        config['tags'] = entry[2]
-    else:
-        print('No tags:', name)
+    config['tags'] = entry[2]
     filename = re.sub('[^0-9a-zA-Z]+', '_', name)
     with open(f'bambenekconsulting_{filename}.json', 'w') as f:
         json.dump(config, f, indent=2)

@@ -5,6 +5,7 @@
   "impact": 3,
   "parser": ".parsers.bambenekconsulting",
   "tags": [
+    "false-positive:risk=\"low\"",
     "misp-galaxy:tool=\"Necurs\""
   ]
 }

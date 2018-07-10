@@ -5,14 +5,7 @@
   "impact": 3,
   "parser": ".parsers.bambenekconsulting",
   "tags": [
-    "misp-galaxy:ransomware=\"CryptoLocker by NTK Ransomware\"",
-    "misp-galaxy:ransomware=\"MSN CryptoLocker Ransomware\"",
-    "misp-galaxy:ransomware=\"CryptoLocker 5.1\"",
-    "misp-galaxy:ransomware=\"FakeCryptoLocker\"",
-    "misp-galaxy:ransomware=\"PClock3 Ransomware\"",
-    "misp-galaxy:ransomware=\"CryptoLocker3 Ransomware\"",
-    "misp-galaxy:ransomware=\"CryptoLocker 1.0.0\"",
-    "misp-galaxy:ransomware=\"DynA-Crypt Ransomware\"",
+    "false-positive:risk=\"low\"",
     "misp-galaxy:ransomware=\"CryptoLocker\""
   ]
 }

@@ -5,7 +5,8 @@
   "impact": 3,
   "parser": ".parsers.bambenekconsulting",
   "tags": [
-    "misp-galaxy:botnet=\"Mirai\"",
-    "misp-galaxy:tool=\"Mirai\""
+    "false-positive:risk=\"low\"",
+    "misp-galaxy:tool=\"Mirai\"",
+    "misp-galaxy:botnet=\"Mirai\""
   ]
 }
