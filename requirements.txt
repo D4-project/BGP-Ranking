@@ -8,3 +8,5 @@ requests
 
 git+https://github.com/MISP/PyTaxonomies
 git+https://github.com/MISP/PyMISPGalaxies.git
+
+beautifulsoup4
