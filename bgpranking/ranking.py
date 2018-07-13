@@ -75,8 +75,7 @@ class Ranking():
     def compute(self):
         self.logger.info('Start ranking')
         set_running(self.__class__.__name__)
-        v4_last, v6_last = self.asn_meta.mget('v4|last', 'v6|last')
-        if not v4_last or not v6_last:
+        if self.asn_meta.exists('v4|last', 'v6|last') != 2:
             '''Failsafe if asn_meta has not been populated yet'''
             unset_running(self.__class__.__name__)
             return
