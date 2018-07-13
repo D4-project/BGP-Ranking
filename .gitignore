@@ -110,3 +110,11 @@ rawdata
 storage/ardb.pid
 storage/data
 storage/repl
+
+# Config file shadow server with password
+bgpranking/config/shadowserver.json
+# Ths shadow server config files are dynamically generated
+bgpranking/config/modules/shadowserver_*.json
+
+# Do not store the d3 lib in the repo
+website/web/static/d3*.js

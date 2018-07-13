@@ -10,6 +10,7 @@ from .libs.helpers import long_sleep, shutdown_requested
 class AbstractManager(ABC):
 
     def __init__(self, loglevel: int=logging.DEBUG):
+        self.loglevel = loglevel
         self.logger = logging.getLogger(f'{self.__class__.__name__}')
         self.logger.setLevel(loglevel)
         self.logger.info(f'Initializing {self.__class__.__name__}')

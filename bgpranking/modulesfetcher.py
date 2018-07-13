@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import aiohttp
@@ -112,10 +112,10 @@ class Fetcher():
             self.logger.debug('New list, no hisorical files')
             # nothing has been downloaded ever, moving on
             return False
+        dl_hash = sha512(downloaded)
         for last_file in to_check:
             with last_file.open('rb') as f:
                 last_hash = sha512(f.read())
-            dl_hash = sha512(downloaded)
             if (dl_hash.digest() == last_hash.digest() and
                     parser.parse(last_file.name.split('.')[0]).date() == date.today()):
                 self.logger.debug('Same file already downloaded today.')

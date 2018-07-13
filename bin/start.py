@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 from subprocess import Popen
@@ -13,6 +13,7 @@ if __name__ == '__main__':
     Popen(['loadprefixes.py'])
     Popen(['rislookup.py'])
     Popen(['fetcher.py'])
+    Popen(['ssfetcher.py'])
     Popen(['parser.py'])
     Popen(['sanitizer.py'])
     Popen(['dbinsert.py'])
