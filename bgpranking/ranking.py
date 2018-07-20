@@ -16,7 +16,6 @@ class Ranking():
         self.storage = StrictRedis(unix_socket_path=get_socket_path('storage'), decode_responses=True)
         self.ranking = StrictRedis(unix_socket_path=get_socket_path('storage'), db=1, decode_responses=True)
         self.asn_meta = StrictRedis(unix_socket_path=get_socket_path('storage'), db=2, decode_responses=True)
-        self.config_files = load_config_files(config_dir)
 
     def __init_logger(self, loglevel):
         self.logger = logging.getLogger(f'{self.__class__.__name__}')
@@ -73,6 +72,7 @@ class Ranking():
         r_pipeline.execute()
 
     def compute(self):
+        self.config_files = load_config_files(config_dir)
         self.logger.info('Start ranking')
         set_running(self.__class__.__name__)
         if not self.asn_meta.exists('v4|last') or not self.asn_meta.exists('v6|last'):
