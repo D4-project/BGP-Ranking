@@ -50,7 +50,7 @@ class PrefixDatabase():
 
     def _init_routes(self, address_family, root_url, path) -> bool:
         self.logger.debug(f'Loading {path}')
-        date = parse(re.findall('(?:.*)/(?:.*)/routeviews-rv[2,6]-(.*)-(?:.*).pfx2as.gz', path)[0]).date().isoformat()
+        date = parse(re.findall('(?:.*)/(?:.*)/routeviews-rv[2,6]-(.*).pfx2as.gz', path)[0]).isoformat()
         r = requests.get(root_url.format(path))
         to_import = defaultdict(lambda: {address_family: set(), 'ipcount': 0})
         with gzip.open(BytesIO(r.content), 'r') as f:
@@ -66,6 +66,7 @@ class PrefixDatabase():
         p_asn_meta = self.asn_meta.pipeline()
         p.sadd('asns', *to_import.keys())
         p_asn_meta.set(f'{address_family}|last', date)  # Not necessarely today
+        p_asn_meta.rpush(f'{address_family}|dates', date)
         p_asn_meta.sadd(f'{date}|asns|{address_family}', *to_import.keys())
         for asn, data in to_import.items():
             p.sadd(f'{asn}|{address_family}', *data[address_family])
