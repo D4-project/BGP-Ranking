@@ -40,6 +40,8 @@ def load_session():
         session['source'] = d['source']
     if 'asn' in d:
         session['asn'] = d['asn']
+    if 'country' in d:
+        session['country'] = d['country']
     set_default_date_session()
 
 
