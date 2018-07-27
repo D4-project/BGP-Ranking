@@ -54,6 +54,7 @@ def index():
     q = Querying()
     sources = q.get_sources(date=session['date'])
     session.pop('asn', None)
+    session.pop('country', None)
     ranks = q.asns_global_ranking(limit=100, **session)
     descriptions = [q.get_asn_descriptions(int(asn)) for asn, rank in ranks]
     r = zip(ranks, descriptions)
@@ -63,6 +64,7 @@ def index():
 @app.route('/asn', methods=['GET', 'POST'])
 def asn_details():
     load_session()
+    session.pop('country', None)
     q = Querying()
     asn_descriptions = q.get_asn_descriptions(asn=session['asn'], all_descriptions=True)
     sources = q.get_sources(date=session['date'])
@@ -80,5 +82,22 @@ def asn_details():
 @app.route('/asn_history', methods=['GET', 'POST'])
 def asn_history():
     load_session()
+    session.pop('country', None)
     q = Querying()
     return json.dumps(q.get_asn_history(**session))
+
+
+@app.route('/country_history', methods=['GET', 'POST'])
+def country_history():
+    load_session()
+    q = Querying()
+    return json.dumps(q.country_history(**session))
+
+
+@app.route('/country', methods=['GET', 'POST'])
+def country():
+    load_session()
+    q = Querying()
+    sources = q.get_sources(date=session['date'])
+    session.pop('asn', None)
+    return render_template('country.html', sources=sources, **session)

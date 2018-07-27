@@ -10,6 +10,7 @@
 {% block scripts %}
     {{ super() }}
     <script src='{{ url_for('static', filename='linegraph.js') }}'></script>
+    <script>linegraph('/asn_history');</script>
 {% endblock %}
 
 {% block content %}

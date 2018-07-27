@@ -12,6 +12,7 @@ from redis import StrictRedis
 
 from .libs.helpers import get_socket_path
 from .libs.exceptions import InvalidDateFormat
+from .libs.statsripe import StatsRIPE
 
 Dates = TypeVar('Dates', datetime.datetime, datetime.date, str)
 
@@ -62,10 +63,13 @@ class Querying():
         d = self.__normalize_date(date)
         if source:
             key = f'{d}|{source}|{asn}|{ipversion}'
-            return self.ranking.get(key)
+            r = self.ranking.get(key)
         else:
             key = f'{d}|asns|{ipversion}'
-            return self.ranking.zscore(key, asn)
+            r = self.ranking.zscore(key, asn)
+        if r:
+            return r
+        return 0
 
     def get_sources(self, date: Dates=datetime.date.today()):
         '''Get the sources availables for a specific day (default: today).'''
@@ -104,6 +108,34 @@ class Querying():
         for i in range(period):
             d = date - timedelta(days=i)
             rank = self.asn_rank(asn, d, source, ipversion)
+            if rank is None:
+                rank = 0
+            to_return.insert(0, (d.isoformat(), rank))
+        return to_return
+
+    def country_rank(self, country: str, date: Dates=datetime.date.today(), source: str='', ipversion: str='v4'):
+        ripe = StatsRIPE()
+        d = self.__normalize_date(date)
+        response = ripe.country_asns(country, query_time=d, details=1)
+        if (not response.get('data') or not response['data'].get('countries') or not
+                response['data']['countries'][0].get('routed')):
+            logging.warning(f'Invalid response: {response}')
+            # FIXME: return something
+            return
+        return sum([self.asn_rank(asn, d, source, ipversion) for asn in response['data']['countries'][0]['routed']])
+
+    def country_history(self, country: str, period: int=30, source: str='', ipversion: str='v4', date: Dates=datetime.date.today()):
+        to_return = []
+
+        if isinstance(date, str):
+            date = parse(date).date()
+        if date + timedelta(days=period / 3) > datetime.date.today():
+            # the period to display will be around the date passed at least 2/3 before the date, at most 1/3 after
+            date = datetime.date.today()
+
+        for i in range(period):
+            d = date - timedelta(days=i)
+            rank = self.country_rank(country, d, source, ipversion)
             if rank is None:
                 rank = 0
             to_return.insert(0, (d.isoformat(), rank))

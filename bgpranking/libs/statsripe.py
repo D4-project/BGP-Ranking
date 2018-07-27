@@ -38,22 +38,23 @@ class StatsRIPE():
         self.sourceapp = sourceapp
 
     def __time_to_text(self, query_time: TimeTypes) -> str:
-        if type(query_time, datetime):
+        if isinstance(query_time, datetime):
             return query_time.isoformat()
         return query_time
 
     def _get(self, method: str, parameters: dict) -> dict:
         parameters['sourceapp'] = self.sourceapp
         url = self.url.format(method=method, parameters='&'.join(['{}={}'.format(k, str(v).lower()) for k, v in parameters.items()]))
+        print(url)
         response = requests.get(url)
         return response.json()
 
-    async def network_info(self, ip: IPTypes) -> dict:
+    def network_info(self, ip: IPTypes) -> dict:
         parameters = {'resource': ip}
         return self._get('network-info', parameters)
 
-    async def prefix_overview(self, prefix: PrefixTypes, min_peers_seeing: int= 0,
-                              max_related: int=0, query_time: TimeTypes=None) -> dict:
+    def prefix_overview(self, prefix: PrefixTypes, min_peers_seeing: int= 0,
+                        max_related: int=0, query_time: TimeTypes=None) -> dict:
         parameters = {'resource': prefix}
         if min_peers_seeing:
             parameters['min_peers_seeing'] = min_peers_seeing
@@ -63,22 +64,19 @@ class StatsRIPE():
             parameters['query_time'] = self.__time_to_text(query_time)
         return self._get('prefix-overview', parameters)
 
-    async def ris_asns(self, query_time: TimeTypes=None, list_asns: bool=False, asn_types: ASNsTypes=ASNsTypes.undefined):
+    def ris_asns(self, query_time: TimeTypes=None, list_asns: bool=False, asn_types: ASNsTypes=ASNsTypes.undefined):
         parameters = {}
         if list_asns:
             parameters['list_asns'] = list_asns
         if asn_types:
             parameters['asn_types'] = asn_types.value
         if query_time:
-            if type(query_time, datetime):
-                parameters['query_time'] = query_time.isoformat()
-            else:
-                parameters['query_time'] = query_time
+            parameters['query_time'] = self.__time_to_text(query_time)
         return self._get('ris-asns', parameters)
 
-    async def ris_prefixes(self, asn: int, query_time: TimeTypes=None,
-                           list_prefixes: bool=False, types: ASNsTypes=ASNsTypes.undefined,
-                           af: AddressFamilies=AddressFamilies.undefined, noise: Noise=Noise.keep):
+    def ris_prefixes(self, asn: int, query_time: TimeTypes=None,
+                     list_prefixes: bool=False, types: ASNsTypes=ASNsTypes.undefined,
+                     af: AddressFamilies=AddressFamilies.undefined, noise: Noise=Noise.keep):
         parameters = {'resource': str(asn)}
         if query_time:
             parameters['query_time'] = self.__time_to_text(query_time)
@@ -91,3 +89,12 @@ class StatsRIPE():
         if noise:
             parameters['noise'] = noise.value
         return self._get('ris-prefixes', parameters)
+
+    def country_asns(self, country: str, details: int=0, query_time: TimeTypes=None):
+        parameters = {'resource': country}
+        if details:
+            parameters['lod'] = details
+        # FIXME: query_time makes the backend fail.
+        # if query_time:
+        #    parameters['query_time'] = self.__time_to_text(query_time)
+        return self._get('country-asns', parameters)
