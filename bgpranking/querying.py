@@ -68,7 +68,7 @@ class Querying():
             key = f'{d}|asns|{ipversion}'
             r = self.ranking.zscore(key, asn)
         if r:
-            return r
+            return float(r)
         return 0
 
     def get_sources(self, date: Dates=datetime.date.today()):
