@@ -3,11 +3,12 @@
 
 import json
 
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, Response
 from flask_bootstrap import Bootstrap
 
 from bgpranking.querying import Querying
 from datetime import date, timedelta
+import pycountry
 
 app = Flask(__name__)
 
@@ -40,14 +41,21 @@ def load_session():
         session['source'] = d['source']
     if 'asn' in d:
         session['asn'] = d['asn']
-    if 'country' in d:
+        session.pop('country', None)
+    elif 'country' in d:
         session['country'] = d['country']
+        session.pop('asn', None)
     set_default_date_session()
 
 
 def set_default_date_session():
     if 'date' not in session:
         session['date'] = (date.today() - timedelta(days=1)).isoformat()
+
+
+def get_country_codes():
+    for c in pycountry.countries:
+        yield c.alpha_2, c.name
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -60,13 +68,12 @@ def index():
     ranks = q.asns_global_ranking(limit=100, **session)
     descriptions = [q.get_asn_descriptions(int(asn)) for asn, rank in ranks]
     r = zip(ranks, descriptions)
-    return render_template('index.html', ranks=r, sources=sources, **session)
+    return render_template('index.html', ranks=r, sources=sources, countries=get_country_codes(), **session)
 
 
 @app.route('/asn', methods=['GET', 'POST'])
 def asn_details():
     load_session()
-    session.pop('country', None)
     q = Querying()
     asn_descriptions = q.get_asn_descriptions(asn=session['asn'], all_descriptions=True)
     sources = q.get_sources(date=session['date'])
@@ -84,16 +91,15 @@ def asn_details():
 @app.route('/asn_history', methods=['GET', 'POST'])
 def asn_history():
     load_session()
-    session.pop('country', None)
     q = Querying()
-    return json.dumps(q.get_asn_history(**session))
+    return Response(json.dumps(q.get_asn_history(**session)), mimetype='application/json')
 
 
 @app.route('/country_history', methods=['GET', 'POST'])
 def country_history():
     load_session()
     q = Querying()
-    return json.dumps(q.country_history(**session))
+    return Response(json.dumps(q.country_history(**session)), mimetype='application/json')
 
 
 @app.route('/country', methods=['GET', 'POST'])
@@ -101,5 +107,4 @@ def country():
     load_session()
     q = Querying()
     sources = q.get_sources(date=session['date'])
-    session.pop('asn', None)
-    return render_template('country.html', sources=sources, **session)
+    return render_template('country.html', sources=sources, countries=get_country_codes(), **session)
