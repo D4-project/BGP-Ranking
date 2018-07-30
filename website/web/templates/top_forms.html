@@ -1,16 +1,16 @@
 <p>
-    <form style="width:250px; display:inline-block;" action="" method=post>
+    <form style="width:230px; display:inline-block;" action="" method=post>
         <input name="date" type="date" value="{{ date }}">
         <input type="submit" value="Set date">
     </form>
-    <form style="width:220px; display:inline-block;" action="" method=post>
+    <form style="width:200px; display:inline-block;" action="" method=post>
         <select name="ipversion">
             <option value="v4" {% if ipversion == 'v4' %} selected="selected"{% endif %}>v4</option>
             <option value="v6" {% if ipversion == 'v6' %} selected="selected"{% endif %}>v6</option>
         </select>
         <input type="submit" value="Set IP version">
     </form>
-    <form style="width:350px; display:inline-block;" action="" method=post>
+    <form style="width:400px; display:inline-block;" action="" method=post>
       <select name="source">
         <option value="" {% if not source %} selected="selected"{% endif %}>all</option>
         {% for s in sources %}
