@@ -137,7 +137,6 @@ class StatsRIPE():
         parameters = {'resource': country}
         if details:
             parameters['lod'] = details
-        # FIXME: query_time makes the backend fail.
-        # if query_time:
-        #    parameters['query_time'] = self.__time_to_text(query_time)
+        if query_time:
+            parameters['query_time'] = self.__time_to_text(query_time)
         return self._get('country-asns', parameters)
