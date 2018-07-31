@@ -1,0 +1,18 @@
+<table class="table">
+  <tr>
+  {% for date in to_display[0] %}
+    <td>{{ date }}</td>
+  {% endfor %}
+  </tr>
+  {% for line in to_display[1:] %}
+  <tr>
+    <td><a href="{{ url_for('asn_details', asn=line[0]) }}">{{ line[0] }}</a></td>
+    {% for rank in line[1:] %}
+    <td>{{ rank }}</td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+
+
+
