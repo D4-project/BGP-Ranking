@@ -13,6 +13,7 @@ function linegraph(call_path) {
     // set the ranges
     var x = d3.scaleTime().range([0, width]);
     var y = d3.scaleLinear().range([height, 0]);
+    var z = d3.scaleOrdinal(d3.schemeCategory10);
 
     // define the line
     var line = d3.line()
@@ -25,17 +26,30 @@ function linegraph(call_path) {
 
     // Get the data
     d3.json(call_path, {credentials: 'same-origin'}).then(function(data) {
-      x.domain(d3.extent(data, function(d) { return parseTime(d[0]); }));
-      y.domain(d3.extent(data, function(d) { return d[1]; }));
+      var color = d3.scaleOrdinal(d3.schemeCategory10);
+      var i = 0;
+      for (country in data) {
+          var country_data = data[country]
+          x.domain(d3.extent(country_data, function(d) { return parseTime(d[0]); }));
+          y.domain(d3.extent(country_data, function(d) { return d[1]; }));
 
+          context.beginPath();
+          line(country_data);
+          context.lineWidth = 1.5;
+          context.strokeStyle = color(i);
+          context.stroke();
+          i += 1;
+      };
       xAxis();
       yAxis();
-
-      context.beginPath();
-      line(data);
-      context.lineWidth = 1.5;
-      context.strokeStyle = "steelblue";
-      context.stroke();
+      d3.json(call_path + '_callback',
+                {credentials: 'same-origin',
+                 method: 'POST',
+                 body: JSON.stringify(data),
+                 // headers: {'Content-Type': 'application/json'}
+                }).then(function(data) {
+          d3.select('#asn_details').html(data);
+      });
     });
 
     function xAxis() {

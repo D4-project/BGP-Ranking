@@ -47,7 +47,10 @@ def load_session():
         session['asn'] = d['asn']
         session.pop('country', None)
     elif 'country' in d:
-        session['country'] = d.getlist('country')
+        if '_all' in d.getlist('country'):
+            session.pop('country', None)
+        else:
+            session['country'] = d.getlist('country')
         session.pop('asn', None)
     set_default_date_session()
 
@@ -106,22 +109,24 @@ def country_history_callback():
     mapping = defaultdict(dict)
     dates = []
     all_asns = set([])
-    for d, r_sum, details in history_data:
-        dates.append(d)
-        for detail in details:
-            asn, r = detail
-            all_asns.add(asn)
-            mapping[asn][d] = r
+    for country, data in history_data.items():
+        for d, r_sum, details in data:
+            dates.append(d)
+            for detail in details:
+                asn, r = detail
+                all_asns.add(asn)
+                mapping[asn][d] = r
 
-    to_display = [[''] + dates]
-    for a in sorted(list(all_asns), key=int):
-        line = [a]
-        for d in dates:
-            if mapping[a].get(d) is not None:
-                line.append(round(mapping[a].get(d), 3))
-            else:
-                line.append('N/A')
-        to_display.append(line)
+        to_display_temp = [[country] + dates]
+        for a in sorted(list(all_asns), key=int):
+            line = [a]
+            for d in dates:
+                if mapping[a].get(d) is not None:
+                    line.append(round(mapping[a].get(d), 3))
+                else:
+                    line.append('N/A')
+            to_display_temp.append(line)
+        to_display.append(to_display_temp)
     return json.dumps(render_template('country_asn_map.html', to_display=to_display))
 
 

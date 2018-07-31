@@ -5,17 +5,17 @@
 {% endblock %}
 
 
-{% block title %}Ranking - {{ country }}{% endblock %}
+{% block title %}Ranking - {{ ' '.join(country) }}{% endblock %}
 
 {% block scripts %}
     {{ super() }}
-    <script src='{{ url_for('static', filename='linegraph.js') }}'></script>
+    <script src='{{ url_for('static', filename='linegraph_country.js') }}'></script>
     <script>linegraph('/country_history');</script>
 {% endblock %}
 
 {% block content %}
   <center>
-      <h1>Ranking - {{country}}</h1></br></br>
+      <h1>Ranking - {{ ' '.join(country) }}</h1></br></br>
   </center>
   {% include ['top_forms.html'] %}
   <canvas width="1024" height="800"></canvas>

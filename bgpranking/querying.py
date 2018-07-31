@@ -179,9 +179,9 @@ class Querying():
         daily_sum = sum(ranks)
         return daily_sum, to_return
 
-    def country_history(self, country: str, period: int=30, source: Union[list, str]='',
+    def country_history(self, country: Union[list, str], period: int=30, source: Union[list, str]='',
                         ipversion: str='v4', date: Dates=datetime.date.today()):
-        to_return = []
+        to_return = {}
 
         if isinstance(date, str):
             date = parse(date).date()
@@ -189,10 +189,14 @@ class Querying():
             # the period to display will be around the date passed at least 2/3 before the date, at most 1/3 after
             date = datetime.date.today()
 
-        for i in range(period):
-            d = date - timedelta(days=i)
-            rank, details = self.country_rank(country, d, source, ipversion)
-            if rank is None:
-                rank = 0
-            to_return.insert(0, (d.isoformat(), rank, list(details)))
+        if isinstance(country, str):
+            country = [country]
+        for c in country:
+            to_return[c] = []
+            for i in range(period):
+                d = date - timedelta(days=i)
+                rank, details = self.country_rank(c, d, source, ipversion)
+                if rank is None:
+                    rank = 0
+                to_return[c].insert(0, (d.isoformat(), rank, list(details)))
         return to_return
