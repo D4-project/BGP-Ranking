@@ -39,12 +39,15 @@ def load_session():
     if 'ipversion' in d:
         session['ipversion'] = d['ipversion']
     if 'source' in d:
-        session['source'] = d['source']
+        if '_all' in d.getlist('source'):
+            session.pop('source', None)
+        else:
+            session['source'] = d.getlist('source')
     if 'asn' in d:
         session['asn'] = d['asn']
         session.pop('country', None)
     elif 'country' in d:
-        session['country'] = d['country']
+        session['country'] = d.getlist('country')
         session.pop('asn', None)
     set_default_date_session()
 

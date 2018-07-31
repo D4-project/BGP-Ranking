@@ -11,10 +11,10 @@
         <button type="submit" class="btn btn-primary my-1">IP version</button>
     </form>
     <form class="form-inline" style="width:400px; display:inline-block;" action="" method=post>
-      <select name="source" class="form-control">
-        <option value="" {% if not source %} selected="selected"{% endif %}>all</option>
+      <select name="source" class="selectpicker" multiple>
+        <option value="_all" {% if not source %} selected="selected"{% endif %}>all</option>
         {% for s in sources %}
-        <option value="{{ s }}" {% if source == s %} selected="selected"{% endif %}>{{ s }}</option>
+        <option value="{{ s }}" {% if s in source %} selected="selected"{% endif %}>{{ s }}</option>
         {% endfor %}
       </select>
       <input type="submit" class="btn btn-primary my-1"value="Set source">
@@ -24,7 +24,7 @@
         <button type="submit" class="btn btn-primary my-1">Search ASN</button>
     </form>
     <form class="form-inline"style="width:500px; display:inline-block;" action="{{ url_for('country') }}" method=post>
-      <select name="country" class="form-control">
+      <select name="country" class="selectpicker" multiple>
         <option value="" {% if not country %} selected="selected"{% endif %}>all</option>
         {% for cc, name in countries %}
         <option value="{{ cc }}" {% if country == cc %} selected="selected"{% endif %}>{{ name }}</option>

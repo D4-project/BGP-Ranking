@@ -3,9 +3,11 @@
 {% block scripts %}
     {{ super() }}
     <script src='{{ url_for('static', filename='d3.v5.js') }}'></script>
+    <script src='{{ url_for('static', filename='bootstrap-select.min.js') }}'></script>
 {% endblock %}
 
 {% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-select.min.css') }}">
     {{ super() }}
 {% endblock %}
 

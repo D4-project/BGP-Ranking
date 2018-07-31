@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import TypeVar
+from typing import TypeVar, Union
 import datetime
 from datetime import timedelta
 from dateutil.parser import parse
@@ -24,6 +24,7 @@ class Querying():
         self.storage = StrictRedis(unix_socket_path=get_socket_path('storage'), decode_responses=True)
         self.ranking = StrictRedis(unix_socket_path=get_socket_path('storage'), db=1, decode_responses=True)
         self.asn_meta = StrictRedis(unix_socket_path=get_socket_path('storage'), db=2, decode_responses=True)
+        self.cache = StrictRedis(unix_socket_path=get_socket_path('ris'), db=1, decode_responses=True)
 
     def __init_logger(self, loglevel: int):
         self.logger = logging.getLogger(f'{self.__class__.__name__}')
@@ -40,33 +41,77 @@ class Querying():
             except ValueError:
                 raise InvalidDateFormat('Unable to parse the date. Should be YYYY-MM-DD.')
 
-    def asns_global_ranking(self, date: Dates=datetime.date.today(), source: str='', ipversion: str='v4', limit: int=100):
+    def ranking_cache_wrapper(self, key):
+        if not self.cache.exists(key):
+            if self.ranking.exists(key):
+                key_dump = self.ranking.dump(key)
+                # Cache for 10 hours
+                self.cache.restore(key, 36000, key_dump, True)
+
+    def asns_global_ranking(self, date: Dates=datetime.date.today(), source: Union[list, str]='',
+                            ipversion: str='v4', limit: int=100):
         '''Aggregated ranking of all the ASNs known in the system, weighted by source.'''
         d = self.__normalize_date(date)
         if source:
-            key = f'{d}|{source}|asns|{ipversion}'
+            if isinstance(source, list):
+                keys = []
+                for s in source:
+                    key = f'{d}|{s}|asns|{ipversion}'
+                    self.ranking_cache_wrapper(key)
+                    keys.append(key)
+                # union the ranked sets
+                key = '|'.join(sorted(source)) + f'|{d}|asns|{ipversion}'
+                if not self.cache.exists(key):
+                    self.cache.zunionstore(key, keys)
+            else:
+                key = f'{d}|{source}|asns|{ipversion}'
         else:
             key = f'{d}|asns|{ipversion}'
-        return self.ranking.zrevrange(key, start=0, end=limit, withscores=True)
+        self.ranking_cache_wrapper(key)
+        return self.cache.zrevrange(key, start=0, end=limit, withscores=True)
 
-    def asn_details(self, asn: int, date: Dates= datetime.date.today(), source: str='', ipversion: str='v4'):
+    def asn_details(self, asn: int, date: Dates= datetime.date.today(), source: Union[list, str]='',
+                    ipversion: str='v4'):
         '''Aggregated ranking of all the prefixes anounced by the given ASN, weighted by source.'''
         d = self.__normalize_date(date)
         if source:
-            key = f'{d}|{source}|{asn}|{ipversion}|prefixes'
+            if isinstance(source, list):
+                keys = []
+                for s in source:
+                    key = f'{d}|{s}|{asn}|{ipversion}|prefixes'
+                    self.ranking_cache_wrapper(key)
+                    keys.append(key)
+                # union the ranked sets
+                key = '|'.join(sorted(source)) + f'|{d}|{asn}|{ipversion}'
+                if not self.cache.exists(key):
+                    self.cache.zunionstore(key, keys)
+            else:
+                key = f'{d}|{source}|{asn}|{ipversion}|prefixes'
         else:
             key = f'{d}|{asn}|{ipversion}'
-        return self.ranking.zrevrange(key, start=0, end=-1, withscores=True)
+        self.ranking_cache_wrapper(key)
+        return self.cache.zrevrange(key, start=0, end=-1, withscores=True)
 
-    def asn_rank(self, asn: int, date: Dates=datetime.date.today(), source: str='', ipversion: str='v4'):
+    def asn_rank(self, asn: int, date: Dates=datetime.date.today(), source: Union[list, str]='',
+                 ipversion: str='v4'):
         '''Get the rank of a single ASN, weighted by source.'''
         d = self.__normalize_date(date)
         if source:
-            key = f'{d}|{source}|{asn}|{ipversion}'
-            r = self.ranking.get(key)
+            if isinstance(source, list):
+                keys = []
+                for s in source:
+                    key = f'{d}|{s}|{asn}|{ipversion}'
+                    self.ranking_cache_wrapper(key)
+                    keys.append(key)
+                r = sum(float(self.cache.get(key)) for key in keys if self.cache.exists(key))
+            else:
+                key = f'{d}|{source}|{asn}|{ipversion}'
+                self.ranking_cache_wrapper(key)
+                r = self.cache.get(key)
         else:
             key = f'{d}|asns|{ipversion}'
-            r = self.ranking.zscore(key, asn)
+            self.ranking_cache_wrapper(key)
+            r = self.cache.zscore(key, asn)
         if r:
             return float(r)
         return 0
@@ -83,9 +128,13 @@ class Querying():
             return descriptions
         return descriptions[sorted(descriptions.keys(), reverse=True)[0]]
 
-    def get_prefix_ips(self, asn: int, prefix: str, date: Dates=datetime.date.today(), source: str='', ipversion: str='v4'):
+    def get_prefix_ips(self, asn: int, prefix: str, date: Dates=datetime.date.today(),
+                       source: Union[list, str]='', ipversion: str='v4'):
         if source:
-            sources = [source]
+            if isinstance(source, list):
+                sources = source
+            else:
+                sources = [source]
         else:
             sources = self.get_sources(date)
         prefix_ips = defaultdict(list)
@@ -96,7 +145,8 @@ class Querying():
             [prefix_ips[ip].append(source) for ip in ips]
         return prefix_ips
 
-    def get_asn_history(self, asn: int, period: int=100, source: str='', ipversion: str='v4', date: Dates=datetime.date.today()):
+    def get_asn_history(self, asn: int, period: int=100, source: Union[list, str]='',
+                        ipversion: str='v4', date: Dates=datetime.date.today()):
         to_return = []
 
         if isinstance(date, str):
@@ -113,7 +163,8 @@ class Querying():
             to_return.insert(0, (d.isoformat(), rank))
         return to_return
 
-    def country_rank(self, country: str, date: Dates=datetime.date.today(), source: str='', ipversion: str='v4'):
+    def country_rank(self, country: str, date: Dates=datetime.date.today(), source: Union[list, str]='',
+                     ipversion: str='v4'):
         ripe = StatsRIPE()
         d = self.__normalize_date(date)
         response = ripe.country_asns(country, query_time=d, details=1)
@@ -128,7 +179,8 @@ class Querying():
         daily_sum = sum(ranks)
         return daily_sum, to_return
 
-    def country_history(self, country: str, period: int=30, source: str='', ipversion: str='v4', date: Dates=datetime.date.today()):
+    def country_history(self, country: str, period: int=30, source: Union[list, str]='',
+                        ipversion: str='v4', date: Dates=datetime.date.today()):
         to_return = []
 
         if isinstance(date, str):
