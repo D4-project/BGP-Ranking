@@ -9,6 +9,7 @@ from flask_bootstrap import Bootstrap
 from bgpranking.querying import Querying
 from datetime import date, timedelta
 import pycountry
+from collections import defaultdict
 
 app = Flask(__name__)
 
@@ -93,6 +94,32 @@ def asn_history():
     load_session()
     q = Querying()
     return Response(json.dumps(q.get_asn_history(**session)), mimetype='application/json')
+
+
+@app.route('/country_history_callback', methods=['GET', 'POST'])
+def country_history_callback():
+    history_data = json.loads(request.data)
+    to_display = []
+    mapping = defaultdict(dict)
+    dates = []
+    all_asns = set([])
+    for d, r_sum, details in history_data:
+        dates.append(d)
+        for detail in details:
+            asn, r = detail
+            all_asns.add(asn)
+            mapping[asn][d] = r
+
+    to_display = [[''] + dates]
+    for a in sorted(list(all_asns), key=int):
+        line = [a]
+        for d in dates:
+            if mapping[a].get(d) is not None:
+                line.append(round(mapping[a].get(d), 3))
+            else:
+                line.append('N/A')
+        to_display.append(line)
+    return json.dumps(render_template('country_asn_map.html', to_display=to_display))
 
 
 @app.route('/country_history', methods=['GET', 'POST'])

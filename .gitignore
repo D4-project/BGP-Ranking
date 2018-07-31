@@ -118,3 +118,5 @@ bgpranking/config/modules/shadowserver_*.json
 
 # Do not store the d3 lib in the repo
 website/web/static/d3*.js
+
+*.swp

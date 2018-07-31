@@ -121,8 +121,12 @@ class Querying():
                 response['data']['countries'][0].get('routed')):
             logging.warning(f'Invalid response: {response}')
             # FIXME: return something
-            return
-        return sum([self.asn_rank(asn, d, source, ipversion) for asn in response['data']['countries'][0]['routed']])
+            return 0, [(0, 0)]
+        routed_asns = response['data']['countries'][0]['routed']
+        ranks = [self.asn_rank(asn, d, source, ipversion) for asn in routed_asns]
+        to_return = zip(routed_asns, ranks)
+        daily_sum = sum(ranks)
+        return daily_sum, to_return
 
     def country_history(self, country: str, period: int=30, source: str='', ipversion: str='v4', date: Dates=datetime.date.today()):
         to_return = []
@@ -135,8 +139,8 @@ class Querying():
 
         for i in range(period):
             d = date - timedelta(days=i)
-            rank = self.country_rank(country, d, source, ipversion)
+            rank, details = self.country_rank(country, d, source, ipversion)
             if rank is None:
                 rank = 0
-            to_return.insert(0, (d.isoformat(), rank))
+            to_return.insert(0, (d.isoformat(), rank, list(details)))
         return to_return

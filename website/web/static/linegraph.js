@@ -36,6 +36,14 @@ function linegraph(call_path) {
       context.lineWidth = 1.5;
       context.strokeStyle = "steelblue";
       context.stroke();
+      d3.json(call_path + '_callback',
+                {credentials: 'same-origin',
+                 method: 'POST',
+                 body: JSON.stringify(data),
+                 // headers: {'Content-Type': 'application/json'}
+                }).then(function(data) {
+          d3.select('#asn_details').html(data);
+      });
     });
 
     function xAxis() {
