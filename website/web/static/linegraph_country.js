@@ -12,14 +12,13 @@ function linegraph(call_path) {
 		z = d3.scaleOrdinal(d3.schemeCategory10);
 
 	var line = d3.line()
-		.curve(d3.curveBasis)
+		.curve(d3.curveLinear)
 		.x(function(d) { return x(d.date); })
 		.y(function(d) { return y(d.rank); });
 
 	d3.json(call_path, {credentials: 'same-origin'}).then(function(data) {
 
 	  var country_ranks = d3.entries(data).map(function(country_rank) {
-        x.domain(d3.extent(country_rank.value, function(d) { return parseTime(d[0]); }));
 		return {
 		  country: country_rank.key,
 		  values: d3.values(country_rank.value).map(function(d) {
@@ -28,6 +27,7 @@ function linegraph(call_path) {
 		};
 	  });
 
+      x.domain(d3.extent(country_ranks[0].values, function(d) { return d.date; }));
 	  y.domain([
 		d3.min(country_ranks, function(c) { return d3.min(c.values, function(d) { return d.rank; }); }),
 		d3.max(country_ranks, function(c) { return d3.max(c.values, function(d) { return d.rank; }); })
