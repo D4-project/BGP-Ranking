@@ -1,113 +1,80 @@
 function linegraph(call_path) {
-    var canvas = document.querySelector("canvas"),
-        context = canvas.getContext("2d");
+	var svg = d3.select("svg"),
+		margin = {top: 20, right: 80, bottom: 30, left: 50},
+		width = svg.attr("width") - margin.left - margin.right,
+		height = svg.attr("height") - margin.top - margin.bottom,
+		g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // set the dimensions and margins of the graph
-    var margin = {top: 20, right: 20, bottom: 30, left: 50},
-        width = canvas.width - margin.left - margin.right,
-        height = canvas.height - margin.top - margin.bottom;
+	var parseTime = d3.timeParse("%Y-%m-%d");
 
-    // parse the date / time
-    var parseTime = d3.timeParse("%Y-%m-%d");
+	var x = d3.scaleTime().range([0, width]),
+		y = d3.scaleLinear().range([height, 0]),
+		z = d3.scaleOrdinal(d3.schemeCategory10);
 
-    // set the ranges
-    var x = d3.scaleTime().range([0, width]);
-    var y = d3.scaleLinear().range([height, 0]);
-    var z = d3.scaleOrdinal(d3.schemeCategory10);
+	var line = d3.line()
+		.curve(d3.curveBasis)
+		.x(function(d) { return x(d.date); })
+		.y(function(d) { return y(d.rank); });
 
-    // define the line
-    var line = d3.line()
-        .x(function(d) { return x(parseTime(d[0])); })
-        .y(function(d) { return y(d[1]); })
-        .curve(d3.curveStep)
-        .context(context);
+	d3.json(call_path, {credentials: 'same-origin'}).then(function(data) {
 
-    context.translate(margin.left, margin.top);
+	  var country_ranks = d3.entries(data).map(function(country_rank) {
+        x.domain(d3.extent(country_rank.value, function(d) { return parseTime(d[0]); }));
+		return {
+		  country: country_rank.key,
+		  values: d3.values(country_rank.value).map(function(d) {
+			return {date: parseTime(d[0]), rank: d[1]};
+		  })
+		};
+	  });
 
-    // Get the data
-    d3.json(call_path, {credentials: 'same-origin'}).then(function(data) {
-      var color = d3.scaleOrdinal(d3.schemeCategory10);
-      var i = 0;
-      for (country in data) {
-          var country_data = data[country]
-          x.domain(d3.extent(country_data, function(d) { return parseTime(d[0]); }));
-          y.domain(d3.extent(country_data, function(d) { return d[1]; }));
+	  y.domain([
+		d3.min(country_ranks, function(c) { return d3.min(c.values, function(d) { return d.rank; }); }),
+		d3.max(country_ranks, function(c) { return d3.max(c.values, function(d) { return d.rank; }); })
+	  ]);
 
-          context.beginPath();
-          line(country_data);
-          context.lineWidth = 1.5;
-          context.strokeStyle = color(i);
-          context.stroke();
-          i += 1;
-      };
-      xAxis();
-      yAxis();
+	  z.domain(country_ranks.map(function(c) { return c.country; }));
+
+	  g.append("g")
+		  .attr("class", "axis axis--x")
+		  .attr("transform", "translate(0," + height + ")")
+		  .call(d3.axisBottom(x));
+
+	  g.append("g")
+		  .attr("class", "axis axis--y")
+		  .call(d3.axisLeft(y))
+		.append("text")
+		  .attr("transform", "rotate(-90)")
+		  .attr("y", 6)
+		  .attr("dy", "0.71em")
+		  .attr("fill", "#000")
+		  .text("Rank");
+
+	  var country = g.selectAll(".country")
+		.data(country_ranks)
+		.enter().append("g")
+		  .attr("class", "country");
+
+	  country.append("path")
+		  .attr("class", "line")
+		  .attr("d", function(d) { return line(d.values); })
+		  .style("stroke", function(d) { return z(d.country); });
+
+	  country.append("text")
+		  .datum(function(d) { return {id: d.country, value: d.values[d.values.length - 1]}; })
+		  .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.rank) + ")"; })
+		  .attr("x", 3)
+		  .attr("dy", "0.35em")
+		  .style("font", "10px sans-serif")
+		  .text(function(d) { return d.id; });
+
       d3.json(call_path + '_callback',
-                {credentials: 'same-origin',
-                 method: 'POST',
-                 body: JSON.stringify(data),
-                 // headers: {'Content-Type': 'application/json'}
-                }).then(function(data) {
-          d3.select('#asn_details').html(data);
+                  {credentials: 'same-origin',
+                   method: 'POST',
+                   body: JSON.stringify(data),
+                   // headers: {'Content-Type': 'application/json'}
+                  }).then(function(data) {
+            d3.select('#asn_details').html(data);
       });
     });
-
-    function xAxis() {
-      var tickCount = 10,
-          tickSize = .1,
-          ticks = x.ticks(tickCount),
-          tickFormat = x.tickFormat();
-
-      context.beginPath();
-      ticks.forEach(function(d) {
-        context.moveTo(x(d), height);
-        context.lineTo(x(d), height + tickSize);
-      });
-      context.strokeStyle = "black";
-      context.stroke();
-
-      context.textAlign = "center";
-      context.textBaseline = "top";
-      ticks.forEach(function(d) {
-        context.fillText(tickFormat(d), x(d), height + tickSize);
-      });
-    }
-
-    function yAxis() {
-      var tickCount = 20,
-          tickSize = 1,
-          tickPadding = 1,
-          ticks = y.ticks(tickCount),
-          tickFormat = y.tickFormat(tickCount);
-
-      context.beginPath();
-      ticks.forEach(function(d) {
-        context.moveTo(0, y(d));
-        context.lineTo(-6, y(d));
-      });
-      context.strokeStyle = "black";
-      context.stroke();
-
-      context.beginPath();
-      context.moveTo(-tickSize, 0);
-      context.lineTo(0.5, 0);
-      context.lineTo(0.5, height);
-      context.lineTo(-tickSize, height);
-      context.strokeStyle = "black";
-      context.stroke();
-
-      context.textAlign = "right";
-      context.textBaseline = "middle";
-      ticks.forEach(function(d) {
-        context.fillText(tickFormat(d), -tickSize - tickPadding, y(d));
-      });
-
-      context.save();
-      context.rotate(-Math.PI / 2);
-      context.textAlign = "right";
-      context.textBaseline = "top";
-      context.font = "bold 10px sans-serif";
-      context.fillText("Rank", -10, 10);
-      context.restore();
-    }
-}
+};
