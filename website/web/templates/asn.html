@@ -5,7 +5,9 @@
 {% endblock %}
 
 
-{% block title %}Ranking - {{ asn }}{% endblock %}
+{% block title %}
+    Ranking - {{ asn }}
+{% endblock %}
 
 {% block scripts %}
     {{ super() }}
@@ -16,6 +18,11 @@
 {% block content %}
   <center>
       <h1>Ranking - {{asn}}</h1></br></br>
+      <button data-html="true" type="button" class="btn btn-secondary" data-container="body"
+         data-toggle="popover" data-placement="bottom"
+                               data-content="<center><b>sum</b>(IP * weight of the list) </br><hr><b>sum</b>(IP in the prefix)</center>">
+        <h4>How is this ranking computed?</h4>
+     </button>
   </center>
   {% include ['top_forms.html'] %}
   <table class="table">

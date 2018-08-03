@@ -95,6 +95,22 @@ def asn_details():
     return render_template('asn.html', sources=sources, ranks=ranks, prefix_ips=prefix_ips, asn_descriptions=asn_descriptions, **session)
 
 
+@app.route('/asn_description', methods=['POST'])
+def asn_description():
+    load_session()
+    asn = None
+    if request.form.get('asn'):
+        asn = request.form.get('asn')
+    elif session.get('asn'):
+        asn = session.get('asn')
+    else:
+        to_return = {'error': 'asn required'}
+    if asn:
+        q = Querying()
+        to_return = q.get_asn_descriptions(asn, session.get('all_descriptions'))
+    return Response(json.dumps(to_return), mimetype='application/json')
+
+
 @app.route('/asn_history', methods=['GET', 'POST'])
 def asn_history():
     load_session()

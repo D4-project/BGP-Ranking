@@ -4,6 +4,11 @@
     {{ super() }}
     <script src='{{ url_for('static', filename='d3.v5.js') }}'></script>
     <script src='{{ url_for('static', filename='bootstrap-select.min.js') }}'></script>
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="popover"]').popover();
+        });
+    </script>
 {% endblock %}
 
 {% block head %}
