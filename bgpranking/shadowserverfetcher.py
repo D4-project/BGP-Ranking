@@ -76,7 +76,7 @@ class ShadowServerFetcher():
         if '_' in type_content:
             type_content, details_type = type_content.split('_', maxsplit=1)
             if '_' in details_type:
-                details_type, sub = details_type.split('_')
+                details_type, sub = details_type.split('_', maxsplit=1)
                 return list_type, country, (type_content, details_type, sub)
             return list_type, country, (type_content, details_type)
         return list_type, country, (type_content)
