@@ -24,7 +24,8 @@ class ShadowServerFetcher():
         self.index_page = 'https://dl.shadowserver.org/reports/index.php'
         self.vendor = 'shadowserver'
         self.known_list_types = ('blacklist', 'botnet', 'cc', 'cisco', 'cwsandbox', 'drone',
-                                 'microsoft', 'scan', 'sinkhole6', 'sinkhole', 'outdated')
+                                 'microsoft', 'scan', 'sinkhole6', 'sinkhole', 'outdated',
+                                 'compromised', 'hp')
         self.first_available_day = None
         self.last_available_day = None
         self.available_entries = {}
