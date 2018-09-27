@@ -87,12 +87,14 @@ class ShadowServerFetcher():
         config = {'vendor': 'shadowserver', 'parser': '.parsers.shadowserver'}
         type_content, _, type_details = self.__split_name(filename)
         prefix = type_content.split('.')[0]
-        config['name'] = '{}-{}'.format(prefix, '_'.join(type_details))
 
         if isinstance(type_details, str):
             main_type = type_details
+            config['name'] = '{}-{}'.format(prefix, type_details)
         else:
             main_type = type_details[0]
+            config['name'] = '{}-{}'.format(prefix, '_'.join(type_details))
+
         if main_type not in self.known_list_types:
             self.logger.warning(f'Unknown type: {main_type}. Please update the config creator script.')
             return None
