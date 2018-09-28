@@ -119,6 +119,9 @@ class ShadowServerFetcher():
             config['impact'] = 2
         elif main_type == 'sinkhole':
             config['impact'] = 2
+        else:
+            config['impact'] = 1
+
         if not (self.config_path_modules / f"{config['vendor']}_{config['name']}.json").exists():
             self.logger.debug(f'Creating config file for {filename}.')
             with open(self.config_path_modules / f"{config['vendor']}_{config['name']}.json", 'w') as f:
