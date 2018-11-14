@@ -23,7 +23,7 @@ class Ranking():
         self.logger.setLevel(loglevel)
 
     def rank_a_day(self, day: str):
-        # FIXME: If we want to rank an older date, we need to hav older datasets for the announces
+        # FIXME: If we want to rank an older date, we need to have older datasets for the announces
         v4_last, v6_last = self.asn_meta.mget('v4|last', 'v6|last')
         asns_aggregation_key_v4 = f'{day}|asns|v4'
         asns_aggregation_key_v6 = f'{day}|asns|v6'
@@ -45,6 +45,10 @@ class Ranking():
                 asn_rank_v4 = 0.0
                 asn_rank_v6 = 0.0
                 for prefix in self.storage.smembers(f'{day}|{source}|{asn}'):
+                    if prefix == 'None':
+                        # FIXME, this should not happen
+                        self.logger.warning(f'Fucked up prefix in "{day}|{source}|{asn}"')
+                        continue
                     ips = set([ip_ts.split('|')[0]
                                for ip_ts in self.storage.smembers(f'{day}|{source}|{asn}|{prefix}')])
                     py_prefix = ip_network(prefix)

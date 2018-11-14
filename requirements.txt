@@ -10,3 +10,6 @@ git+https://github.com/MISP/PyTaxonomies
 git+https://github.com/MISP/PyMISPGalaxies.git
 
 beautifulsoup4
+
+# IPASN web client
+git+https://github.com/D4-project/IPASN-History.git/#egg=pyipasnhistory&subdirectory=client

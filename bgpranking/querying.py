@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 from typing import TypeVar, Union
@@ -8,9 +8,10 @@ from dateutil.parser import parse
 from collections import defaultdict
 
 import logging
+import json
 from redis import StrictRedis
 
-from .libs.helpers import get_socket_path
+from .libs.helpers import get_socket_path, get_config_path
 from .libs.exceptions import InvalidDateFormat
 from .libs.statsripe import StatsRIPE
 
@@ -24,7 +25,7 @@ class Querying():
         self.storage = StrictRedis(unix_socket_path=get_socket_path('storage'), decode_responses=True)
         self.ranking = StrictRedis(unix_socket_path=get_socket_path('storage'), db=1, decode_responses=True)
         self.asn_meta = StrictRedis(unix_socket_path=get_socket_path('storage'), db=2, decode_responses=True)
-        self.cache = StrictRedis(unix_socket_path=get_socket_path('ris'), db=1, decode_responses=True)
+        self.cache = StrictRedis(unix_socket_path=get_socket_path('cache'), db=1, decode_responses=True)
 
     def __init_logger(self, loglevel: int):
         self.logger = logging.getLogger(f'{self.__class__.__name__}')
@@ -200,3 +201,14 @@ class Querying():
                     rank = 0
                 to_return[c].insert(0, (d.isoformat(), rank, list(details)))
         return to_return
+
+    def get_source_config(self):
+        pass
+
+    def get_sources_configs(self):
+        config_dir = get_config_path() / 'modules'
+        loaded = []
+        for modulepath in config_dir.glob('*.json'):
+            with open(modulepath) as f:
+                loaded.append(json.load(f))
+        return {'{}-{}'.format(config['vendor'], config['name']): config for config in loaded}

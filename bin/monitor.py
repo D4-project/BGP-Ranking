@@ -14,10 +14,7 @@ class MonitorManager():
         self.monitor = Monitor()
 
     def get_values(self):
-        generic = self.monitor.get_values()
-        prefix_cache = self.monitor.info_prefix_cache()
-        running = self.monitor.get_runinng()
-        return generic, prefix_cache, running
+        return self.monitor.get_values()
 
 
 if __name__ == '__main__':

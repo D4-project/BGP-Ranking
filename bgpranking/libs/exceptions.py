@@ -24,3 +24,15 @@ class MissingEnv(BGPRankingException):
 
 class InvalidDateFormat(BGPRankingException):
     pass
+
+
+class MissingConfigFile(BGPRankingException):
+    pass
+
+
+class MissingConfigEntry(BGPRankingException):
+    pass
+
+
+class ThirdPartyUnreachable(BGPRankingException):
+    pass

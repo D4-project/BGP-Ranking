@@ -27,7 +27,7 @@ class AbstractManager(ABC):
             try:
                 self._to_run_forever()
             except Exception:
-                self.logger.exception(f'Something went terribly wrong in {self.__class__.__name__}.')
+                self.logger.exception(f'Something went wrong in {self.__class__.__name__}.')
             if not long_sleep(sleep_in_sec):
                 break
         self.logger.info(f'Shutting down {self.__class__.__name__}')

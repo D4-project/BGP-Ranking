@@ -3,5 +3,4 @@
 set -e
 set -x
 
-../../redis/src/redis-server ./ris.conf
-../../redis/src/redis-server ./prefixes.conf
+../../redis/src/redis-server ./cache.conf

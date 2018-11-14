@@ -12,7 +12,7 @@ import argparse
 def launch_cache(storage_directory: Path=None):
     if not storage_directory:
         storage_directory = get_homedir()
-    if not check_running('ris') and not check_running('prefixes'):
+    if not check_running('cache'):
         Popen(["./run_redis.sh"], cwd=(storage_directory / 'cache'))
 
 
@@ -55,7 +55,7 @@ def launch_all():
 
 
 def check_all(stop=False):
-    backends = [['ris', False], ['prefixes', False], ['storage', False],
+    backends = [['cache', False], ['storage', False],
                 ['intake', False], ['prepare', False]]
     while True:
         for b in backends:

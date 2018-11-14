@@ -10,8 +10,6 @@ if __name__ == '__main__':
     get_homedir()
     p = Popen(['run_backend.py', '--start'])
     p.wait()
-    Popen(['loadprefixes.py'])
-    Popen(['rislookup.py'])
     Popen(['fetcher.py'])
     Popen(['ssfetcher.py'])
     Popen(['parser.py'])
