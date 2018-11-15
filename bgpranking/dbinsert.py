@@ -47,7 +47,6 @@ class DatabaseInsert():
                 for_query.append({'ip': data['ip'], 'address_family': data['address_family'], 'source': 'caida',
                                   'date': data['datetime'], 'precision_delta': {'days': 3}})
             responses = self.ipasn.mass_query(for_query)
-
             retry = []
             done = []
             ardb_pipeline = self.ardb_storage.pipeline(transaction=False)
@@ -69,6 +68,12 @@ class DatabaseInsert():
                 if not entry:
                     # routing info is missing, need to try again later.
                     retry.append(uuid)
+                    continue
+                if 'asn' in entry and entry['asn'] is None:
+                    self.logger.warning(f"Unable to find the AS number associated to {data['ip']} - {data['datetime']} (got None). This should not happen...")
+                    continue
+                if 'prefix' in entry and entry['prefix'] is None:
+                    self.logger.warning(f"Unable to find the prefix associated to {data['ip']} - {data['datetime']} (got None). This should not happen...")
                     continue
 
                 # Format: <YYYY-MM-DD>|sources -> set([<source>, ...])
