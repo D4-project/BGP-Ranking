@@ -17,6 +17,11 @@ class Monitor():
     def get_values(self):
         ips_in_intake = self.intake.scard('intake')
         ready_to_insert = self.sanitize.scard('to_insert')
+        ipasn_meta = self.ipasn.meta()
+        if len(ipasn_meta['cached_dates']['caida']['v4']['cached']) > 15:
+            ipasn_meta['cached_dates']['caida']['v4']['cached'] = 'Too many entries'
+        if len(ipasn_meta['cached_dates']['caida']['v6']['cached']) > 15:
+            ipasn_meta['cached_dates']['caida']['v6']['cached'] = 'Too many entries'
         return json.dumps({'Non-parsed IPs': ips_in_intake, 'Parsed IPs': ready_to_insert,
-                           'IPASN History': self.ipasn.meta(), 'running': self.cache.hgetall('running')},
+                           'running': self.cache.hgetall('running'), 'IPASN History': ipasn_meta},
                           indent=2)
