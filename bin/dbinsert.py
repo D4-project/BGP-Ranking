@@ -11,7 +11,7 @@ logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
 
 class DBInsertManager(AbstractManager):
 
-    def __init__(self, loglevel: int=logging.DEBUG):
+    def __init__(self, loglevel: int=logging.INFO):
         super().__init__(loglevel)
         self.dbinsert = DatabaseInsert(loglevel)
 

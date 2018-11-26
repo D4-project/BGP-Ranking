@@ -17,7 +17,7 @@ logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
 
 class ShadowServerManager(AbstractManager):
 
-    def __init__(self, config_dir: Path=None, storage_directory: Path=None, loglevel: int=logging.DEBUG):
+    def __init__(self, config_dir: Path=None, storage_directory: Path=None, loglevel: int=logging.INFO):
         super().__init__(loglevel)
         self.config = True
         if not config_dir:
