@@ -51,13 +51,13 @@ class Ranking():
                                for ip_ts in self.storage.smembers(f'{day}|{source}|{asn}|{prefix}')])
                     py_prefix = ip_network(prefix)
                     prefix_rank = float(len(ips)) / py_prefix.num_addresses
-                    r_pipeline.zadd(f'{day}|{source}|{asn}|v{py_prefix.version}|prefixes', prefix_rank, prefix)
+                    r_pipeline.zadd(f'{day}|{source}|{asn}|v{py_prefix.version}|prefixes', {prefix: prefix_rank})
                     if py_prefix.version == 4:
                         asn_rank_v4 += len(ips) * self.config_files[source]['impact']
-                        r_pipeline.zincrby(prefixes_aggregation_key_v4, prefix, prefix_rank * self.config_files[source]['impact'])
+                        r_pipeline.zincrby(prefixes_aggregation_key_v4, prefix_rank * self.config_files[source]['impact'], prefix)
                     else:
                         asn_rank_v6 += len(ips) * self.config_files[source]['impact']
-                        r_pipeline.zincrby(prefixes_aggregation_key_v6, prefix, prefix_rank * self.config_files[source]['impact'])
+                        r_pipeline.zincrby(prefixes_aggregation_key_v6, prefix_rank * self.config_files[source]['impact'], prefix)
                 v4info = self.ipasn.asn_meta(asn=asn, source='caida', address_family='v4', date=day)
                 v6info = self.ipasn.asn_meta(asn=asn, source='caida', address_family='v6', date=day)
                 ipasnhistory_date_v4 = list(v4info['response'].keys())[0]
@@ -68,14 +68,14 @@ class Ranking():
                     asn_rank_v4 /= float(v4count)
                     if asn_rank_v4:
                         r_pipeline.set(f'{day}|{source}|{asn}|v4', asn_rank_v4)
-                        r_pipeline.zincrby(asns_aggregation_key_v4, asn, asn_rank_v4)
-                        r_pipeline.zadd(source_aggregation_key_v4, asn_rank_v4, asn)
+                        r_pipeline.zincrby(asns_aggregation_key_v4, asn_rank_v4, asn)
+                        r_pipeline.zadd(source_aggregation_key_v4, {asn: asn_rank_v4})
                 if v6count:
                     asn_rank_v6 /= float(v6count)
                     if asn_rank_v6:
                         r_pipeline.set(f'{day}|{source}|{asn}|v6', asn_rank_v6)
-                        r_pipeline.zincrby(asns_aggregation_key_v6, asn, asn_rank_v6)
-                        r_pipeline.zadd(source_aggregation_key_v6, asn_rank_v4, asn)
+                        r_pipeline.zincrby(asns_aggregation_key_v6, asn_rank_v6, asn)
+                        r_pipeline.zadd(source_aggregation_key_v6, {asn: asn_rank_v6})
         self.ranking.delete(*to_delete)
         r_pipeline.execute()
 

@@ -11,7 +11,7 @@ from uuid import uuid4
 from io import BytesIO
 import importlib
 
-from typing import List, Union, Tuple
+from typing import List
 import types
 
 from .libs.helpers import safe_create_dir, set_running, unset_running, get_socket_path
@@ -74,9 +74,9 @@ class RawFilesParser():
                     else:
                         datetime = self.datetime
                     uuid = uuid4()
-                    p.hmset(uuid, {'ip': ip, 'source': self.source,
-                                   'datetime': datetime.isoformat()})
-                    p.sadd('intake', uuid)
+                    p.hmset(str(uuid), {'ip': ip, 'source': self.source,
+                                        'datetime': datetime.isoformat()})
+                    p.sadd('intake', str(uuid))
                 p.execute()
                 self._archive(filepath)
         except Exception as e:

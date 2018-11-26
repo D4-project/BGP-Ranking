@@ -4,6 +4,12 @@
 from subprocess import Popen
 from bgpranking.libs.helpers import get_homedir
 
+import redis
+import sys
+
+if redis.VERSION < (3, ):
+    print('redis-py >= 3 is required.')
+    sys.exit()
 
 if __name__ == '__main__':
     # Just fail if the env isn't set.
