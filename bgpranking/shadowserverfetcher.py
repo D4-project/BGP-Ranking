@@ -25,7 +25,7 @@ class ShadowServerFetcher():
         self.vendor = 'shadowserver'
         self.known_list_types = ('blacklist', 'botnet', 'cc', 'cisco', 'cwsandbox', 'drone',
                                  'microsoft', 'scan', 'sinkhole6', 'sinkhole', 'outdated',
-                                 'compromised', 'hp')
+                                 'compromised', 'hp', 'darknet', 'ddos')
         self.first_available_day = None
         self.last_available_day = None
         self.available_entries = {}
