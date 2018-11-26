@@ -21,5 +21,5 @@ class RankingManager(AbstractManager):
 
 
 if __name__ == '__main__':
-    dbinsert = RankingManager()
-    dbinsert.run(sleep_in_sec=3600)
+    ranking = RankingManager()
+    ranking.run(sleep_in_sec=3600)
