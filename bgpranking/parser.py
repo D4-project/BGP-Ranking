@@ -4,7 +4,10 @@
 from datetime import datetime
 from pathlib import Path
 import logging
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import re
 from redis import StrictRedis
 from uuid import uuid4

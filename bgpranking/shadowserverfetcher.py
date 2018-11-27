@@ -9,7 +9,10 @@ from typing import Tuple
 from datetime import datetime, date
 from pathlib import Path
 from .libs.helpers import safe_create_dir, set_running, unset_running
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 
 class ShadowServerFetcher():

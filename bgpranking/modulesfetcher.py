@@ -8,7 +8,10 @@ from hashlib import sha512  # Faster than sha256 on 64b machines.
 from pathlib import Path
 import logging
 from pid import PidFile, PidFileError
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from .libs.helpers import safe_create_dir, set_running, unset_running
 

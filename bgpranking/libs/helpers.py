@@ -9,7 +9,10 @@ from redis import StrictRedis
 from redis.exceptions import ConnectionError
 from datetime import datetime, timedelta
 import time
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from pyipasnhistory import IPASNHistory
 
 

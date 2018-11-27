@@ -2,7 +2,10 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import asyncio
 from pathlib import Path
 import aiohttp

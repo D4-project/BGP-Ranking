@@ -35,7 +35,7 @@ class Sanitizer():
         while True:
             if shutdown_requested():
                 break
-            uuids = self.redis_intake.spop('intake', 1000)
+            uuids = self.redis_intake.spop('intake', 100)
             if not uuids:
                 break
             for_cache = []

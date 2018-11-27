@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from redis import StrictRedis
 from .libs.helpers import get_socket_path, get_ipasn

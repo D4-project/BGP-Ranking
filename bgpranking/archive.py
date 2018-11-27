@@ -8,7 +8,10 @@ from dateutil.relativedelta import relativedelta
 from collections import defaultdict
 import zipfile
 import logging
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from .libs.helpers import safe_create_dir, set_running, unset_running
 

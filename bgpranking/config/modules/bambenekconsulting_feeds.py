@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 import re
 import requests
 from bs4 import BeautifulSoup

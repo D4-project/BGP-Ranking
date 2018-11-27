@@ -7,7 +7,10 @@ from datetime import datetime, timedelta
 from ipaddress import IPv4Address, IPv6Address, IPv4Network, IPv6Network
 from typing import TypeVar
 from .helpers import get_homedir, safe_create_dir
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 from dateutil.parser import parse
 import copy
 

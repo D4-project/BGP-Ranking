@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import json
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 from flask import Flask, render_template, request, session, Response
 from flask_bootstrap import Bootstrap
