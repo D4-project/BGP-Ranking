@@ -6,7 +6,7 @@ try:
 except ImportError:
     import json
 
-from flask import Flask, render_template, request, session, Response
+from flask import Flask, render_template, request, session, Response, redirect, url_for
 from flask_bootstrap import Bootstrap
 
 from bgpranking.querying import Querying
@@ -88,6 +88,8 @@ def index():
 def asn_details():
     load_session()
     q = Querying()
+    if 'asn' not in session:
+        return redirect(url_for('/'))
     asn_descriptions = q.get_asn_descriptions(asn=session['asn'], all_descriptions=True)
     sources = q.get_sources(date=session['date'])
     ranks = q.asn_details(**session)
@@ -121,7 +123,9 @@ def asn_description():
 def asn_history():
     load_session()
     q = Querying()
-    return Response(json.dumps(q.get_asn_history(**session)), mimetype='application/json')
+    if 'asn' in session:
+        return Response(json.dumps(q.get_asn_history(**session)), mimetype='application/json')
+    return Response(json.dumps({'error': f'asn key is required: {session}'}), mimetype='application/json')
 
 
 @app.route('/country_history_callback', methods=['GET', 'POST'])
