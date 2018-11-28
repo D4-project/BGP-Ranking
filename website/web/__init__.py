@@ -70,6 +70,9 @@ def get_country_codes():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'HEAD':
+        # Just returns ack if the webserver is running
+        return 'Ack'
     load_session()
     q = Querying()
     sources = q.get_sources(date=session['date'])
