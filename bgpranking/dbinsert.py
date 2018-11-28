@@ -29,7 +29,7 @@ class DatabaseInsert():
 
         set_running(self.__class__.__name__)
         while True:
-            if shutdown_requested():
+            if shutdown_requested() or not self.ipasn.is_up:
                 break
             uuids = self.redis_sanitized.spop('to_insert', 100)
             if not uuids:
@@ -46,7 +46,13 @@ class DatabaseInsert():
                     continue
                 for_query.append({'ip': data['ip'], 'address_family': data['address_family'], 'source': 'caida',
                                   'date': data['datetime'], 'precision_delta': {'days': 3}})
-            responses = self.ipasn.mass_query(for_query)
+            try:
+                responses = self.ipasn.mass_query(for_query)
+            except Exception:
+                self.logger.exception('Mass query in IPASN History failed, trying again later.')
+                # Rollback the spop
+                self.redis_sanitized.sadd('to_insert', *uuids)
+                break
             retry = []
             done = []
             ardb_pipeline = self.ardb_storage.pipeline(transaction=False)

@@ -33,7 +33,7 @@ class Sanitizer():
 
         set_running(self.__class__.__name__)
         while True:
-            if shutdown_requested():
+            if shutdown_requested() or not self.ipasn.is_up:
                 break
             uuids = self.redis_intake.spop('intake', 100)
             if not uuids:
@@ -70,6 +70,12 @@ class Sanitizer():
             pipeline.execute()
             self.redis_intake.delete(*uuids)
 
-            # Just cache everything so the lookup scripts can do their thing.
-            self.ipasn.mass_cache(for_cache)
+            try:
+                # Just cache everything so the lookup scripts can do their thing.
+                self.ipasn.mass_cache(for_cache)
+            except Exception:
+                self.logger.exception('Mass cache in IPASN History failed, trying again later.')
+                # Rollback the spop
+                self.redis_intake.sadd('intake', *uuids)
+                break
         unset_running(self.__class__.__name__)
