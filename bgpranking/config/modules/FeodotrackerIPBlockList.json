@@ -3,5 +3,5 @@
   "vendor": "feodotracker",
   "name": "ipblocklist",
   "impact": 5,
-  "parser": ".parsers.abusech"
+  "parser": ".parsers.abusech_feodo"
 }
