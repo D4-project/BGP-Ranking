@@ -82,12 +82,17 @@ def get_socket_path(name: str):
     return str(get_homedir() / mapping[name])
 
 
-def get_ipasn():
+def load_general_config():
     general_config_file = get_config_path() / 'bgpranking.json'
     if not general_config_file.exists():
         raise MissingConfigFile(f'The general configuration file ({general_config_file}) does not exists.')
     with open(general_config_file) as f:
         config = json.load(f)
+    return config, general_config_file
+
+
+def get_ipasn():
+    config, general_config_file = load_general_config()
     if 'ipasnhistory_url' not in config:
         raise MissingConfigEntry(f'"ipasnhistory_url" is missing in {general_config_file}.')
     ipasn = IPASNHistory(config['ipasnhistory_url'])

@@ -6,10 +6,14 @@ try:
 except ImportError:
     import json
 
+import requests
+
 from flask import Flask, render_template, request, session, Response, redirect, url_for
 from flask_bootstrap import Bootstrap
 
 from bgpranking.querying import Querying
+from bgpranking.libs.exceptions import MissingConfigEntry
+from bgpranking.libs.helpers import load_general_config
 from datetime import date, timedelta
 import pycountry
 from collections import defaultdict
@@ -66,6 +70,21 @@ def set_default_date_session():
 def get_country_codes():
     for c in pycountry.countries:
         yield c.alpha_2, c.name
+
+
+@app.route('/ipasn_history/', defaults={'path': ''}, methods=['GET', 'POST'])
+@app.route('/ipasn_history/<path:path>', methods=['GET', 'POST'])
+def ipasn_history_proxy(path):
+    config, general_config_file = load_general_config()
+    if 'ipasnhistory_url' not in config:
+        raise MissingConfigEntry(f'"ipasnhistory_url" is missing in {general_config_file}.')
+    full_path_to_proxy = request.full_path.replace('/ipasn_history/', '')
+    proxied_url = f'{config["ipasnhistory_url"]}{full_path_to_proxy}'
+    if request.method in ['GET', 'HEAD']:
+        to_return = requests.get(proxied_url).json()
+    elif request.method == 'POST':
+        to_return = requests.post(proxied_url, data=request.data).json()
+    return Response(json.dumps(to_return), mimetype='application/json')
 
 
 @app.route('/', methods=['GET', 'POST'])
