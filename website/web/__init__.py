@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from urllib.parse import urljoin
 try:
     import simplejson as json
 except ImportError:
@@ -78,8 +79,7 @@ def ipasn_history_proxy(path):
     config, general_config_file = load_general_config()
     if 'ipasnhistory_url' not in config:
         raise MissingConfigEntry(f'"ipasnhistory_url" is missing in {general_config_file}.')
-    full_path_to_proxy = request.full_path.replace('/ipasn_history/', '')
-    proxied_url = f'{config["ipasnhistory_url"]}{full_path_to_proxy}'
+    proxied_url = urljoin(config['ipasnhistory_url'], request.full_path.replace('/ipasn_history', ''))
     if request.method in ['GET', 'HEAD']:
         to_return = requests.get(proxied_url).json()
     elif request.method == 'POST':
