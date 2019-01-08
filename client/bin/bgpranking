@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import argparse
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
+from urllib.parse import urljoin
+from pybgpranking import BGPRanking
+from pyipasnhistory import IPASNHistory
+from datetime import date, timedelta
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Run a query against BGP Ranking')
+    parser.add_argument('--url', type=str, help='URL of the instance.')
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument('--asn', help='ASN to lookup')
+    group.add_argument('--ip', help='IP to lookup')
+
+    args = parser.parse_args()
+
+    if args.url:
+        bgpranking = BGPRanking(args.url)
+        ipasn = IPASNHistory(urljoin(args.url, 'ipasn_history'))
+    else:
+        bgpranking = BGPRanking()
+        ipasn = IPASNHistory()
+
+    if args.ip:
+        response = ipasn.query(args.ip)
+        print(json.dumps(response, indent=2))
+        if 'response' in response and response['response']:
+            asn = response['response'][list(response['response'].keys())[0]]['asn']
+    else:
+        asn = args.asn
+
+    response = bgpranking.query(asn, date=(date.today() - timedelta(1)).isoformat())
+    print(json.dumps(response, indent=2))

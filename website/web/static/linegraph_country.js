@@ -18,7 +18,7 @@ function linegraph(call_path) {
 
 	d3.json(call_path, {credentials: 'same-origin'}).then(function(data) {
 
-	  var country_ranks = d3.entries(data).map(function(country_rank) {
+	  var country_ranks = d3.entries(data.response).map(function(country_rank) {
 		return {
 		  country: country_rank.key,
 		  values: d3.values(country_rank.value).map(function(d) {
@@ -68,11 +68,10 @@ function linegraph(call_path) {
 		  .style("font", "10px sans-serif")
 		  .text(function(d) { return d.id; });
 
-      d3.json(call_path + '_callback',
+      d3.text('/country_history_callback',
                   {credentials: 'same-origin',
                    method: 'POST',
-                   body: JSON.stringify(data),
-                   // headers: {'Content-Type': 'application/json'}
+                   body: JSON.stringify(data.response),
                   }).then(function(data) {
             d3.select('#asn_details').html(data);
       });

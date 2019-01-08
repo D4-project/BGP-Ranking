@@ -18,7 +18,7 @@
           <th>Rank</th>
           <th>Description</th>
       </tr>
-      {% for (asn, rank), description in ranks %}
+      {% for asn, rank, description in ranks %}
         <tr>
             <td><a href="{{ url_for('asn_details', asn=asn) }}">{{ asn }}</a></td>
             <td>{{ rank }}</td>

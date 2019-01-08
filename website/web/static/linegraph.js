@@ -25,14 +25,14 @@ function linegraph(call_path) {
 
     // Get the data
     d3.json(call_path, {credentials: 'same-origin'}).then(function(data) {
-      x.domain(d3.extent(data, function(d) { return parseTime(d[0]); }));
-      y.domain(d3.extent(data, function(d) { return d[1]; }));
+      x.domain(d3.extent(data.response, function(d) { return parseTime(d[0]); }));
+      y.domain(d3.extent(data.response, function(d) { return d[1]; }));
 
       xAxis();
       yAxis();
 
       context.beginPath();
-      line(data);
+      line(data.response);
       context.lineWidth = 1.5;
       context.strokeStyle = "steelblue";
       context.stroke();

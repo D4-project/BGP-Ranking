@@ -11,7 +11,7 @@
 {% block scripts %}
     {{ super() }}
     <script src='{{ url_for('static', filename='linegraph_country.js') }}'></script>
-    <script>linegraph('/country_history');</script>
+    <script>linegraph('/json/country_history');</script>
 {% endblock %}
 
 {% block content %}
