@@ -61,7 +61,7 @@ class DatabaseInsert():
                 if not data:
                     self.logger.warning(f'No data for UUID {uuid}. This should not happen, but lets move on.')
                     continue
-                routing_info = responses['responses'][i][0]  # our queries are on one single date, not a range
+                routing_info = responses['responses'][i]['response']  # our queries are on one single date, not a range
                 # Data gathered from IPASN History:
                 # * IP Block of the IP
                 # * AS number
