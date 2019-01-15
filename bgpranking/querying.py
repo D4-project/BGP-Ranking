@@ -223,7 +223,6 @@ class Querying():
             return 0, [(0, 0)]
         routed_asns = response['data']['countries'][0]['routed']
         ranks = [self.asn_rank(asn, d, source, ipversion)['response'] for asn in routed_asns]
-        print(ranks)
         to_return['response'] = [sum(ranks), zip(routed_asns, ranks)]
         return to_return
 
