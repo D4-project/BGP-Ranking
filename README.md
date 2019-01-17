@@ -12,7 +12,7 @@ New version of BGP Ranking, complete rewrite in python3.6+ and an ARDB backend
 ```bash
 git clone https://github.com/antirez/redis.git
 cd redis
-git checkout 4.0
+git checkout 5.0
 make
 make test
 cd ..
@@ -23,11 +23,11 @@ cd ..
 ```bash
 git clone https://github.com/yinqiwen/ardb.git
 cd ardb
-make
+DISABLE_WARNING_AS_ERROR=1 make  # ardb (more precisely rocksdb) doesn't compile on ubuntu 18.04 unless you disable warning as error
 cd ..
 ```
 
-## Install BGP Ranking
+## Install & run BGP Ranking
 
 ```bash
 git clone https://github.com/D4-project/BGP-Ranking.git
@@ -39,6 +39,12 @@ pipenv shell
 start.py
 # Start the web interface
 start_website.py
+```
+
+## Shutdown BGP Ranking
+
+```bash
+stop.py
 ```
 
 # Directory structure

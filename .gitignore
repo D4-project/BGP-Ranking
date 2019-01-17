@@ -122,4 +122,7 @@ website/web/static/d3*.js
 # Same got bootstrap-select
 website/web/static/bootstrap-select*
 
+# Session key
+website/secret_key
+
 *.swp

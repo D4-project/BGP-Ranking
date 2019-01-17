@@ -7,6 +7,8 @@ try:
 except ImportError:
     import json
 
+import os
+
 import requests
 
 from flask import Flask, render_template, request, session, Response, redirect, url_for
@@ -14,14 +16,21 @@ from flask_bootstrap import Bootstrap
 
 from bgpranking.querying import Querying
 from bgpranking.libs.exceptions import MissingConfigEntry
-from bgpranking.libs.helpers import load_general_config
+from bgpranking.libs.helpers import load_general_config, get_homedir
 from datetime import date, timedelta
 import pycountry
 from collections import defaultdict
 
 app = Flask(__name__)
 
-app.secret_key = '\xeb\xfd\x1b\xee\xed<\xa5~\xd5H\x85\x00\xa5r\xae\x80t5@\xa2&>\x03S'
+secret_file_path = get_homedir() / 'website' / 'secret_key'
+
+if not secret_file_path.exists() or secret_file_path.stat().st_size < 64:
+    with open(secret_file_path, 'wb') as f:
+        f.write(os.urandom(64))
+
+with open(secret_file_path, 'rb') as f:
+    app.config['SECRET_KEY'] = f.read()
 
 Bootstrap(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
