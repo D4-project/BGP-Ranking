@@ -1,8 +1,0 @@
-# Web thing
-flask
-flask-bootstrap
-gunicorn[gevent]
-
-
-# Other
-pycountry

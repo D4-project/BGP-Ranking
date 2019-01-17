@@ -1,0 +1,27 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+pybgpranking = {editable = true,path = "."}
+redis = ">=3"
+hiredis = "*"
+python-dateutil = "*"
+aiohttp = "*"
+requests = "*"
+simplejson = "*"
+beautifulsoup4 = "*"
+flask = "*"
+flask-bootstrap = "*"
+gunicorn = {extras = ["gevent"],version = "*"}
+pyipasnhistory = {git = "https://github.com/D4-project/IPASN-History.git/",subdirectory = "client"}
+pycountry = "*"
+pid = {git = "https://github.com/trbs/pid.git/"}
+pytaxonomies = {git = "https://github.com/MISP/PyTaxonomies.git"}
+pymispgalaxies = {git = "https://github.com/MISP/PyMISPGalaxies.git"}
+
+[requires]
+python_version = "3.6"

@@ -119,4 +119,7 @@ bgpranking/config/modules/shadowserver_*.json
 # Do not store the d3 lib in the repo
 website/web/static/d3*.js
 
+# Same got bootstrap-select
+website/web/static/bootstrap-select*
+
 *.swp

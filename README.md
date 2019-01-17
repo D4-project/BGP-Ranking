@@ -3,7 +3,9 @@ New version of BGP Ranking, complete rewrite in python3.6+ and an ARDB backend
 
 # Installation
 
-**IMPORTANT**: run it in a virtualenv, seriously. This install guide assumes you know what it is, and use one.
+**IMPORTANT**: Use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+
+**NOTE**: Yes, it requires python3.6+. No, it will never support anything older.
 
 ## Install redis
 
@@ -30,10 +32,13 @@ cd ..
 ```bash
 git clone https://github.com/D4-project/BGP-Ranking.git
 cd BGP-Ranking
-pip install -r requirements.txt
-pip install -e .
-export BGPRANKING_HOME='./'
+pipenv install
+echo BGPRANKING_HOME="'`pwd`'" > .env
+pipenv shell
+# Starts all the backend
 start.py
+# Start the web interface
+start_website.py
 ```
 
 # Directory structure
