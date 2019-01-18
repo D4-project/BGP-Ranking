@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "155963dc9f56b40fa4f70eea0bb5cedf8ec2ac0851c1bc4b54110d5cfaf6e722"
+            "sha256": "9a39c43e829c7cdfae2e05531008509fc7905d1fad0cccd91169c6d7af77d0b8"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -304,12 +304,13 @@
             "version": "==4.5.2"
         },
         "pid": {
+            "editable": true,
             "git": "https://github.com/trbs/pid.git/",
             "ref": "0efff53af4554dfc8e06a2627809baa84d13b732"
         },
         "pybgpranking": {
             "editable": true,
-            "path": "."
+            "path": "./client"
         },
         "pycountry": {
             "hashes": [
@@ -320,15 +321,18 @@
             "version": "==18.12.8"
         },
         "pyipasnhistory": {
+            "editable": true,
             "git": "https://github.com/D4-project/IPASN-History.git/",
-            "ref": "54857344c412a903df2abe67a8855f2fcaeef4a8",
+            "ref": "d8d94e1e171e42ab075d8b97a3fd4451bd6f7445",
             "subdirectory": "client"
         },
         "pymispgalaxies": {
+            "editable": true,
             "git": "https://github.com/MISP/PyMISPGalaxies.git",
             "ref": "0972f986ffa4969163b9d83a7f6b222937e485f5"
         },
         "pytaxonomies": {
+            "editable": true,
             "git": "https://github.com/MISP/PyTaxonomies.git",
             "ref": "53bd970ec14160380f092e4dc5bcd53a73662419"
         },
@@ -383,10 +387,10 @@
         },
         "soupsieve": {
             "hashes": [
-                "sha256:009d8865916766f7f452880d08ff94ed4c5445011a3deaac67543b82bdb0b9ee",
-                "sha256:97599c45a1ddfe9ab0a0cba889b7f214b3e310b703f176a0610c0b54e207cc04"
+                "sha256:10687fc53eeb3518e01a0ac84d3d711da623d3298a3039459d3f649927c4a270",
+                "sha256:b23a0d7da0247200fe83c67c34de9d7599ad404106367313d8e65e04174d0b4b"
             ],
-            "version": "==1.7.1"
+            "version": "==1.7.2"
         },
         "typing-extensions": {
             "hashes": [
