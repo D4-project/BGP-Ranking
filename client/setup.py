@@ -13,6 +13,7 @@ setup(
     description='Python client for BGP Ranking',
     packages=['pybgpranking'],
     scripts=['bin/bgpranking'],
+    install_requires=['requests'],
     classifiers=[
         'License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)',
         'Development Status :: 3 - Alpha',
