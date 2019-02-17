@@ -1,7 +1,39 @@
-# BGP-Ranking
-New version of BGP Ranking, complete rewrite in python3.6+ and an ARDB backend
+# BGP Ranking
 
-# Installation
+For an Internet Service Provider, AS numbers are a logical representation of
+the other ISP peering or communicating with its autonomous system. ISP customers
+are using the capacity of the Internet Service Provider to reach Internet
+services over other AS. Some of those communications can be malicious (e.g. due
+to malware activities on an end-user equipments) and hosted at specific AS location.
+
+In order to provide an improved security view on those AS numbers, a trust ranking
+scheme is implemented based on existing dataset of compromised systems,
+malware C&C IP and existing datasets. BGP Ranking provides a way to collect
+such malicious activities, aggregate the information per ASN and provide a ranking
+model to rank the ASN from the most malicious to the less malicious ASN.
+
+The official website of the project is: [https://github.com/D4-project/bgp-ranking/](https://github.com/D4-project/bgp-ranking/)
+
+There is a public BGP Ranking at [http://bgpranking.circl.lu/](http://bgpranking.circl.lu/)
+
+BGP Ranking is free software licensed under the GNU Affero General Public License
+
+BGP Ranking is a software to rank AS numbers based on their malicious activities.
+
+## History
+
+The first version of BGP Ranking was done in 2010 by [Raphael Vinot](https://github.com/Rafiot) with the support of [Alexandre Dulaunoy](https://github.com/adulau/).
+CIRCL supported the project from the early beginning and setup an online version to share information about the malicious ranking of ISPs.
+
+In late 2018 within the scope of the D4 Project (a CIRCL project co-funded by INEA under the CEF Telecom program), a new version of BGP Ranking was completed rewritten in python3.6+ with an ARDB back-end.
+
+# Online service
+
+BGP Ranking service is available online [http://bgpranking.circl.lu/](http://bgpranking.circl.lu/).
+
+A Python library and client software is [available](https://github.com/D4-project/BGP-Ranking/tree/master/client) using the default API available from bgpranking.circl.lu.
+
+# Server Installation (if you want to run your own)
 
 **IMPORTANT**: Use [pipenv](https://pipenv.readthedocs.io/en/latest/)
 
