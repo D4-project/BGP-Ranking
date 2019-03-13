@@ -1,0 +1,41 @@
+{% extends "main.html" %}
+
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+
+{% block title %} IP-ASN History {% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}
+
+{% block content %}
+  <center>
+      <h1>IP-ASN History</h1>
+  </center>
+  <p>
+  <form class="form-group" style="width:250px; display:inline-block;" action="" method=post>
+    <label for="ip">IP Address</label>
+    <input name="ip" class="form-control my-1 mr-sm-2" value="{{ ip }}"/>
+    <button type="submit" class="btn btn-primary my-1">Search</button>
+  </form>
+  </p>
+  {% if ipasn_details %}
+  <table class="table">
+      <tr>
+          <th>Date</th>
+          <th>ASN</th>
+          <th>Prefix</th>
+      </tr>
+      {% for date, details in ipasn_details.items() %}
+      <tr>
+          <td>{{ date }}</td>
+          <td>{{ details['asn'] }}</td>
+          <td>{{ details['prefix'] }}</td>
+      </tr>
+      {% endfor %}
+  </table>
+  {% endif %}
+{% endblock %}

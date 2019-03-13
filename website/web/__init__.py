@@ -16,7 +16,7 @@ from flask_bootstrap import Bootstrap
 
 from bgpranking.querying import Querying
 from bgpranking.libs.exceptions import MissingConfigEntry
-from bgpranking.libs.helpers import load_general_config, get_homedir
+from bgpranking.libs.helpers import load_general_config, get_homedir, get_ipasn
 from datetime import date, timedelta
 import pycountry
 from collections import defaultdict
@@ -158,6 +158,22 @@ def country_history_callback():
         to_display.append(to_display_temp)
     return render_template('country_asn_map.html', to_display=to_display)
 
+
+@app.route('/ipasn', methods=['GET', 'POST'])
+def ipasn():
+    d = None
+    if request.method == 'POST':
+        d = request.form
+    elif request.method == 'GET':
+        d = request.args
+    if not d or 'ip' not in d:
+        return render_template('ipasn.html')
+    ipasn = get_ipasn()
+    response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(), **d)
+    return render_template('ipasn.html', ipasn_details=response['response'],
+                           **response['meta'])
+
+
 # ############# Web UI #############
 
 
@@ -169,7 +185,8 @@ def ipasn_history_proxy(path):
     config, general_config_file = load_general_config()
     if 'ipasnhistory_url' not in config:
         raise MissingConfigEntry(f'"ipasnhistory_url" is missing in {general_config_file}.')
-    proxied_url = urljoin(config['ipasnhistory_url'], request.full_path.replace('/ipasn_history', ''))
+    proxied_url = urljoin(config['ipasnhistory_url'],
+                          request.full_path.replace('/ipasn_history', ''))
     if request.method in ['GET', 'HEAD']:
         to_return = requests.get(proxied_url).json()
     elif request.method == 'POST':
