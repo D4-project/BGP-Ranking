@@ -23,7 +23,7 @@ class Querying():
     def __init__(self, loglevel: int=logging.DEBUG):
         self.__init_logger(loglevel)
         self.storage = StrictRedis(unix_socket_path=get_socket_path('storage'), decode_responses=True)
-        self.ranking = StrictRedis(unix_socket_path=get_socket_path('storage'), db=1, decode_responses=True)
+        self.ranking = StrictRedis(unix_socket_path=get_socket_path('storage'), db=1)
         self.asn_meta = StrictRedis(unix_socket_path=get_socket_path('storage'), db=2, decode_responses=True)
         self.cache = StrictRedis(unix_socket_path=get_socket_path('cache'), db=1, decode_responses=True)
 
