@@ -25,15 +25,23 @@
   {% if ipasn_details %}
   <table class="table">
       <tr>
-          <th>Date</th>
+          <th>First Seen</th>
+          <th>Last Seen</th>
           <th>ASN</th>
+          <th>ASN Description</th>
           <th>Prefix</th>
       </tr>
-      {% for date, details in ipasn_details.items() %}
+      {% for entry in ipasn_details %}
       <tr>
-          <td>{{ date }}</td>
-          <td>{{ details['asn'] }}</td>
-          <td>{{ details['prefix'] }}</td>
+          <td>{{ entry['first_seen'] }}</td>
+          <td>{{ entry['last_seen'] }}</td>
+          <td>{{ entry['asn'] }}</td>
+          <td>
+              {% for asn_description in entry['asn_descriptions'] %}
+                {{ asn_description }} </br>
+              {% endfor %}
+          </td>
+          <td>{{ entry['prefix'] }}</td>
       </tr>
       {% endfor %}
   </table>

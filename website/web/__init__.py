@@ -169,7 +169,16 @@ def ipasn():
     if not d or 'ip' not in d:
         return render_template('ipasn.html')
     ipasn = get_ipasn()
-    response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(), **d)
+    q = Querying()
+    response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(),
+                           aggregate=True, **d)
+    for r in response['response']:
+        r['asn_description'] = []
+        asn_descriptions = q.get_asn_descriptions(asn=r['asn'], all_descriptions=True)
+        for timestamp in sorted(asn_descriptions.keys()):
+            if r['first_seen'] <= timestamp <= r['last_seen']:
+                r['asn_description'].append(asn_descriptions[timestamp])
+
     return render_template('ipasn.html', ipasn_details=response['response'],
                            **response['meta'])
 
