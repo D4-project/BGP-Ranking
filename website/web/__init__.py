@@ -166,12 +166,18 @@ def ipasn():
         d = request.form
     elif request.method == 'GET':
         d = request.args
+
     if not d or 'ip' not in d:
         return render_template('ipasn.html')
+    else:
+        if isinstance(d['ip'], list):
+            ip = d['ip'][0]
+        else:
+            ip = d['ip']
     ipasn = get_ipasn()
     q = Querying()
     response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(),
-                           aggregate=True, **d)
+                           aggregate=True, ip=ip)
     for r in response['response']:
         r['asn_description'] = []
         asn_descriptions = q.get_asn_descriptions(asn=r['asn'], all_descriptions=True)
