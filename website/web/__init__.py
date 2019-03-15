@@ -179,13 +179,14 @@ def ipasn():
     response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(),
                            aggregate=True, ip=ip)
     for r in response['response']:
-        r['asn_description'] = []
-        asn_descriptions = q.get_asn_descriptions(asn=r['asn'], all_descriptions=True)
+        r['asn_descriptions'] = []
+        asn_descriptions = q.get_asn_descriptions(asn=r['asn'], all_descriptions=True)['response']
         for timestamp in sorted(asn_descriptions.keys()):
             if r['first_seen'] <= timestamp <= r['last_seen']:
-                r['asn_description'].append(asn_descriptions[timestamp])
-        if not r['asn_description'] and timestamp <= r['last_seen']:
-            r['asn_description'].append(asn_descriptions[timestamp])
+                r['asn_descriptions'].append(asn_descriptions[timestamp])
+
+        if not r['asn_descriptions'] and timestamp <= r['last_seen']:
+            r['asn_descriptions'].append(asn_descriptions[timestamp])
 
     return render_template('ipasn.html', ipasn_details=response['response'],
                            **response['meta'])
