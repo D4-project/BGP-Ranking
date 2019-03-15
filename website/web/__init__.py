@@ -184,6 +184,8 @@ def ipasn():
         for timestamp in sorted(asn_descriptions.keys()):
             if r['first_seen'] <= timestamp <= r['last_seen']:
                 r['asn_description'].append(asn_descriptions[timestamp])
+        if not r['asn_description'] and timestamp <= r['last_seen']:
+            r['asn_description'].append(asn_descriptions[timestamp])
 
     return render_template('ipasn.html', ipasn_details=response['response'],
                            **response['meta'])
