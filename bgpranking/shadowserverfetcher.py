@@ -48,11 +48,11 @@ class ShadowServerFetcher():
         html_index = await self.__get_index()
         soup = BeautifulSoup(html_index, 'html.parser')
         treeview = soup.find(id='treemenu1')
-        for y in treeview.select('> li'):
+        for y in treeview.select(':scope > li'):
             year = y.contents[0]
-            for m in y.contents[1].select('> li'):
+            for m in y.contents[1].select(':scope > li'):
                 month = m.contents[0]
-                for d in m.contents[1].select('> li'):
+                for d in m.contents[1].select(':scope > li'):
                     day = d.contents[0]
                     date = parse(f'{year} {month} {day}').date()
                     self.available_entries[date.isoformat()] = []
