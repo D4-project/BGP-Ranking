@@ -17,7 +17,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Manually force the ranking of a day or a time interval.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-d', '--day', type=str, help='Day to rank (Format: YYYY-MM-DD).')
-    group.add_argument('-i', '--interval', type=str, nargs=2, help='Interval to rank (Format: YYYY-MM-DD YYYY-MM-DD).')
+    group.add_argument('-i', '--interval', type=str, nargs=2, help='Interval to rank, first to last (Format: YYYY-MM-DD YYYY-MM-DD).')
     args = parser.parse_args()
 
     ranking = Ranking(loglevel=logging.DEBUG)
@@ -26,7 +26,7 @@ if __name__ == '__main__':
         day = parse(args.day).date().isoformat()
         ranking.rank_a_day(day, config_files)
     else:
-        current = parse(args.interval[0]).date()
+        current = parse(args.interval[1]).date()
         stop_date = parse(args.interval[0]).date()
         while current >= stop_date:
             ranking.rank_a_day(current.isoformat(), config_files)
