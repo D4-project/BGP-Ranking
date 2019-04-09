@@ -27,6 +27,7 @@ class Ranking():
         asns_aggregation_key_v6 = f'{day}|asns|v6'
         to_delete = set([asns_aggregation_key_v4, asns_aggregation_key_v6])
         r_pipeline = self.ranking.pipeline()
+        cached_meta = {}
         for source in self.storage.smembers(f'{day}|sources'):
             self.logger.info(f'{day} - Ranking source: {source}')
             source_aggregation_key_v4 = f'{day}|{source}|asns|v4'
@@ -58,8 +59,13 @@ class Ranking():
                     else:
                         asn_rank_v6 += len(ips) * config_files[source]['impact']
                         r_pipeline.zincrby(prefixes_aggregation_key_v6, prefix_rank * config_files[source]['impact'], prefix)
-                v4info = self.ipasn.asn_meta(asn=asn, source='caida', address_family='v4', date=day)
-                v6info = self.ipasn.asn_meta(asn=asn, source='caida', address_family='v6', date=day)
+                if asn in cached_meta:
+                    v4info = cached_meta[asn]['v4']
+                    v6info = cached_meta[asn]['v6']
+                else:
+                    v4info = self.ipasn.asn_meta(asn=asn, source='caida', address_family='v4', date=day)
+                    v6info = self.ipasn.asn_meta(asn=asn, source='caida', address_family='v6', date=day)
+                    cached_meta[asn] = {'v4': v4info, 'v6': v6info}
                 ipasnhistory_date_v4 = list(v4info['response'].keys())[0]
                 v4count = v4info['response'][ipasnhistory_date_v4][asn]['ipcount']
                 ipasnhistory_date_v6 = list(v6info['response'].keys())[0]
