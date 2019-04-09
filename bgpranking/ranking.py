@@ -22,7 +22,7 @@ class Ranking():
         self.logger = logging.getLogger(f'{self.__class__.__name__}')
         self.logger.setLevel(loglevel)
 
-    def rank_a_day(self, day: str):
+    def rank_a_day(self, day: str, config_files: dict):
         asns_aggregation_key_v4 = f'{day}|asns|v4'
         asns_aggregation_key_v6 = f'{day}|asns|v6'
         to_delete = set([asns_aggregation_key_v4, asns_aggregation_key_v6])
@@ -53,11 +53,11 @@ class Ranking():
                     prefix_rank = float(len(ips)) / py_prefix.num_addresses
                     r_pipeline.zadd(f'{day}|{source}|{asn}|v{py_prefix.version}|prefixes', {prefix: prefix_rank})
                     if py_prefix.version == 4:
-                        asn_rank_v4 += len(ips) * self.config_files[source]['impact']
-                        r_pipeline.zincrby(prefixes_aggregation_key_v4, prefix_rank * self.config_files[source]['impact'], prefix)
+                        asn_rank_v4 += len(ips) * config_files[source]['impact']
+                        r_pipeline.zincrby(prefixes_aggregation_key_v4, prefix_rank * config_files[source]['impact'], prefix)
                     else:
-                        asn_rank_v6 += len(ips) * self.config_files[source]['impact']
-                        r_pipeline.zincrby(prefixes_aggregation_key_v6, prefix_rank * self.config_files[source]['impact'], prefix)
+                        asn_rank_v6 += len(ips) * config_files[source]['impact']
+                        r_pipeline.zincrby(prefixes_aggregation_key_v6, prefix_rank * config_files[source]['impact'], prefix)
                 v4info = self.ipasn.asn_meta(asn=asn, source='caida', address_family='v4', date=day)
                 v6info = self.ipasn.asn_meta(asn=asn, source='caida', address_family='v6', date=day)
                 ipasnhistory_date_v4 = list(v4info['response'].keys())[0]
@@ -80,7 +80,7 @@ class Ranking():
         r_pipeline.execute()
 
     def compute(self):
-        self.config_files = load_config_files(self.config_dir)
+        config_files = load_config_files(self.config_dir)
         ready, message = sanity_check_ipasn(self.ipasn)
         if not ready:
             # Try again later.
@@ -95,7 +95,7 @@ class Ranking():
         today12am = now.replace(hour=12, minute=0, second=0, microsecond=0)
         if now < today12am:
             # Compute yesterday and today's ranking (useful when we have lists generated only once a day)
-            self.rank_a_day((today - timedelta(days=1)).isoformat())
-        self.rank_a_day(today.isoformat())
+            self.rank_a_day((today - timedelta(days=1)).isoformat(), config_files)
+        self.rank_a_day(today.isoformat(), config_files)
         unset_running(self.__class__.__name__)
         self.logger.info('Ranking done.')
