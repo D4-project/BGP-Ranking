@@ -7,6 +7,7 @@ verify_ssl = true
 
 [packages]
 pybgpranking = {editable = true,path = "./client"}
+bgpranking = {editable = true,path = "."}
 redis = ">=3"
 hiredis = "*"
 python-dateutil = "*"
