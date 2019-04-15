@@ -23,6 +23,7 @@ pycountry = "*"
 pid = {editable = true,git = "https://github.com/trbs/pid.git/"}
 pytaxonomies = {editable = true,git = "https://github.com/MISP/PyTaxonomies.git"}
 pymispgalaxies = {editable = true,git = "https://github.com/MISP/PyMISPGalaxies.git"}
+Jinja2 = ">=2.10.1"  # CVE-2019-10906
 
 [requires]
 python_version = "3.6"
