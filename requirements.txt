@@ -1,9 +1,9 @@
 -i https://pypi.org/simple
 -e .
 -e ./client
--e git+https://github.com/D4-project/IPASN-History.git/@a87c1293a02be638d50b75d98b7ecc5f91e16a4f#egg=pyipasnhistory&subdirectory=client
--e git+https://github.com/MISP/PyMISPGalaxies.git@2c6b999f91594536afff8c131d3074a91bf552ff#egg=pymispgalaxies
--e git+https://github.com/MISP/PyTaxonomies.git@2a1139d4cf1125acdaf9433497aca3c9e634d119#egg=pytaxonomies
+-e git+https://github.com/D4-project/IPASN-History.git/@c0c2bbf8d70811982dad065ea463a7e01593a38d#egg=pyipasnhistory&subdirectory=client
+-e git+https://github.com/MISP/PyMISPGalaxies.git@d305fde34240bc7e0f2fa532adde1b4209b869b0#egg=pymispgalaxies
+-e git+https://github.com/MISP/PyTaxonomies.git@5a0aad38b3c9e8e53b02ae1ca14c3328125cf82b#egg=pytaxonomies
 -e git+https://github.com/trbs/pid.git/@62e5f4a289ede9e55887e5279ca50a5063034dcd#egg=pid
 aiohttp==3.5.4
 async-timeout==3.0.1
@@ -33,7 +33,7 @@ simplejson==3.16.0
 six==1.12.0
 soupsieve==1.9.1
 typing-extensions==3.7.2 ; python_version < '3.7'
-urllib3==1.24.1
+urllib3==1.24.2
 visitor==0.1.3
 werkzeug==0.15.2
 yarl==1.3.0

@@ -328,18 +328,18 @@
         "pyipasnhistory": {
             "editable": true,
             "git": "https://github.com/D4-project/IPASN-History.git/",
-            "ref": "a87c1293a02be638d50b75d98b7ecc5f91e16a4f",
+            "ref": "c0c2bbf8d70811982dad065ea463a7e01593a38d",
             "subdirectory": "client"
         },
         "pymispgalaxies": {
             "editable": true,
             "git": "https://github.com/MISP/PyMISPGalaxies.git",
-            "ref": "2c6b999f91594536afff8c131d3074a91bf552ff"
+            "ref": "d305fde34240bc7e0f2fa532adde1b4209b869b0"
         },
         "pytaxonomies": {
             "editable": true,
             "git": "https://github.com/MISP/PyTaxonomies.git",
-            "ref": "2a1139d4cf1125acdaf9433497aca3c9e634d119"
+            "ref": "5a0aad38b3c9e8e53b02ae1ca14c3328125cf82b"
         },
         "python-dateutil": {
             "hashes": [
@@ -408,10 +408,10 @@
         },
         "urllib3": {
             "hashes": [
-                "sha256:61bf29cada3fc2fbefad4fdf059ea4bd1b4a86d2b6d15e1c7c0b582b9752fe39",
-                "sha256:de9529817c93f27c8ccbfead6985011db27bd0ddfcdb2d86f3f663385c6a9c22"
+                "sha256:4c291ca23bbb55c76518905869ef34bdd5f0e46af7afe6861e8375643ffee1a0",
+                "sha256:9a247273df709c4fedb38c711e44292304f73f39ab01beda9f6b9fc375669ac3"
             ],
-            "version": "==1.24.1"
+            "version": "==1.24.2"
         },
         "visitor": {
             "hashes": [
