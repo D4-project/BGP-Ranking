@@ -1,11 +1,11 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "018045f58b842359bf5cd1f3342839f80ab2a9cb9359f8963e7167a01c15231b"
+            "sha256": "ad6ab1eebdc512943deffdc0a3f49d3bfc65717b3a52c7970e0f8ffcea7a2dfc"
         },
         "pipfile-spec": 6,
         "requires": {
-            "python_version": "3.6"
+            "python_version": "3"
         },
         "sources": [
             {
@@ -223,6 +223,7 @@
             "hashes": [
                 "sha256:a933e3bb13da54383f9e8f35dc4f9cb9eb9b3b78c6b36f311254d6d0d92c6c7c"
             ],
+            "index": "pypi",
             "markers": "python_version < '3.7'",
             "version": "==1.1.0"
         },
@@ -328,7 +329,7 @@
         "pyipasnhistory": {
             "editable": true,
             "git": "https://github.com/D4-project/IPASN-History.git/",
-            "ref": "c0c2bbf8d70811982dad065ea463a7e01593a38d",
+            "ref": "47cd0f2658ab172fce42126ff3a1dbcddfb0b5fb",
             "subdirectory": "client"
         },
         "pymispgalaxies": {
@@ -403,6 +404,7 @@
                 "sha256:f3f0e67e1d42de47b5c67c32c9b26641642e9170fe7e292991793705cd5fef7c",
                 "sha256:fb2cd053238d33a8ec939190f30cfd736c00653a85a2919415cecf7dc3d9da71"
             ],
+            "index": "pypi",
             "markers": "python_version < '3.7'",
             "version": "==3.7.2"
         },
