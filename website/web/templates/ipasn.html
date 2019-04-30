@@ -35,13 +35,13 @@
       <tr>
           <td>{{ entry['first_seen'] }}</td>
           <td>{{ entry['last_seen'] }}</td>
-          <td>{{ entry['asn'] }}</td>
+          <td><a href="{{ url_for('asn_details', asn=entry['asn']) }}">{{ entry['asn'] }}</td>
           <td>
               {% for asn_description in entry['asn_descriptions'] %}
                 {{ asn_description }} </br>
               {% endfor %}
           </td>
-          <td>{{ entry['prefix'] }}</td>
+          <td><a href="{{ url_for('asn_details', asn=entry['asn'], prefix=entry['prefix']) }}">{{ entry['prefix'] }}</td>
       </tr>
       {% endfor %}
   </table>
