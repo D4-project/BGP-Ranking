@@ -32,5 +32,9 @@
     </select>
     <input type="submit" class="btn btn-primary my-1"value="Set country">
     </form>
+    <form class="form-group" style="width:270px; display:inline-block;" action="{{ url_for('ipasn') }}" method=post>
+        <input type=string name=ip class="form-control my-1 mr-sm-2">
+        <button type="submit" class="btn btn-primary my-1">Search an IP</button>
+    </form>
 <p>
 <br/>
