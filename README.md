@@ -33,6 +33,12 @@ BGP Ranking service is available online [http://bgpranking.circl.lu/](http://bgp
 
 A Python library and client software is [available](https://github.com/D4-project/BGP-Ranking/tree/master/client) using the default API available from bgpranking.circl.lu.
 
+# CURL Example
+
+```bash 
+curl -X POST -d '{"asn": "5577"}' https://bgpranking-ng.circl.lu/json/asn
+```
+
 # Server Installation (if you want to run your own)
 
 **IMPORTANT**: Use [pipenv](https://pipenv.readthedocs.io/en/latest/)
