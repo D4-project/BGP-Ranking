@@ -132,7 +132,7 @@ class Querying():
         if not r:
             r = 0
         if with_position and not source:
-            to_return['response'] = {'rank': float(r), 'position': self.cache.zrevrank(key, asn),
+            to_return['response'] = {'rank': float(r), 'position': self.cache.zrevrank(key, asn) + 1,
                                      'total_known_asns': self.cache.zcard(key)}
         else:
             to_return['response'] = float(r)
