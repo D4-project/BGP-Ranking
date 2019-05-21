@@ -60,8 +60,10 @@ curl https://bgpranking-ng.circl.lu/ipasn_history/?ip=143.255.153.0/24
 
 ## Get the ranking of the AS
 ```
-curl -X POST -d '{"asn": "5577"}' https://bgpranking-ng.circl.lu/json/asn
+curl -X POST -d '{"asn": "5577", "date": "2019-05-19"}' https://bgpranking-ng.circl.lu/json/asn
 ```
+
+Note: `date` isn't required.
 
 ## Response
 
