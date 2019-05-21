@@ -33,6 +33,56 @@ BGP Ranking service is available online [http://bgpranking.circl.lu/](http://bgp
 
 A Python library and client software is [available](https://github.com/D4-project/BGP-Ranking/tree/master/client) using the default API available from bgpranking.circl.lu.
 
+# CURL Example
+
+## Get the ASN from an IP or a prefix
+```bash 
+curl https://bgpranking-ng.circl.lu/ipasn_history/?ip=143.255.153.0/24
+```
+
+## Response
+
+```json
+{
+  "meta": {
+    "address_family": "v4",
+    "ip": "143.255.153.0/24",
+    "source": "caida"
+  },
+  "response": {
+    "2019-05-19T12:00:00": {
+      "asn": "264643",
+      "prefix": "143.255.153.0/24"
+    }
+  }
+}
+```
+
+## Get the ranking of the AS
+```
+curl -X POST -d '{"asn": "5577", "date": "2019-05-19"}' https://bgpranking-ng.circl.lu/json/asn
+```
+
+Note: `date` isn't required.
+
+## Response
+
+```json
+{
+  "meta": {
+    "asn": "5577"
+  },
+  "response": {
+    "asn_description": "ROOT, LU",
+    "ranking": {
+      "rank": 0.0004720052083333333,
+      "position": 7084,
+      "total_known_asns": 15375
+    }
+  }
+}
+```
+
 # Server Installation (if you want to run your own)
 
 **IMPORTANT**: Use [pipenv](https://pipenv.readthedocs.io/en/latest/)
