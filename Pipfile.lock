@@ -329,7 +329,7 @@
         "pyipasnhistory": {
             "editable": true,
             "git": "https://github.com/D4-project/IPASN-History.git/",
-            "ref": "efcf52a147875d24830c2545418f6b102e4fae66",
+            "ref": "1b801908c434e505373405be323fda6fcf21d679",
             "subdirectory": "client"
         },
         "pymispgalaxies": {
