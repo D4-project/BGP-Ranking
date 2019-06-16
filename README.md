@@ -20,6 +20,22 @@ BGP Ranking is free software licensed under the GNU Affero General Public Licens
 
 BGP Ranking is a software to rank AS numbers based on their malicious activities.
 
+# Python client
+
+```bash
+$ pip install git+https://github.com/D4-project/BGP-Ranking.git/#egg=pybgpranking\&subdirectory=client
+$ bgpranking --help
+usage: bgpranking [-h] [--url URL] (--asn ASN | --ip IP)
+
+Run a query against BGP Ranking
+
+optional arguments:
+  -h, --help  show this help message and exit
+  --url URL   URL of the instance.
+  --asn ASN   ASN to lookup
+  --ip IP     IP to lookup
+```
+
 ## History
 
 The first version of BGP Ranking was done in 2010 by [Raphael Vinot](https://github.com/Rafiot) with the support of [Alexandre Dulaunoy](https://github.com/adulau/).
@@ -36,7 +52,7 @@ A Python library and client software is [available](https://github.com/D4-projec
 # CURL Example
 
 ## Get the ASN from an IP or a prefix
-```bash 
+```bash
 curl https://bgpranking-ng.circl.lu/ipasn_history/?ip=143.255.153.0/24
 ```
 
