@@ -10,6 +10,7 @@ from typing import Union
 
 import requests
 from urllib.parse import urljoin
+from datetime import date
 
 
 class BGPRanking():
@@ -39,4 +40,10 @@ class BGPRanking():
         if source:
             to_query['source'] = source
         r = self.session.post(urljoin(self.root_url, '/json/asn'), data=json.dumps(to_query))
+        return r.json()
+
+    def asns_global_ranking(self, date: str=date.today().isoformat(), address_family: str='v4', limit: int=100):
+        '''Get the top `limit` ASNs, from worse to best'''
+        to_query = {'date': date, 'ipversion': address_family, 'limit': limit}
+        r = self.session.post(urljoin(self.root_url, '/json/asns_global_ranking'), data=json.dumps(to_query))
         return r.json()
