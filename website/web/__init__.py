@@ -273,4 +273,13 @@ def country_history():
     q = Querying()
     return Response(json.dumps(q.country_history(**session)), mimetype='application/json')
 
+
+@app.route('/json/asns_global_ranking', methods=['POST'])
+def json_asns_global_ranking():
+    query = request.get_json(force=True)
+    to_return = {'meta': query, 'response': {}}
+    q = Querying()
+    to_return['response'] = q.asns_global_ranking(**query)['response']
+    return Response(json.dumps(to_return), mimetype='application/json')
+
 # ############# Json outputs #############
