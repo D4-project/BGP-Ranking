@@ -26,6 +26,7 @@ pymispgalaxies = {editable = true,git = "https://github.com/MISP/PyMISPGalaxies.
 Jinja2 = ">=2.10.1"  # CVE-2019-10906
 idna-ssl = {markers = "python_version < '3.7'"}
 typing-extensions = {markers = "python_version < '3.7'"}
+werkzeug = ">=0.15.3"  #  CVE-2019-14806
 
 [requires]
 python_version = "3"
