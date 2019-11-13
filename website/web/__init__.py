@@ -38,43 +38,28 @@ app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 
 # ############# Helpers #############
 
-def get_request_parameter(parameter):
-    if request.method == 'POST':
-        d = request.form
-    elif request.method == 'GET':
-        d = request.args
-
-    return d.get(parameter, None)
-
-
 def load_session():
     if request.method == 'POST':
         d = request.form
     elif request.method == 'GET':
         d = request.args
 
-    if 'date' in d:
-        session['date'] = d['date']
-    if 'ipversion' in d:
-        session['ipversion'] = d['ipversion']
-    if 'source' in d:
-        if '_all' in d.getlist('source'):
-            session.pop('source', None)
+    for key in d:
+        if '_all' in d.getlist(key):
+            session.pop(key, None)
         else:
-            session['source'] = d.getlist('source')
-    if 'asn' in d:
-        session['asn'] = d['asn']
+            values = [v for v in d.getlist(key) if v]
+            if values:
+                if len(values) == 1:
+                    session[key] = values[0]
+                else:
+                    session[key] = values
+
+    # Edge cases
+    if 'asn' in session:
         session.pop('country', None)
-    elif 'country' in d:
-        if '_all' in d.getlist('country'):
-            session.pop('country', None)
-        else:
-            session['country'] = d.getlist('country')
+    elif 'country' in session:
         session.pop('asn', None)
-    set_default_date_session()
-
-
-def set_default_date_session():
     if 'date' not in session:
         session['date'] = (date.today() - timedelta(days=1)).isoformat()
 
@@ -111,8 +96,8 @@ def asn_details():
         return redirect(url_for('/'))
     asn_descriptions = q.get_asn_descriptions(asn=session['asn'], all_descriptions=True)['response']
     sources = q.get_sources(date=session['date'])['response']
+    prefix = session.pop('prefix', None)
     ranks = q.asn_details(**session)['response']
-    prefix = get_request_parameter('prefix')
     if prefix:
         prefix_ips = q.get_prefix_ips(prefix=prefix, **session)['response']
         prefix_ips = [(ip, sorted(sources)) for ip, sources in prefix_ips.items()]
@@ -220,7 +205,7 @@ def json_asn():
     to_return = {'meta': query, 'response': {}}
     if 'asn' not in query:
         to_return['error'] = f'You need to pass an asn - {query}'
-        return to_return
+        return Response(json.dumps(to_return), mimetype='application/json')
 
     q = Querying()
     asn_description_query = {'asn': query['asn']}
@@ -242,36 +227,39 @@ def json_asn():
     return Response(json.dumps(to_return), mimetype='application/json')
 
 
-@app.route('/json/asn_description', methods=['POST'])
+@app.route('/json/asn_descriptions', methods=['POST'])
 def asn_description():
-    load_session()
-    asn = None
-    if request.form.get('asn'):
-        asn = request.form.get('asn')
-    elif session.get('asn'):
-        asn = session.get('asn')
-    else:
-        to_return = {'error': 'asn required'}
-    if asn:
-        q = Querying()
-        to_return = q.get_asn_descriptions(asn, session.get('all_descriptions'))
+    query = request.get_json(force=True)
+    to_return = {'meta': query, 'response': {}}
+    if 'asn' not in query:
+        to_return['error'] = f'You need to pass an asn - {query}'
+        return Response(json.dumps(to_return), mimetype='application/json')
+
+    q = Querying()
+    to_return['response']['asn_descriptions'] = q.get_asn_descriptions(**query)['response']
     return Response(json.dumps(to_return), mimetype='application/json')
 
 
 @app.route('/json/asn_history', methods=['GET', 'POST'])
 def asn_history():
-    load_session()
+    query = request.get_json(force=True)
+    to_return = {'meta': query, 'response': {}}
+    if 'asn' not in query:
+        to_return['error'] = f'You need to pass an asn - {query}'
+        return Response(json.dumps(to_return), mimetype='application/json')
+
     q = Querying()
-    if 'asn' in session:
-        return Response(json.dumps(q.get_asn_history(**session)), mimetype='application/json')
-    return Response(json.dumps({'error': f'asn key is required: {session}'}), mimetype='application/json')
+    to_return['response']['asn_history'] = q.get_asn_history(**query)['response']
+    return Response(json.dumps(to_return), mimetype='application/json')
 
 
 @app.route('/json/country_history', methods=['GET', 'POST'])
 def country_history():
-    load_session()
+    query = request.get_json(force=True)
+    to_return = {'meta': query, 'response': {}}
     q = Querying()
-    return Response(json.dumps(q.country_history(**session)), mimetype='application/json')
+    to_return['response']['country_history'] = q.country_history(**query)['response']
+    return Response(json.dumps(to_return), mimetype='application/json')
 
 
 @app.route('/json/asns_global_ranking', methods=['POST'])
