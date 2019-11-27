@@ -242,22 +242,31 @@ def asn_description():
 
 @app.route('/json/asn_history', methods=['GET', 'POST'])
 def asn_history():
+    q = Querying()
+    if request.method == 'GET':
+        load_session()
+        if 'asn' in session:
+            return Response(json.dumps(q.get_asn_history(**session)), mimetype='application/json')
+
     query = request.get_json(force=True)
     to_return = {'meta': query, 'response': {}}
     if 'asn' not in query:
         to_return['error'] = f'You need to pass an asn - {query}'
         return Response(json.dumps(to_return), mimetype='application/json')
 
-    q = Querying()
     to_return['response']['asn_history'] = q.get_asn_history(**query)['response']
     return Response(json.dumps(to_return), mimetype='application/json')
 
 
 @app.route('/json/country_history', methods=['GET', 'POST'])
 def country_history():
+    q = Querying()
+    if request.method == 'GET':
+        load_session()
+        return Response(json.dumps(q.country_history(**session)), mimetype='application/json')
+
     query = request.get_json(force=True)
     to_return = {'meta': query, 'response': {}}
-    q = Querying()
     to_return['response']['country_history'] = q.country_history(**query)['response']
     return Response(json.dumps(to_return), mimetype='application/json')
 
