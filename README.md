@@ -81,7 +81,7 @@ curl -X POST -d '{"asn": "5577", "date": "2019-05-19"}' https://bgpranking-ng.ci
 
 Note: `date` isn't required.
 
-## Response
+### Response
 
 ```json
 {
@@ -98,6 +98,48 @@ Note: `date` isn't required.
   }
 }
 ```
+
+## Get historical information for an ASN
+
+```
+curl -X POST -d '{"asn": "5577", "period": 5}' https://bgpranking-ng.circl.lu/json/asn_history
+```
+
+### Response
+
+```json
+{
+  "meta": {
+    "asn": "5577",
+    "period": 5
+  },
+  "response": {
+    "asn_history": [
+      [
+        "2019-11-10",
+        0.00036458333333333335
+      ],
+      [
+        "2019-11-11",
+        0.00036168981481481485
+      ],
+      [
+        "2019-11-12",
+        0.0003761574074074074
+      ],
+      [
+        "2019-11-13",
+        0.0003530092592592593
+      ],
+      [
+        "2019-11-14",
+        0.0003559027777777778
+      ]
+    ]
+  }
+}
+```
+
 
 # Server Installation (if you want to run your own)
 
