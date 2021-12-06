@@ -1,7 +1,0 @@
-{
-  "url": "http://www.nothink.org/blacklist/blacklist_snmp_day.txt",
-  "vendor": "nothink",
-  "name": "snmp",
-  "impact": 5,
-  "parser": ".parsers.nothink"
-}

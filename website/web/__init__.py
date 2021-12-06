@@ -1,39 +1,39 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import json
+import pkg_resources
+
+from collections import defaultdict
+from datetime import date, timedelta
 from urllib.parse import urljoin
-try:
-    import simplejson as json
-except ImportError:
-    import json
+from typing import Dict, Any, Tuple, List, Optional, Union
 
-import os
-
+import pycountry  # type: ignore
 import requests
 
 from flask import Flask, render_template, request, session, Response, redirect, url_for
-from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap  # type: ignore
+from flask_restx import Api  # type: ignore
 
-from bgpranking.querying import Querying
-from bgpranking.libs.exceptions import MissingConfigEntry
-from bgpranking.libs.helpers import load_general_config, get_homedir, get_ipasn
-from datetime import date, timedelta
-import pycountry
-from collections import defaultdict
+from bgpranking.bgpranking import BGPRanking
+from bgpranking.default import get_config
+from bgpranking.helpers import get_ipasn
+
+from .genericapi import api as generic_api
+from .helpers import get_secret_key
+from .proxied import ReverseProxied
 
 app = Flask(__name__)
 
-secret_file_path = get_homedir() / 'website' / 'secret_key'
+app.wsgi_app = ReverseProxied(app.wsgi_app)  # type: ignore
 
-if not secret_file_path.exists() or secret_file_path.stat().st_size < 64:
-    with open(secret_file_path, 'wb') as f:
-        f.write(os.urandom(64))
-
-with open(secret_file_path, 'rb') as f:
-    app.config['SECRET_KEY'] = f.read()
+app.config['SECRET_KEY'] = get_secret_key()
 
 Bootstrap(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+
+bgpranking = BGPRanking()
 
 
 # ############# Helpers #############
@@ -42,7 +42,7 @@ def load_session():
     if request.method == 'POST':
         d = request.form
     elif request.method == 'GET':
-        d = request.args
+        d = request.args  # type: ignore
 
     for key in d:
         if '_all' in d.getlist(key):
@@ -79,27 +79,25 @@ def index():
         # Just returns ack if the webserver is running
         return 'Ack'
     load_session()
-    q = Querying()
-    sources = q.get_sources(date=session['date'])['response']
+    sources = bgpranking.get_sources(date=session['date'])['response']
     session.pop('asn', None)
     session.pop('country', None)
-    ranks = q.asns_global_ranking(limit=100, **session)['response']
-    r = [(asn, rank, q.get_asn_descriptions(int(asn))['response']) for asn, rank in ranks]
+    ranks = bgpranking.asns_global_ranking(limit=100, **session)['response']
+    r = [(asn, rank, bgpranking.get_asn_descriptions(int(asn))['response']) for asn, rank in ranks]
     return render_template('index.html', ranks=r, sources=sources, countries=get_country_codes(), **session)
 
 
 @app.route('/asn', methods=['GET', 'POST'])
 def asn_details():
     load_session()
-    q = Querying()
     if 'asn' not in session:
         return redirect(url_for('/'))
-    asn_descriptions = q.get_asn_descriptions(asn=session['asn'], all_descriptions=True)['response']
-    sources = q.get_sources(date=session['date'])['response']
+    asn_descriptions = bgpranking.get_asn_descriptions(asn=session['asn'], all_descriptions=True)['response']
+    sources = bgpranking.get_sources(date=session['date'])['response']
     prefix = session.pop('prefix', None)
-    ranks = q.asn_details(**session)['response']
+    ranks = bgpranking.asn_details(**session)['response']
     if prefix:
-        prefix_ips = q.get_prefix_ips(prefix=prefix, **session)['response']
+        prefix_ips = bgpranking.get_prefix_ips(prefix=prefix, **session)['response']
         prefix_ips = [(ip, sorted(sources)) for ip, sources in prefix_ips.items()]
         prefix_ips.sort(key=lambda entry: len(entry[1]), reverse=True)
     else:
@@ -111,20 +109,20 @@ def asn_details():
 @app.route('/country', methods=['GET', 'POST'])
 def country():
     load_session()
-    q = Querying()
-    sources = q.get_sources(date=session['date'])['response']
+    sources = bgpranking.get_sources(date=session['date'])['response']
     return render_template('country.html', sources=sources, countries=get_country_codes(), **session)
 
 
 @app.route('/country_history_callback', methods=['GET', 'POST'])
 def country_history_callback():
-    history_data = request.get_json(force=True)
+    history_data: Dict[str, Tuple[str, str, List[Any]]]
+    history_data = request.get_json(force=True)  # type: ignore
     to_display = []
-    mapping = defaultdict(dict)
+    mapping: Dict[str, Any] = defaultdict(dict)
     dates = []
     all_asns = set([])
-    for country, data in history_data.items():
-        for d, r_sum, details in data:
+    for country, foo in history_data.items():
+        for d, r_sum, details in foo:
             dates.append(d)
             for detail in details:
                 asn, r = detail
@@ -146,7 +144,7 @@ def country_history_callback():
 
 @app.route('/ipasn', methods=['GET', 'POST'])
 def ipasn():
-    d = None
+    d: Optional[Dict] = None
     if request.method == 'POST':
         d = request.form
     elif request.method == 'GET':
@@ -160,12 +158,11 @@ def ipasn():
         else:
             ip = d['ip']
     ipasn = get_ipasn()
-    q = Querying()
     response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(),
                            aggregate=True, ip=ip)
     for r in response['response']:
         r['asn_descriptions'] = []
-        asn_descriptions = q.get_asn_descriptions(asn=r['asn'], all_descriptions=True)['response']
+        asn_descriptions = bgpranking.get_asn_descriptions(asn=r['asn'], all_descriptions=True)['response']
         for timestamp in sorted(asn_descriptions.keys()):
             if r['first_seen'] <= timestamp <= r['last_seen']:
                 r['asn_descriptions'].append(asn_descriptions[timestamp])
@@ -185,16 +182,11 @@ def ipasn():
 @app.route('/ipasn_history/', defaults={'path': ''}, methods=['GET', 'POST'])
 @app.route('/ipasn_history/<path:path>', methods=['GET', 'POST'])
 def ipasn_history_proxy(path):
-    config, general_config_file = load_general_config()
-    if 'ipasnhistory_url' not in config:
-        raise MissingConfigEntry(f'"ipasnhistory_url" is missing in {general_config_file}.')
 
     path_for_ipasnhistory = request.full_path.replace('/ipasn_history', '')
     if '/?' in path_for_ipasnhistory:
         path_for_ipasnhistory = path_for_ipasnhistory.replace('/?', '/ip?')
-    print(path_for_ipasnhistory)
-    proxied_url = urljoin(config['ipasnhistory_url'], path_for_ipasnhistory)
-    print(proxied_url)
+    proxied_url = urljoin(get_config('generic', 'ipasnhistory_url'), path_for_ipasnhistory)
     if request.method in ['GET', 'HEAD']:
         to_return = requests.get(proxied_url).json()
     elif request.method == 'POST':
@@ -206,17 +198,17 @@ def ipasn_history_proxy(path):
 def json_asn():
     # TODO
     # * Filter on date => if only returning one descr, return the desription at that date
-    query = request.get_json(force=True)
-    to_return = {'meta': query, 'response': {}}
+    query: Dict[str, Any] = request.get_json(force=True)  # type: ignore
+    to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
     if 'asn' not in query:
         to_return['error'] = f'You need to pass an asn - {query}'
         return Response(json.dumps(to_return), mimetype='application/json')
 
-    q = Querying()
     asn_description_query = {'asn': query['asn']}
     if 'all_descriptions' in query:
         asn_description_query['all_descriptions'] = query['all_descriptions']
-    to_return['response']['asn_description'] = q.get_asn_descriptions(**asn_description_query)['response']
+    responses = bgpranking.get_asn_descriptions(**asn_description_query)['response']
+    to_return['response']['asn_description'] = responses  # type: ignore
 
     asn_rank_query = {'asn': query['asn']}
     if 'date' in query:
@@ -228,60 +220,65 @@ def json_asn():
     if 'ipversion' in query:
         asn_rank_query['ipversion'] = query['ipversion']
 
-    to_return['response']['ranking'] = q.asn_rank(**asn_rank_query)['response']
+    to_return['response']['ranking'] = bgpranking.asn_rank(**asn_rank_query)['response']  # type: ignore
     return Response(json.dumps(to_return), mimetype='application/json')
 
 
 @app.route('/json/asn_descriptions', methods=['POST'])
 def asn_description():
-    query = request.get_json(force=True)
-    to_return = {'meta': query, 'response': {}}
+    query: Dict = request.get_json(force=True)  # type: ignore
+    to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
     if 'asn' not in query:
         to_return['error'] = f'You need to pass an asn - {query}'
         return Response(json.dumps(to_return), mimetype='application/json')
 
-    q = Querying()
-    to_return['response']['asn_descriptions'] = q.get_asn_descriptions(**query)['response']
+    to_return['response']['asn_descriptions'] = bgpranking.get_asn_descriptions(**query)['response']  # type: ignore
     return Response(json.dumps(to_return), mimetype='application/json')
 
 
 @app.route('/json/asn_history', methods=['GET', 'POST'])
 def asn_history():
-    q = Querying()
     if request.method == 'GET':
         load_session()
         if 'asn' in session:
-            return Response(json.dumps(q.get_asn_history(**session)), mimetype='application/json')
+            return Response(json.dumps(bgpranking.get_asn_history(**session)), mimetype='application/json')
 
-    query = request.get_json(force=True)
-    to_return = {'meta': query, 'response': {}}
+    query: Dict = request.get_json(force=True)  # type: ignore
+    to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
     if 'asn' not in query:
         to_return['error'] = f'You need to pass an asn - {query}'
         return Response(json.dumps(to_return), mimetype='application/json')
 
-    to_return['response']['asn_history'] = q.get_asn_history(**query)['response']
+    to_return['response']['asn_history'] = bgpranking.get_asn_history(**query)['response']  # type: ignore
     return Response(json.dumps(to_return), mimetype='application/json')
 
 
 @app.route('/json/country_history', methods=['GET', 'POST'])
 def country_history():
-    q = Querying()
     if request.method == 'GET':
         load_session()
-        return Response(json.dumps(q.country_history(**session)), mimetype='application/json')
+        return Response(json.dumps(bgpranking.country_history(**session)), mimetype='application/json')
 
-    query = request.get_json(force=True)
-    to_return = {'meta': query, 'response': {}}
-    to_return['response']['country_history'] = q.country_history(**query)['response']
+    query: Dict = request.get_json(force=True)  # type: ignore
+    to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
+    to_return['response']['country_history'] = bgpranking.country_history(**query)['response']  # type: ignore
     return Response(json.dumps(to_return), mimetype='application/json')
 
 
 @app.route('/json/asns_global_ranking', methods=['POST'])
 def json_asns_global_ranking():
-    query = request.get_json(force=True)
-    to_return = {'meta': query, 'response': {}}
-    q = Querying()
-    to_return['response'] = q.asns_global_ranking(**query)['response']
+    query: Dict = request.get_json(force=True)  # type: ignore
+    to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
+    to_return['response'] = bgpranking.asns_global_ranking(**query)['response']
     return Response(json.dumps(to_return), mimetype='application/json')
 
 # ############# Json outputs #############
+
+
+# Query API
+
+api = Api(app, title='BGP Ranking API',
+          description='API to query BGP Ranking.',
+          version=pkg_resources.get_distribution('bgpranking').version)
+
+api.add_namespace(generic_api)

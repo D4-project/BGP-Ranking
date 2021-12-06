@@ -1,6 +1,0 @@
-{
-  "url": "https://zeustracker.abuse.ch/blocklist.php?download=ipblocklist",
-  "vendor": "zeustracker",
-  "name": "ipblocklist",
-  "impact": 5
-}

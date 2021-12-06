@@ -1,3 +1,5 @@
+"use strict";
+
 function linegraph(call_path) {
 	var svg = d3.select("svg"),
 		margin = {top: 20, right: 80, bottom: 30, left: 50},
@@ -16,12 +18,11 @@ function linegraph(call_path) {
 		.x(function(d) { return x(d.date); })
 		.y(function(d) { return y(d.rank); });
 
-	d3.json(call_path, {credentials: 'same-origin'}).then(function(data) {
-
-	  var country_ranks = d3.entries(data.response).map(function(country_rank) {
+	d3.json(call_path, {credentials: 'same-origin'}).then(data => {
+	  var country_ranks = $.map(data.response, function(value, key) {
 		return {
-		  country: country_rank.key,
-		  values: d3.values(country_rank.value).map(function(d) {
+		  country: key,
+		  values: $.map(value, function(d) {
 			return {date: parseTime(d[0]), rank: d[1]};
 		  })
 		};
@@ -72,8 +73,9 @@ function linegraph(call_path) {
                   {credentials: 'same-origin',
                    method: 'POST',
                    body: JSON.stringify(data.response),
-                  }).then(function(data) {
+                  })
+        .then(function(data) {
             d3.select('#asn_details').html(data);
-      });
+        });
     });
 };

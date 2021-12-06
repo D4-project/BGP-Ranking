@@ -6,8 +6,8 @@ import logging
 from dateutil.parser import parse
 from datetime import timedelta
 
-from bgpranking.libs.helpers import load_config_files
-from bgpranking.ranking import Ranking
+from bgpranking.helpers import load_all_modules_configs
+from .ranking import Ranking
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
                     level=logging.DEBUG, datefmt='%I:%M:%S')
@@ -21,13 +21,13 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     ranking = Ranking(loglevel=logging.DEBUG)
-    config_files = load_config_files()
+    config_files = load_all_modules_configs()
     if args.day:
         day = parse(args.day).date().isoformat()
-        ranking.rank_a_day(day, config_files)
+        ranking.rank_a_day(day)
     else:
         current = parse(args.interval[1]).date()
         stop_date = parse(args.interval[0]).date()
         while current >= stop_date:
-            ranking.rank_a_day(current.isoformat(), config_files)
+            ranking.rank_a_day(current.isoformat())
             current -= timedelta(days=1)

@@ -1,0 +1,64 @@
+[tool.poetry]
+name = "bgpranking"
+version = "2.0"
+description = "BGP Ranking is a software to rank AS numbers based on their malicious activities."
+authors = ["Raphaël Vinot <raphael.vinot@circl.lu>"]
+license = "AGPLv3"
+
+[tool.poetry.scripts]
+start = "bin.start:main"
+stop = "bin.stop:main"
+update = "bin.update:main"
+shutdown = "bin.shutdown:main"
+run_backend = "bin.run_backend:main"
+start_website = "bin.start_website:main"
+
+archiver = "bin.archiver:main"
+asn_descriptions = "bin.asn_descriptions:main"
+dbinsert = "bin.dbinsert:main"
+fetcher = "bin.fetcher:main"
+parser = "bin.parser:main"
+ranking = "bin.ranking:main"
+sanitizer = "bin.sanitizer:main"
+ssfetcher = "bin.ssfetcher:main"
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+redis = {version = "^4.0.2", extras = ["hiredis"]}
+flask-restx = "^0.5.1"
+gunicorn = "^20.1.0"
+python-dateutil = "^2.8.2"
+pyipasnhistory = "^2.0"
+pycountry = "^20.7.3"
+beautifulsoup4 = "^4.10.0"
+aiohttp = "^3.8.1"
+Bootstrap-Flask = "^1.8.0"
+pid = "^3.0.4"
+
+[tool.poetry.dev-dependencies]
+ipython = "^7.23.0"
+mypy = "^0.920"
+types-setuptools = "^57.4.4"
+types-redis = "^4.0.3"
+types-requests = "^2.26.1"
+types-python-dateutil = "^2.8.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+python_version = 3.8
+check_untyped_defs = true
+ignore_errors = false
+ignore_missing_imports = false
+strict_optional = true
+no_implicit_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unused_configs = true
+warn_unreachable = true
+
+show_error_context = true
+pretty = true

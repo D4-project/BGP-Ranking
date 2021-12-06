@@ -1,7 +1,0 @@
-{
-  "url": "http://www.nothink.org/blacklist/blacklist_ssh_day.txt",
-  "vendor": "nothink",
-  "name": "ssh",
-  "impact": 5,
-  "parser": ".parsers.nothink"
-}

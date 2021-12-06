@@ -1,21 +1,28 @@
-{% extends "bootstrap/base.html" %}
-
-{% block scripts %}
-    {{ super() }}
-    <script src='{{ url_for('static', filename='d3.v5.js') }}'></script>
-    <script src='{{ url_for('static', filename='bootstrap-select.min.js') }}'></script>
-    <script>
-        $(document).ready(function(){
-            $('[data-toggle="popover"]').popover();
-        });
-    </script>
-{% endblock %}
-
-{% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-select.min.css') }}">
-    {{ super() }}
-{% endblock %}
-
-{% block content %}
-    {{ super() }}
-{% endblock %}
+<!doctype html>
+<html lang="en">
+  <head>
+    {% block head %}
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+	  {% block styles %}
+	    {{ bootstrap.load_css() }}
+	    <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-select.min.css') }}">
+	  {% endblock %}
+	{% endblock %}
+  </head>
+  <body>
+    <div class="container">
+      {% block content %}{% endblock%}
+    </div>
+	{% block scripts %}
+      {{ bootstrap.load_js() }}
+	  <script src='{{ url_for('static', filename='bootstrap-select.min.js') }}'></script>
+	  <script src='{{ url_for('static', filename='d3.v7.min.js') }}'></script>
+	  <script>
+		  $(document).ready(function(){
+			  $('[data-toggle="popover"]').popover();
+		  });
+	  </script>
+    {% endblock %}
+  </body>
+</html>

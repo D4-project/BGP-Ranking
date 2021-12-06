@@ -1,3 +1,8 @@
+# Local exclude
+scraped/
+*.swp
+lookyloo/ete3_webserver/webapi.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -100,29 +105,20 @@ ENV/
 # mypy
 .mypy_cache/
 
-# Redis
+
+# web
+secret_key
+
+cache.pid
 *.rdb
 
-# Storage
+# Local config files
+config/*.json
+config/*.json.bkp
+
 rawdata
 
-# ardb
-storage/ardb.pid
-storage/data
-storage/repl
-
-# Config file shadow server with password
-bgpranking/config/shadowserver.json
-# Ths shadow server config files are dynamically generated
-bgpranking/config/modules/shadowserver_*.json
-
-# Do not store the d3 lib in the repo
-website/web/static/d3*.js
-
-# Same got bootstrap-select
-website/web/static/bootstrap-select*
-
-# Session key
-website/secret_key
-
-*.swp
+storage/db/
+storage/kvrocks*
+website/web/static/d3.v5.js
+website/web/static/bootstrap-select.min.*
