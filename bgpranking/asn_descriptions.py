@@ -21,7 +21,7 @@ class ASNDescriptions():
         safe_create_dir(self.directory)
         self.archives = self.directory / 'archive'
         safe_create_dir(self.archives)
-        self.url = 'http://www.cidr-report.org/as2.0/autnums.html'
+        self.url = 'https://www.cidr-report.org/as2.0/autnums.html'
 
     def __init_logger(self, loglevel):
         self.logger = logging.getLogger(f'{self.__class__.__name__}')

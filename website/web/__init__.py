@@ -188,8 +188,13 @@ def ipasn_history_proxy(path):
     config, general_config_file = load_general_config()
     if 'ipasnhistory_url' not in config:
         raise MissingConfigEntry(f'"ipasnhistory_url" is missing in {general_config_file}.')
-    proxied_url = urljoin(config['ipasnhistory_url'],
-                          request.full_path.replace('/ipasn_history', ''))
+
+    path_for_ipasnhistory = request.full_path.replace('/ipasn_history', '')
+    if '/?' in path_for_ipasnhistory:
+        path_for_ipasnhistory = path_for_ipasnhistory.replace('/?', '/ip?')
+    print(path_for_ipasnhistory)
+    proxied_url = urljoin(config['ipasnhistory_url'], path_for_ipasnhistory)
+    print(proxied_url)
     if request.method in ['GET', 'HEAD']:
         to_return = requests.get(proxied_url).json()
     elif request.method == 'POST':

@@ -51,6 +51,10 @@ class Sanitizer():
                 except ValueError:
                     self.logger.info(f"Invalid IP address: {data['ip']}")
                     continue
+                except KeyError:
+                    self.logger.info(f"Invalid entry {data}")
+                    continue
+
                 if not ip.is_global:
                     self.logger.info(f"The IP address {data['ip']} is not global")
                     continue

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+import time
 from redis import StrictRedis
 from .libs.helpers import shutdown_requested, set_running, unset_running, get_socket_path, get_ipasn, sanity_check_ipasn
 
@@ -29,8 +30,15 @@ class DatabaseInsert():
 
         set_running(self.__class__.__name__)
         while True:
-            if shutdown_requested() or not self.ipasn.is_up:
+            if shutdown_requested():
                 break
+            try:
+                if not self.ipasn.is_up:
+                    break
+            except Exception:
+                self.logger.warning('Unable to query ipasnhistory')
+                time.sleep(10)
+                continue
             uuids = self.redis_sanitized.spop('to_insert', 100)
             if not uuids:
                 break
@@ -52,7 +60,8 @@ class DatabaseInsert():
                 self.logger.exception('Mass query in IPASN History failed, trying again later.')
                 # Rollback the spop
                 self.redis_sanitized.sadd('to_insert', *uuids)
-                break
+                time.sleep(10)
+                continue
             retry = []
             done = []
             ardb_pipeline = self.ardb_storage.pipeline(transaction=False)
