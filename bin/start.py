@@ -21,7 +21,7 @@ def main():
     Popen(['ranking'])
     Popen(['asn_descriptions'])
     print('Start website...')
-    # Popen(['start_website'])
+    Popen(['start_website'])
     print('done.')
 
 
