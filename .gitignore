@@ -120,5 +120,9 @@ rawdata
 
 storage/db/
 storage/kvrocks*
-website/web/static/d3.v5.js
+ranking/db/
+ranking/kvrocks*
+website/web/static/d3.*.js
 website/web/static/bootstrap-select.min.*
+
+*.pid
