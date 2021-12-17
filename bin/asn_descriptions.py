@@ -12,7 +12,7 @@ from bgpranking.default import get_socket_path, safe_create_dir, AbstractManager
 from bgpranking.helpers import get_data_dir
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
-                    level=logging.INFO, datefmt='%I:%M:%S')
+                    level=logging.INFO)
 
 
 class ASNDescriptions(AbstractManager):

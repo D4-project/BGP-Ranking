@@ -19,7 +19,7 @@ from bgpranking.helpers import get_data_dir, get_modules_dir
 
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
-                    level=logging.INFO, datefmt='%I:%M:%S')
+                    level=logging.INFO)
 
 
 Dates = TypeVar('Dates', datetime, date, str)

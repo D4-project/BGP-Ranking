@@ -10,7 +10,7 @@ from bgpranking.helpers import load_all_modules_configs
 from .ranking import Ranking
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
-                    level=logging.DEBUG, datefmt='%I:%M:%S')
+                    level=logging.INFO)
 
 
 if __name__ == '__main__':

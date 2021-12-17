@@ -13,7 +13,7 @@ from bgpranking.helpers import get_ipasn, sanity_check_ipasn
 
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
-                    level=logging.INFO, datefmt='%I:%M:%S')
+                    level=logging.INFO)
 
 
 class DBInsertManager(AbstractManager):

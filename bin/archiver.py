@@ -19,7 +19,7 @@ from bgpranking.helpers import get_modules, get_data_dir
 
 logger = logging.getLogger('Archiver')
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
-                    level=logging.INFO, datefmt='%I:%M:%S')
+                    level=logging.INFO)
 
 
 class DeepArchive():

@@ -14,7 +14,7 @@ from bgpranking.default import AbstractManager, get_config
 from bgpranking.helpers import get_ipasn, sanity_check_ipasn, load_all_modules_configs
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
-                    level=logging.INFO, datefmt='%I:%M:%S')
+                    level=logging.INFO)
 
 
 class Ranking(AbstractManager):

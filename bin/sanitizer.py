@@ -16,7 +16,7 @@ from bgpranking.default import AbstractManager, get_socket_path
 from bgpranking.helpers import get_ipasn, sanity_check_ipasn
 
 logging.basicConfig(format='%(asctime)s %(name)s %(levelname)s:%(message)s',
-                    level=logging.WARNING, datefmt='%I:%M:%S')
+                    level=logging.INFO)
 
 
 class Sanitizer(AbstractManager):
