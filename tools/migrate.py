@@ -6,7 +6,7 @@ from typing import Set
 
 from redis import Redis
 
-redis_src = Redis(unix_socket_path='../storage/storage.sock')
+redis_src = Redis(unix_socket_path='../storage/storage.sock', db=0)
 redis_dst = Redis('127.0.0.1', 5188)
 
 chunk_size = 100000
@@ -22,7 +22,7 @@ def process_chunk(src: Redis, dst: Redis, keys: Set[str]):
         if key_type == b"string":
             src_pipeline.get(key)
         elif key_type == b"list":
-            raise Exception('Lists should not be used.')
+            raise Exception(f'Lists should not be used: {key}.')
         elif key_type == b"set":
             src_pipeline.smembers(key)
         elif key_type == b"zset":
