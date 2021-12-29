@@ -37,8 +37,8 @@ class IPASNProxy(Resource):
         else:
             full_path = request.full_path
         path_for_ipasnhistory = full_path.replace('/ipasn_history/', '')
-        if path_for_ipasnhistory.startswith('/?'):
-            path_for_ipasnhistory = path_for_ipasnhistory.replace('/?', '/ip?')
+        if path_for_ipasnhistory.startswith('?'):
+            path_for_ipasnhistory = path_for_ipasnhistory.replace('?', 'ip?')
         if not path_for_ipasnhistory:
             path_for_ipasnhistory = 'ip'
         return urljoin(get_config('generic', 'ipasnhistory_url'), path_for_ipasnhistory)
