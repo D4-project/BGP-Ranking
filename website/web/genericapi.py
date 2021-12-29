@@ -36,19 +36,20 @@ class IPASNProxy(Resource):
             full_path = request.full_path[:-1]
         else:
             full_path = request.full_path
-        path_for_ipasnhistory = full_path.replace('/ipasn_history', '')
+        path_for_ipasnhistory = full_path.replace('/ipasn_history/', '')
         if path_for_ipasnhistory.startswith('/?'):
             path_for_ipasnhistory = path_for_ipasnhistory.replace('/?', '/ip?')
+        if not path_for_ipasnhistory:
+            path_for_ipasnhistory = 'ip'
         return urljoin(get_config('generic', 'ipasnhistory_url'), path_for_ipasnhistory)
 
     def get(self, path=''):
         url = self._proxy_url()
-        print(url)
         return requests.get(url).json()
 
     def post(self, path=''):
         url = self._proxy_url()
-        return requests.post(url, data=request.data).json()
+        return requests.post(url, json=request.data.decode()).json()
 
 
 # TODO: Add other parameters for asn_rank
