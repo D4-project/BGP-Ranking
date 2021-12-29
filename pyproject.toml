@@ -25,7 +25,7 @@ ssfetcher = "bin.ssfetcher:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-redis = {version = "^4.0.2", extras = ["hiredis"]}
+redis = {version = "^4.1.0", extras = ["hiredis"]}
 flask-restx = "^0.5.1"
 gunicorn = "^20.1.0"
 python-dateutil = "^2.8.2"
@@ -38,9 +38,9 @@ pid = "^3.0.4"
 
 [tool.poetry.dev-dependencies]
 ipython = "^7.23.0"
-mypy = "^0.920"
+mypy = "^0.930"
 types-setuptools = "^57.4.4"
-types-redis = "^4.0.3"
+types-redis = "^4.1.1"
 types-requests = "^2.26.1"
 types-python-dateutil = "^2.8.3"
 
