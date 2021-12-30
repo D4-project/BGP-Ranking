@@ -1,0 +1,7 @@
+{
+  "url": "https://sslbl.abuse.ch/blacklist/sslipblacklist.txt",
+  "vendor": "abuse.ch",
+  "name": "blacklist",
+  "impact": 7,
+  "parser": ".parsers.abusech"
+}
