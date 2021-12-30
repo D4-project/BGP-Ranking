@@ -9,5 +9,5 @@ from typing import List
 
 
 def parse_raw_file(self, f: BytesIO) -> List[bytes]:
-    self.datetime = parse(re.findall(b'# Last updated: (.*)#\n', f.getvalue())[0])
+    self.datetime = parse(re.findall(b'# Last updated: (.*)#', f.getvalue())[0])
     return self.extract_ipv4(f.getvalue())
