@@ -60,10 +60,14 @@ class BGPRanking():
     def _ranking_cache_wrapper(self, key):
         if not self.cache.exists(key):
             if self.ranking.exists(key):
-                content: List[Tuple[bytes, float]] = self.ranking.zrangebyscore(key, '-Inf', '+Inf', withscores=True)
-                # Cache for 10 hours
-                self.cache.zadd(key, {value: rank for value, rank in content})
-                self.cache.expire(key, 36000)
+                try:
+                    content: List[Tuple[bytes, float]] = self.ranking.zrangebyscore(key, '-Inf', '+Inf', withscores=True)
+                    # Cache for 10 hours
+                    self.cache.zadd(key, {value: rank for value, rank in content})
+                    self.cache.expire(key, 36000)
+                except Exception as e:
+                    self.logger.exception(f'Something went poorly when caching {key}.')
+                    raise e
 
     def asns_global_ranking(self, date: Optional[Dates]=None, source: Union[list, str]='',
                             ipversion: str='v4', limit: int=100):
