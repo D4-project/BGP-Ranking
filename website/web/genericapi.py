@@ -49,7 +49,7 @@ class IPASNProxy(Resource):
 
     def post(self, path=''):
         url = self._proxy_url()
-        return requests.post(url, json=request.data.decode()).json()
+        return requests.post(url, data=request.data).json()
 
 
 # TODO: Add other parameters for asn_rank
