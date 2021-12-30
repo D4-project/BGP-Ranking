@@ -82,7 +82,7 @@ class RawFilesParser():
                 p.execute()
                 self._archive(filepath)
         except Exception as e:
-            self.logger.warning(f"{self.source}: That didn't go well: {e}")
+            self.logger.exception(f"{self.source}: That didn't go well: {e}")
             self._unparsable(filepath)
 
     def _archive(self, filepath: Path) -> None:
