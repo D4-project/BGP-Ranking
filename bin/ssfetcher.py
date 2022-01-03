@@ -35,10 +35,11 @@ class ShadowServerFetcher():
         self.password = password
         self.index_page = 'https://dl.shadowserver.org/reports/index.php'
         self.vendor = 'shadowserver'
-        self.known_list_types = ('blacklist', 'botnet', 'cc', 'cisco', 'cwsandbox', 'drone',
+        self.known_list_types = ('blacklist', 'blocklist', 'botnet', 'cc', 'cisco', 'cwsandbox',
+                                 'device', 'drone', 'event4', 'malware', 'scan6',
                                  'microsoft', 'scan', 'sinkhole6', 'sinkhole', 'outdated',
                                  'compromised', 'hp', 'darknet', 'ddos')
-        self.first_available_day: date
+        self.first_available_day: Optional[date] = None
         self.last_available_day: date
         self.available_entries: Dict[str, List[Tuple[str, str]]] = {}
 
@@ -109,7 +110,11 @@ class ShadowServerFetcher():
 
         if main_type == 'blacklist':
             config['impact'] = 5
+        elif main_type == 'blocklist':
+            config['impact'] = 5
         elif main_type == 'botnet':
+            config['impact'] = 2
+        elif main_type == 'malware':
             config['impact'] = 2
         elif main_type == 'cc':
             config['impact'] = 5
@@ -123,9 +128,15 @@ class ShadowServerFetcher():
             config['impact'] = 3
         elif main_type == 'scan':
             config['impact'] = 1
+        elif main_type == 'scan6':
+            config['impact'] = 1
         elif main_type == 'sinkhole6':
             config['impact'] = 2
         elif main_type == 'sinkhole':
+            config['impact'] = 2
+        elif main_type == 'device':
+            config['impact'] = 1
+        elif main_type == 'event4':
             config['impact'] = 2
         else:
             config['impact'] = 1
