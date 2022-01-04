@@ -36,7 +36,7 @@ class ShadowServerFetcher():
         self.index_page = 'https://dl.shadowserver.org/reports/index.php'
         self.vendor = 'shadowserver'
         self.known_list_types = ('blacklist', 'blocklist', 'botnet', 'cc', 'cisco', 'cwsandbox',
-                                 'device', 'drone', 'event4', 'malware', 'scan6',
+                                 'device', 'drone', 'event4', 'malware', 'scan6', 'event6', 'netis',
                                  'microsoft', 'scan', 'sinkhole6', 'sinkhole', 'outdated',
                                  'compromised', 'hp', 'darknet', 'ddos')
         self.first_available_day: Optional[date] = None
@@ -137,6 +137,10 @@ class ShadowServerFetcher():
         elif main_type == 'device':
             config['impact'] = 1
         elif main_type == 'event4':
+            config['impact'] = 2
+        elif main_type == 'event6':
+            config['impact'] = 2
+        elif main_type == 'netis':
             config['impact'] = 2
         else:
             config['impact'] = 1
