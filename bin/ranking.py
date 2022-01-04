@@ -34,6 +34,9 @@ class Ranking(AbstractManager):
         cached_meta: Dict[str, Dict[str, Any]] = {}
         config_files = load_all_modules_configs()
         for source in self.storage.smembers(f'{day}|sources'):
+            if source not in config_files:
+                # get it again, just in case it is created after we open them
+                config_files = load_all_modules_configs()
             self.logger.info(f'{day} - Ranking source: {source}')
             source_aggregation_key_v4 = f'{day}|{source}|asns|v4'
             source_aggregation_key_v6 = f'{day}|{source}|asns|v6'
