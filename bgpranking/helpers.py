@@ -32,7 +32,6 @@ def get_modules() -> List[Path]:
     return [modulepath for modulepath in get_modules_dir().glob('*.json')]
 
 
-@lru_cache(64)
 def load_all_modules_configs() -> Dict[str, Dict]:
     configs = {}
     for p in get_modules():
