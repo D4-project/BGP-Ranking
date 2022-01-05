@@ -50,7 +50,7 @@ def index():
 def asn_details():
     load_session()
     if 'asn' not in session:
-        return redirect(url_for('/'))
+        return redirect(url_for('index'))
     asn_descriptions = bgpranking.get_asn_descriptions(asn=session['asn'], all_descriptions=True)['response']
     sources = bgpranking.get_sources(date=session['date'])['response']
     prefix = session.pop('prefix', None)
