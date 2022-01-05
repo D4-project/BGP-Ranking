@@ -57,7 +57,7 @@ class DBInsertManager(AbstractManager):
                 if not data:
                     self.logger.warning(f'No data for UUID {uuid}. This should not happen, but lets move on.')
                     continue
-                for_query.append({'ip': data['ip'], 'address_family': data['address_family'], 'source': 'caida',
+                for_query.append({'ip': data['ip'], 'address_family': data['address_family'],
                                   'date': data['datetime'], 'precision_delta': {'days': 3}})
             try:
                 responses = self.ipasn.mass_query(for_query)
@@ -89,11 +89,11 @@ class DBInsertManager(AbstractManager):
                     # routing info is missing, need to try again later.
                     retry.append(uuid)
                     continue
-                if 'asn' in entry and entry['asn'] is None:
-                    self.logger.warning(f"Unable to find the AS number associated to {data['ip']} - {data['datetime']} (got None). This should not happen...")
+                if 'asn' in entry and entry['asn'] in [None, '0']:
+                    self.logger.warning(f"Unable to find the AS number associated to {data['ip']} - {data['datetime']} (got {entry['asn']}).")
                     continue
-                if 'prefix' in entry and entry['prefix'] is None:
-                    self.logger.warning(f"Unable to find the prefix associated to {data['ip']} - {data['datetime']} (got None). This should not happen...")
+                if 'prefix' in entry and entry['prefix'] in [None, '0.0.0.0/0', '::/0']:
+                    self.logger.warning(f"Unable to find the prefix associated to {data['ip']} - {data['datetime']} (got {entry['prefix']}).")
                     continue
 
                 # Format: <YYYY-MM-DD>|sources -> set([<source>, ...])

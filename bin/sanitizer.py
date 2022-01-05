@@ -57,7 +57,7 @@ class Sanitizer(AbstractManager):
                               'date': datetime.date().isoformat(), 'datetime': datetime.isoformat()})
         pipeline.sadd('to_insert', uuid)
 
-        return {'ip': str(ip), 'address_family': address_family, 'source': 'caida',
+        return {'ip': str(ip), 'address_family': address_family,
                 'date': datetime.isoformat(), 'precision_delta': {'days': 3}}
 
     def _sanitize_network(self, pipeline: Redis, uuid: str, data: Dict) -> List[Dict]:
@@ -90,7 +90,7 @@ class Sanitizer(AbstractManager):
                                   'date': datetime.date().isoformat(), 'datetime': datetime.isoformat()})
             pipeline.sadd('to_insert', uuid)
 
-            for_cache.append({'ip': str(ip), 'address_family': address_family, 'source': 'caida',
+            for_cache.append({'ip': str(ip), 'address_family': address_family,
                               'date': datetime.isoformat(), 'precision_delta': {'days': 3}})
         return for_cache
 

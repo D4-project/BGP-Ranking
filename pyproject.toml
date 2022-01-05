@@ -29,7 +29,7 @@ redis = {version = "^4.1.0", extras = ["hiredis"]}
 flask-restx = "^0.5.1"
 gunicorn = "^20.1.0"
 python-dateutil = "^2.8.2"
-pyipasnhistory = "^2.0"
+pyipasnhistory = "^2.1.1"
 pycountry = "^20.7.3"
 beautifulsoup4 = "^4.10.0"
 aiohttp = "^3.8.1"
