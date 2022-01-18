@@ -38,10 +38,12 @@ optional arguments:
 
 ## History
 
-The first version of BGP Ranking was done in 2010 by [Raphael Vinot](https://github.com/Rafiot) with the support of [Alexandre Dulaunoy](https://github.com/adulau/).
+- The first version of BGP Ranking was done in 2010 by [Raphael Vinot](https://github.com/Rafiot) with the support of [Alexandre Dulaunoy](https://github.com/adulau/).
 CIRCL supported the project from the early beginning and setup an online version to share information about the malicious ranking of ISPs.
 
-In late 2018 within the scope of the D4 Project (a CIRCL project co-funded by INEA under the CEF Telecom program), a new version of BGP Ranking was completed rewritten in python3.6+ with an ARDB back-end.
+- In late 2018 within the scope of the D4 Project (a CIRCL project co-funded by INEA under the CEF Telecom program), a new version of BGP Ranking was completed rewritten in python3.6+ with an ARDB back-end.
+
+- In January 2022, BGP Ranking version 2.0 was released including a new backend on [kvrocks](https://github.com/KvrocksLabs/kvrocks) and many improvements. 
 
 # Online service
 
