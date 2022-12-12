@@ -80,6 +80,10 @@ class DBInsertManager(AbstractManager):
                 # Data gathered from IPASN History:
                 # * IP Block of the IP
                 # * AS number
+                if not routing_info:
+                    self.logger.warning(f"No response for {responses['responses'][i]}")
+                    done.append(uuid)
+                    continue
                 if 'error' in routing_info:
                     self.logger.warning(f"Unable to find routing information for {data['ip']} - {data['datetime']}: {routing_info['error']}")
                     done.append(uuid)
