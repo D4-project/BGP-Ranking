@@ -74,6 +74,7 @@ class DBInsertManager(AbstractManager):
                 data = sanitized_data[i]
                 if not data:
                     self.logger.warning(f'No data for UUID {uuid}. This should not happen, but lets move on.')
+                    done.append(uuid)
                     continue
                 routing_info = responses['responses'][i]['response']  # our queries are on one single date, not a range
                 # Data gathered from IPASN History:
@@ -81,6 +82,7 @@ class DBInsertManager(AbstractManager):
                 # * AS number
                 if 'error' in routing_info:
                     self.logger.warning(f"Unable to find routing information for {data['ip']} - {data['datetime']}: {routing_info['error']}")
+                    done.append(uuid)
                     continue
                 # Single date query, getting from the object
                 datetime_routing = list(routing_info.keys())[0]
@@ -91,9 +93,11 @@ class DBInsertManager(AbstractManager):
                     continue
                 if 'asn' in entry and entry['asn'] in [None, '0']:
                     self.logger.warning(f"Unable to find the AS number associated to {data['ip']} - {data['datetime']} (got {entry['asn']}).")
+                    done.append(uuid)
                     continue
                 if 'prefix' in entry and entry['prefix'] in [None, '0.0.0.0/0', '::/0']:
                     self.logger.warning(f"Unable to find the prefix associated to {data['ip']} - {data['datetime']} (got {entry['prefix']}).")
+                    done.append(uuid)
                     continue
 
                 # Format: <YYYY-MM-DD>|sources -> set([<source>, ...])

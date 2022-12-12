@@ -24,7 +24,7 @@ ssfetcher = "bin.ssfetcher:main"
 
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.8.1"
 redis = {version = "^4.4.0", extras = ["hiredis"]}
 flask-restx = "^0.5.1"
 gunicorn = "^20.1.0"
