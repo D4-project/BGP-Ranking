@@ -65,7 +65,7 @@ class ASNRank(Resource):
     def post(self):
         # TODO
         # * Filter on date => if only returning one descr, return the desription at that date
-        query: Dict[str, Any] = request.get_json(force=True)  # type: ignore
+        query: Dict[str, Any] = request.get_json(force=True)
         to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
         if 'asn' not in query:
             to_return['error'] = f'You need to pass an asn - {query}'
@@ -100,7 +100,7 @@ class ASNDescription(Resource):
 
     @api.doc(body=asn_descr_fields)
     def post(self):
-        query: Dict = request.get_json(force=True)  # type: ignore
+        query: Dict = request.get_json(force=True)
         to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
         if 'asn' not in query:
             to_return['error'] = f'You need to pass an asn - {query}'
@@ -126,7 +126,7 @@ class ASNHistory(Resource):
 
     @api.doc(body=asn_history_fields)
     def post(self):
-        query: Dict = request.get_json(force=True)  # type: ignore
+        query: Dict = request.get_json(force=True)
         to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
         if 'asn' not in query:
             to_return['error'] = f'You need to pass an asn - {query}'
@@ -151,7 +151,7 @@ class CountryHistory(Resource):
 
     @api.doc(body=coutry_history_fields)
     def post(self):
-        query: Dict = request.get_json(force=True)  # type: ignore
+        query: Dict = request.get_json(force=True)
         to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
         to_return['response']['country_history'] = bgpranking.country_history(**query)['response']  # type: ignore
         return to_return
@@ -168,7 +168,7 @@ class ASNsGlobalRanking(Resource):
 
     @api.doc(body=asns_global_ranking_fields)
     def post(self):
-        query: Dict = request.get_json(force=True)  # type: ignore
+        query: Dict = request.get_json(force=True)
         to_return: Dict[str, Union[str, Dict[str, Any]]] = {'meta': query, 'response': {}}
         to_return['response'] = bgpranking.asns_global_ranking(**query)['response']
         return to_return

@@ -75,7 +75,7 @@ def country():
 @app.route('/country_history_callback', methods=['GET', 'POST'])
 def country_history_callback():
     history_data: Dict[str, Tuple[str, str, List[Any]]]
-    history_data = request.get_json(force=True)  # type: ignore
+    history_data = request.get_json(force=True)
     to_display = []
     mapping: Dict[str, Any] = defaultdict(dict)
     dates = []
