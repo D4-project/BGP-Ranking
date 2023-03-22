@@ -96,7 +96,7 @@ class DBInsertManager(AbstractManager):
                     retry.append(uuid)
                     continue
                 if 'asn' in entry and entry['asn'] in [None, '0']:
-                    self.logger.warning(f"Unable to find the AS number associated to {data['ip']} - {data['datetime']} (got {entry['asn']}).")
+                    self.logger.warning(f"Unable to find the AS number associated to {data['ip']} - {data['datetime']} (got {entry['asn']}) - {entry}.")
                     done.append(uuid)
                     continue
                 if 'prefix' in entry and entry['prefix'] in [None, '0.0.0.0/0', '::/0']:
