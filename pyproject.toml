@@ -25,25 +25,25 @@ ssfetcher = "bin.ssfetcher:main"
 
 [tool.poetry.dependencies]
 python = "^3.8.1"
-redis = {version = "^4.5.1", extras = ["hiredis"]}
-flask-restx = "^1.0.6"
+redis = {version = "^4.5.2", extras = ["hiredis"]}
+flask-restx = "^1.1.0"
 gunicorn = "^20.1.0"
 python-dateutil = "^2.8.2"
 pyipasnhistory = "^2.1.2"
 pycountry = "^22.3.5"
-beautifulsoup4 = "^4.11.2"
+beautifulsoup4 = "^4.12.0"
 aiohttp = "^3.8.4"
 Bootstrap-Flask = "^1.8.0"
 pid = "^3.0.4"
 pybgpranking2 = "^2.0.1"
 
 [tool.poetry.dev-dependencies]
-ipython = "^8.10.0"
-mypy = "^1.0.0"
-types-setuptools = "^67.3.0.1"
-types-redis = "^4.5.1.1"
-types-requests = "^2.28.11.13"
-types-python-dateutil = "^2.8.19.7"
+ipython = "^8.11.0"
+mypy = "^1.1.1"
+types-setuptools = "^67.6.0.5"
+types-redis = "^4.5.2.0"
+types-requests = "^2.28.11.15"
+types-python-dateutil = "^2.8.19.10"
 
 [build-system]
 requires = ["poetry-core>=1.2"]
