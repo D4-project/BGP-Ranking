@@ -145,7 +145,7 @@ curl -X POST -d '{"asn": "5577", "period": 5}' https://bgpranking-ng.circl.lu/js
 
 # Server Installation (if you want to run your own)
 
-**IMPORTANT**: Use [pipenv](https://pipenv.readthedocs.io/en/latest/)
+**IMPORTANT**: Use [poetry](https://github.com/python-poetry/poetry#installation)
 
 **NOTE**: Yes, it requires python3.6+. No, it will never support anything older.
 
@@ -159,34 +159,35 @@ make
 make test
 cd ..
 ```
+**Note**: If it fails, have a look at [the documentation](https://github.com/redis/redis#building-redis).
 
-## Install ardb
+## Install kvrocks
 
 ```bash
-git clone https://github.com/yinqiwen/ardb.git
-cd ardb
-DISABLE_WARNING_AS_ERROR=1 make  # ardb (more precisely rocksdb) doesn't compile on ubuntu 18.04 unless you disable warning as error
+git clone https://github.com/KvrocksLabs/kvrocks.git
+cd kvrocks
+git checkout 2.5
+./x.py build
 cd ..
 ```
+**Note**: If it fails, have a look at [the documentation](https://github.com/apache/kvrocks#build-and-run-kvrocks).
 
 ## Install & run BGP Ranking
 
 ```bash
 git clone https://github.com/D4-project/BGP-Ranking.git
 cd BGP-Ranking
-pipenv install
+poetry install
 echo BGPRANKING_HOME="'`pwd`'" > .env
-pipenv shell
+poetry shell
 # Starts all the backend
-start.py
-# Start the web interface
-start_website.py
+start
 ```
 
 ## Shutdown BGP Ranking
 
 ```bash
-stop.py
+stop
 ```
 
 # Directory structure
@@ -280,7 +281,7 @@ And the following keys:
 <asn>|v6|ipcount = <Total amount of IP v6 addresses originating this AS>
 ```
 
-## Long term storage (ardb, port 16579)
+## Long term storage (kvrocks, port 5188)
 
 *Usage*: Stores the IPs with the required meta informations required for ranking.
 
