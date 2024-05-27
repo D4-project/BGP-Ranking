@@ -256,7 +256,6 @@ class BGPRanking():
         if (not response.get('data') or not response['data'].get('countries') or not
                 response['data']['countries'][0].get('routed')):
             logging.warning(f'Invalid response: {response}')
-            # FIXME: return something
             return 0, [(0, 0)]
         routed_asns = re.findall(r"AsnSingle\(([\d]*)\)", response['data']['countries'][0]['routed'])
         ranks = [self.asn_rank(asn, d, source, ipversion)['response'] for asn in routed_asns]
