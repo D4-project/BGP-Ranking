@@ -8,7 +8,7 @@ from datetime import date, timedelta
 from typing import Dict, Any, Tuple, List, Optional
 
 from flask import Flask, render_template, request, session, redirect, url_for
-from flask_bootstrap import Bootstrap  # type: ignore
+from flask_bootstrap import Bootstrap5  # type: ignore
 from flask_restx import Api  # type: ignore
 
 from bgpranking.bgpranking import BGPRanking
@@ -24,7 +24,7 @@ app.wsgi_app = ReverseProxied(app.wsgi_app)  # type: ignore
 
 app.config['SECRET_KEY'] = get_secret_key()
 
-Bootstrap(app)
+Bootstrap5(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 
 bgpranking = BGPRanking()
