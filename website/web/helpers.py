@@ -7,7 +7,7 @@ from datetime import date, timedelta
 from functools import lru_cache
 from pathlib import Path
 
-import pycountry  # type: ignore
+import pycountry
 
 from flask import request, session
 
