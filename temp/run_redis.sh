@@ -4,8 +4,8 @@ set -e
 set -x
 
 if [ -f  ../../valkey/src/valkey-server ]; then
-    ../../valkey/src/redis-server ./intake.conf
-    ../../valkey/src/redis-server ./prepare.conf
+    ../../valkey/src/valkey-server ./intake.conf
+    ../../valkey/src/valkey-server ./prepare.conf
 elif [ -f ../../redis/src/redis-server ]; then
     ../../redis/src/redis-server ./intake.conf
     ../../redis/src/redis-server ./prepare.conf
