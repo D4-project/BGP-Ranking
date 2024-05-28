@@ -6,8 +6,8 @@ import requests
 from bgpranking.default import get_homedir
 
 d3js_version = '7'
-bootstrap_select_version = "1.13.18"
-
+bootstrap_select_version = "1.14.0-beta3"
+jquery_version = "3.7.1"
 
 if __name__ == '__main__':
     dest_dir = get_homedir() / 'website' / 'web' / 'static'
@@ -26,5 +26,10 @@ if __name__ == '__main__':
     with (dest_dir / 'bootstrap-select.min.css').open('wb') as f:
         f.write(bootstrap_select_css.content)
         print(f'Downloaded bootstrap_select css v{bootstrap_select_version}.')
+
+    jquery = requests.get(f'https://code.jquery.com/jquery-{jquery_version}.min.js')
+    with (dest_dir / 'jquery.min.js').open('wb') as f:
+        f.write(jquery.content)
+        print(f'Downloaded jquery v{jquery_version}.')
 
     print('All 3rd party modules for the website were downloaded.')
