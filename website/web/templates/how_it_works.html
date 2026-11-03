@@ -1,0 +1,72 @@
+{% extends "main.html" %}
+{# Derived from bin/ranking.py and bgpranking/bgpranking.py. Weights mirror the "impact" value of each file in config/modules/. #}
+
+{% block title %}How it works – BGP Ranking{% endblock %}
+{% block eyebrow %}How it works{% endblock %}
+{% block page_title %}How the ranking is computed{% endblock %}
+
+{% block content %}
+<section class="method">
+
+  <div class="method-grid">
+    <div class="method-step">
+      <span class="step-n">1</span>
+      <h3>Collect</h3>
+      <p>Public lists of malicious IP addresses (botnets, scanners, brute-force, C&amp;C servers…) are fetched several times a day. Each list has a <b>weight</b> reflecting how reliable and severe it is.</p>
+    </div>
+    <div class="method-step">
+      <span class="step-n">2</span>
+      <h3>Map</h3>
+      <p>Every IP is matched with the prefix and the autonomous system that announced it in BGP on that day (CAIDA data, through IP ASN History). IPs not announced by anyone (AS0) are ignored.</p>
+    </div>
+    <div class="method-step">
+      <span class="step-n">3</span>
+      <h3>Rank</h3>
+      <p>For each list, the malicious IPs of an AS are multiplied by the list weight and divided by the number of IPs the AS announces. The ranks of all lists are then added up.</p>
+    </div>
+  </div>
+
+  <div class="method-formulas">
+    <div class="method-formula">
+      <span class="formula-label">AS rank (per list)</span>
+      <div class="fraction big"><span>malicious IPs in the AS × weight of the list</span><span>IPs announced by the AS</span></div>
+    </div>
+    <div class="method-formula">
+      <span class="formula-label">Prefix rank</span>
+      <div class="fraction big"><span>malicious IPs in the prefix × weight of the list</span><span>size of the prefix</span></div>
+    </div>
+    <div class="method-formula">
+      <span class="formula-label">Country rank</span>
+      <div class="fraction big"><span>sum of the ranks of the ASes routed in the country</span><span>&nbsp;</span></div>
+    </div>
+  </div>
+
+  <ul class="method-notes">
+    <li><b>Global rank</b> of an AS = sum of its ranks over all the selected lists. Filtering sources recomputes it with those lists only.</li>
+    <li><b>Reading it:</b> 0 means nothing was reported. Because the count is divided by the size of the AS, a small network with a few bad IPs can rank higher than a large one with many.</li>
+    <li><b>IPv4 and IPv6</b> are ranked separately. The ranking runs every hour for the current day (and the previous day before noon).</li>
+  </ul>
+
+  <details class="method-weights">
+    <summary>Weight of each list</summary>
+    <table class="table">
+      <thead><tr><th>List</th><th class="num">Weight</th></tr></thead>
+      <tbody>
+        {% for name, w in [
+          ('abuse.ch SSL blacklist', 7), ('blocklist.de strong IPs', 6),
+          ('abuse.ch ThreatFox', 5), ('Feodo Tracker', 5), ('Emerging Threats compromised', 5),
+          ('CI Army', 5), ('malc0de', 5), ('Malware Domain List', 5),
+          ('Clean MX (malware, phishing, portals)', 5),
+          ('blocklist.de bots / FTP / IMAP / SIP / SSH', 3), ('GreenSnow', 3),
+          ('CoinBlockerLists (mining servers)', 3), ('bsdly POP3 gropers', 3),
+          ('DShield top IPs', 1),
+          ('blocklist.de Apache / mail', 0.1), ('DShield daily sources', 0.1),
+          ('AlienVault reputation', 0.01)] %}
+        <tr><td>{{ name }}</td><td class="num">{{ w }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="method-src">Source: the <code>impact</code> value of each module in <code>config/modules/</code>.</p>
+  </details>
+</section>
+{% endblock %}

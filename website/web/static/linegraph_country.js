@@ -19,6 +19,10 @@ function linegraph(call_path) {
 		.y(function(d) { return y(d.rank); });
 
 	d3.json(call_path, {credentials: 'same-origin'}).then(data => {
+	  if (!data || !data.response || !Object.keys(data.response).length) {
+		d3.select('#asn_details').html('<p class="empty">No data for the selected countries.</p>');
+		return;
+	  }
 	  var country_ranks = $.map(data.response, function(value, key) {
 		return {
 		  country: key,
@@ -77,5 +81,7 @@ function linegraph(call_path) {
         .then(function(data) {
             d3.select('#asn_details').html(data);
         });
+    }).catch(function () {
+      d3.select('#asn_details').html('<p class="empty">Could not load the ranking for these countries.</p>');
     });
 };

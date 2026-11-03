@@ -34,7 +34,7 @@ function linegraph(call_path) {
       context.beginPath();
       line(data.response);
       context.lineWidth = 1.5;
-      context.strokeStyle = "steelblue";
+      context.strokeStyle = "#315e73";
       context.stroke();
     });
 

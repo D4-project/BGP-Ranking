@@ -5,20 +5,31 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='linegraph_country.css') }}">
 {% endblock %}
 
+{% block title %}Countries – BGP Ranking{% endblock %}
+{% block eyebrow %}Countries{% endblock %}
+{% block page_title %}{% if country %}{{ country if country is string else ', '.join(country) }}{% else %}All countries{% endif %}{% endblock %}
 
-{% block title %}Ranking - {{ ' '.join(country) }}{% endblock %}
 
 {% block scripts %}
     {{ super() }}
     <script src='{{ url_for('static', filename='linegraph_country.js') }}'></script>
-    <script>linegraph('/json/country_history');</script>
+    {% if country %}<script>linegraph('/json/country_history');</script>{% endif %}
 {% endblock %}
 
 {% block content %}
-  <center>
-      <h1>Ranking - {{ ' '.join(country) }}</h1></br></br>
-  </center>
-  {% include ['top_forms.html'] %}
-  <svg width="1024" height="800"></svg>
-  <div id="asn_details"></div>
+  {% with show_country=True %}{% include ['top_forms.html'] %}{% endwith %}
+  {% if country %}
+  <div class="panel">
+    <h2 title="Combined rank of the autonomous systems registered in each country"><i class="fa fa-line-chart" aria-hidden="true"></i> Rank history <i class="fa fa-info-circle rank-help" aria-hidden="true"></i></h2>
+    <div class="chart"><svg width="1024" height="800" viewBox="0 0 1024 800"></svg></div>
+  </div>
+  <div class="panel">
+    <h2><i class="fa fa-server" aria-hidden="true"></i> Autonomous systems</h2>
+    <div id="asn_details"><p class="empty"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Loading…</p></div>
+  </div>
+  {% else %}
+  <div class="panel">
+    <p class="empty"><i class="fa fa-flag" aria-hidden="true"></i>Select one or more countries above to see their ranking.</p>
+  </div>
+  {% endif %}
 {% endblock %}

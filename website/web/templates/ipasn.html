@@ -1,49 +1,39 @@
 {% extends "main.html" %}
 
-{% block head %}
-    {{ super() }}
-{% endblock %}
+{% block title %}IP lookup – BGP Ranking{% endblock %}
+{% block eyebrow %}Lookup{% endblock %}
+{% block search_value %}{{ ip }}{% endblock %}
+{% block page_title %}IP lookup{% endblock %}
 
-
-{% block title %} IP-ASN History {% endblock %}
-
-{% block scripts %}
-    {{ super() }}
-{% endblock %}
 
 {% block content %}
-  <center>
-      <h1>IP-ASN History</h1>
-  </center>
-  <p>
-  <form class="form-group" style="width:250px; display:inline-block;" action="" method=post>
-    <label for="ip">IP Address</label>
-    <input name="ip" class="form-control my-1 mr-sm-2" value="{{ ip }}"/>
-    <button type="submit" class="btn btn-primary my-1">Search</button>
-  </form>
-  </p>
+  {% if error %}<div class="alert-red"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ error }}</div>{% endif %}
+
   {% if ipasn_details %}
-  <table class="table">
-      <tr>
-          <th>First Seen</th>
-          <th>Last Seen</th>
-          <th>ASN</th>
-          <th>ASN Description</th>
-          <th>Prefix</th>
-      </tr>
+  <div class="panel">
+    <h2><i class="fa fa-map-marker" aria-hidden="true"></i> {{ ip }}</h2>
+    <table class="table">
+      <thead><tr><th>First seen</th><th>Last seen</th><th title="AS0 means the address was not announced">ASN <i class="fa fa-info-circle rank-help" aria-hidden="true"></i></th><th>Description</th><th>Prefix</th></tr></thead>
+      <tbody>
       {% for entry in ipasn_details %}
       <tr>
-          <td>{{ entry['first_seen'] }}</td>
-          <td>{{ entry['last_seen'] }}</td>
-          <td><a href="{{ url_for('asn_details', asn=entry['asn']) }}">{{ entry['asn'] }}</td>
-          <td>
-              {% for asn_description in entry['asn_descriptions'] %}
-                {{ asn_description }} </br>
-              {% endfor %}
-          </td>
-          <td><a href="{{ url_for('asn_details', asn=entry['asn'], prefix=entry['prefix']) }}">{{ entry['prefix'] }}</td>
+        <td class="mono">{{ entry['first_seen'] }}</td>
+        <td class="mono">{{ entry['last_seen'] }}</td>
+        <td class="mono"><a href="{{ url_for('asn_details', asn=entry['asn']) }}">AS{{ entry['asn'] }}</a></td>
+        <td>{% for asn_description in entry['asn_descriptions'] %}{{ asn_description }}<br>{% else %}–{% endfor %}</td>
+        <td class="mono"><a href="{{ url_for('asn_details', asn=entry['asn'], prefix=entry['prefix']) }}">{{ entry['prefix'] }}</a></td>
       </tr>
       {% endfor %}
-  </table>
+      </tbody>
+    </table>
+  </div>
+  {% elif not error %}
+  <div class="panel">
+    {% if ip %}
+    <p class="empty"><i class="fa fa-search" aria-hidden="true"></i>No announcement found for <span class="mono">{{ ip }}</span> during the last 60 days.</p>
+    {% else %}
+    <p class="empty"><i class="fa fa-map-marker" aria-hidden="true"></i>No search yet. Enter an IP address or a prefix in the search field above to see which autonomous systems announced it.</p>
+    {% endif %}
+  </div>
   {% endif %}
 {% endblock %}

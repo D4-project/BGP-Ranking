@@ -1,17 +1,15 @@
-{% for to_display_country in to_display%}
+{% for to_display_country in to_display %}
 <table class="table">
-  <tr>
-  {% for date in to_display_country[0] %}
-    <td>{{ date }}</td>
-  {% endfor %}
-  </tr>
+  <thead><tr>{% for date in to_display_country[0] %}<th>{{ date }}</th>{% endfor %}</tr></thead>
+  <tbody>
   {% for line in to_display_country[1:] %}
   <tr>
-    <td><a href="{{ url_for('asn_details', asn=line[0]) }}">{{ line[0] }}</a></td>
-    {% for rank in line[1:] %}
-    <td>{{ rank }}</td>
-    {% endfor %}
+    <td class="mono"><a href="{{ url_for('asn_details', asn=line[0]) }}">AS{{ line[0] }}</a></td>
+    {% for rank in line[1:] %}<td class="num">{{ rank }}</td>{% endfor %}
   </tr>
   {% endfor %}
+  </tbody>
 </table>
+{% else %}
+<p class="empty">No ranked AS for the selected countries.</p>
 {% endfor %}

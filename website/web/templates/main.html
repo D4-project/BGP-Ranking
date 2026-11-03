@@ -2,27 +2,98 @@
 <html lang="en">
   <head>
     {% block head %}
-    <!-- Required meta tags -->
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}BGP Ranking{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
       {% block styles %}
         {{ bootstrap.load_css() }}
-        <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-select.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='fa/css/font-awesome.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='bgpranking.css') }}">
       {% endblock %}
     {% endblock %}
   </head>
   <body>
-    <div class="container">
-      {% block content %}{% endblock%}
-    </div>
+    <header class="site-header">
+      <nav class="topbar wrap" aria-label="Main navigation">
+        <a class="topbar-brand" href="{{ url_for('index') }}">
+          <img src="{{ url_for('static', filename='img/circl-logo.png') }}" alt="CIRCL" width="70" height="26">
+          <span>BGP Ranking</span>
+        </a>
+        <div class="topbar-links">
+          <a class="{{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('index') }}"><i class="fa fa-trophy" aria-hidden="true"></i> Ranking</a>
+          <a class="{{ 'active' if request.endpoint == 'country' }}" href="{{ url_for('country') }}"><i class="fa fa-globe" aria-hidden="true"></i> Countries</a>
+          <a class="{{ 'active' if request.endpoint == 'ipasn' }}" href="{{ url_for('ipasn') }}"><i class="fa fa-map-marker" aria-hidden="true"></i> IP lookup</a>
+          <a class="{{ 'active' if request.endpoint == 'how_it_works' }}" href="{{ url_for('how_it_works') }}"><i class="fa fa-calculator" aria-hidden="true"></i> How it works</a>
+          <a href="/doc/"><i class="fa fa-code" aria-hidden="true"></i> API</a>
+        </div>
+      </nav>
+    </header>
+
+    {% block hero %}{% endblock %}
+    <main class="wrap page">
+      {% block page_head %}
+      <header class="page-header">
+        <div class="page-header-text">
+          <p class="crumb"><a href="{{ url_for('index') }}"><i class="fa fa-home" aria-hidden="true"></i>Home</a> <span>/</span> {% block eyebrow %}BGP Ranking{% endblock %}</p>
+          <h1>{% block page_title %}{{ self.title() }}{% endblock %}</h1>
+          {% block page_lead %}{% endblock %}
+        </div>
+        <form class="page-search" action="{{ url_for('ipasn') }}" method="post" role="search" onsubmit="return bgpSearch(this)">
+          <i class="fa fa-search" aria-hidden="true"></i>
+          <input class="form-control" name="ip" required value="{% block search_value %}{% endblock %}" placeholder="AS number or IP address" aria-label="Search an AS number or an IP address">
+        </form>
+      </header>
+      {% endblock %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-main">
+          <div class="footer-brand"><img src="{{ url_for('static', filename='img/circl-logo.png') }}" alt="CIRCL"></div>
+          <div class="footer-about">
+            <h2>About BGP Ranking</h2>
+            <p>BGP Ranking collects datasets of compromised systems and malicious infrastructure, aggregates them per autonomous system and ranks ASes from the most to the least malicious. It is developed by CIRCL as part of the D4 Project.</p>
+            <a href="/doc/"><i class="fa fa-book" aria-hidden="true"></i> API documentation <span aria-hidden="true">&rarr;</span></a>
+          </div>
+          <div class="footer-connect">
+            <h2>Links</h2>
+            <a href="https://github.com/D4-project/BGP-Ranking"><i class="fa fa-github" aria-hidden="true"></i> GitHub <span aria-hidden="true">&nearr;</span></a>
+            <a href="https://www.d4-project.org/"><i class="fa fa-cubes" aria-hidden="true"></i> D4 Project <span aria-hidden="true">&nearr;</span></a>
+            <a href="https://www.circl.lu/"><i class="fa fa-shield" aria-hidden="true"></i> circl.lu <span aria-hidden="true">&nearr;</span></a>
+          </div>
+        </div>
+        <div class="footer-legal">
+          <p>BGP Ranking is free software released under the GNU Affero General Public License v3.</p>
+          <p>&copy; 2010&ndash;2026 CIRCL Computer Incident Response Center Luxembourg.</p>
+        </div>
+      </div>
+    </footer>
+
     {% block scripts %}
-      {{ bootstrap.load_js() }}
       <script src='{{ url_for('static', filename='jquery.min.js') }}'></script>
-      <script src='{{ url_for('static', filename='bootstrap-select.min.js') }}'></script>
+      {{ bootstrap.load_js() }}
       <script src='{{ url_for('static', filename='d3.v7.min.js') }}'></script>
       <script>
-          $(document).ready(function(){
-              $('[data-toggle="popover"]').popover();
-          });
+        // A number (or "AS1234") opens the ASN page, anything else is looked up as an IP.
+        function bgpSearch(form) {
+          var input = form.querySelector('input');
+          var v = input.value.trim().replace(/^as/i, '');
+          if (!v) {
+            // Never send an empty search: it would only produce an error page.
+            input.value = '';
+            input.reportValidity();
+            input.focus();
+            return false;
+          }
+          if (/^\d+$/.test(v)) {
+            form.action = '{{ url_for('asn_details') }}';
+            input.name = 'asn';
+            input.value = v;
+          }
+          return true;
+        }
       </script>
     {% endblock %}
   </body>

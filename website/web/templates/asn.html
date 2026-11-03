@@ -1,13 +1,9 @@
 {% extends "main.html" %}
 
-{% block head %}
-    {{ super() }}
-{% endblock %}
-
-
-{% block title %}
-    Ranking - {{ asn }}
-{% endblock %}
+{% block title %}AS{{ asn }} – BGP Ranking{% endblock %}
+{% block eyebrow %}Autonomous system{% endblock %}
+{% block page_title %}AS{{ asn }}{% endblock %}
+{% block page_lead %}{% if asn_descriptions %}<p>{{ asn_descriptions[asn_descriptions.keys()|sort|last] }}</p>{% endif %}{% endblock %}
 
 {% block scripts %}
     {{ super() }}
@@ -16,52 +12,56 @@
 {% endblock %}
 
 {% block content %}
-  <center>
-      <h1>Ranking - {{asn}}</h1></br></br>
-      <button data-html="true" type="button" class="btn btn-secondary" data-container="body"
-         data-toggle="popover" data-placement="bottom"
-                               data-content="<center><b>sum</b>(IP * weight of the list) </br><hr><b>sum</b>(IP in the prefix)</center>">
-        <h4>How is this ranking computed?</h4>
-     </button>
-  </center>
   {% include ['top_forms.html'] %}
-  <table class="table">
-      <tr>
-          <th>Timestamp</th>
-          <th>ASN Description</th>
-      </tr>
-      {% for timestamp in asn_descriptions.keys()|sort %}
-        <tr>
-            <td>{{ timestamp }}</td>
-            <td>{{ asn_descriptions[timestamp] }}</td>
-        </tr>
-      {% endfor %}
-  </table>
-  <table class="table">
-      <tr>
-          <th>Prefix</th>
-          <th>Rank</th>
-      </tr>
-      {% for prefix, rank in ranks %}
-        <tr>
-            <td><a href="{{ url_for('asn_details', asn=asn, prefix=prefix) }}">{{ prefix }}</a></td>
-            <td>{{ rank }}</td>
-        </tr>
-      {% endfor %}
-  </table>
-  <canvas width="960" height="500"></canvas>
+
+  <div class="panel">
+    <h2><i class="fa fa-line-chart" aria-hidden="true"></i> Rank history</h2>
+    <div class="chart"><canvas width="960" height="500"></canvas></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="panel">
+      <h2 title="Click a prefix to list its malicious IPs"><i class="fa fa-sitemap" aria-hidden="true"></i> Prefixes</h2>
+      <table class="table">
+        <thead><tr><th>Prefix</th><th class="num" title="Rank = sum(IP × weight of the list) / sum(IP in the prefix). Higher is worse.">Rank <i class="fa fa-info-circle rank-help" aria-hidden="true"></i></th></tr></thead>
+        <tbody>
+        {% for prefix, rank in ranks %}
+          <tr>
+            <td class="mono"><a href="{{ url_for('asn_details', asn=asn, prefix=prefix) }}">{{ prefix }}</a></td>
+            <td class="num">{{ rank }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="2" class="empty"><i class="fa fa-check-circle" aria-hidden="true"></i> Nothing reported on {{ date }}.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <h2><i class="fa fa-history" aria-hidden="true"></i> Name history</h2>
+      <table class="table">
+        <thead><tr><th>Since</th><th>Description</th></tr></thead>
+        <tbody>
+        {% for timestamp in asn_descriptions.keys()|sort %}
+          <tr><td class="mono">{{ timestamp }}</td><td>{{ asn_descriptions[timestamp] }}</td></tr>
+        {% else %}
+          <tr><td colspan="2" class="empty">Unknown.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   {% if prefix_ips %}
-  <table class="table">
-      <tr>
-          <th>IP</th>
-          <th>Source(s)</th>
-      </tr>
+  <div class="panel">
+    <h2><i class="fa fa-bug" aria-hidden="true"></i> Malicious IPs in the prefix</h2>
+    <table class="table">
+      <thead><tr><th>IP</th><th>Reported by</th></tr></thead>
+      <tbody>
       {% for ip, sources in prefix_ips %}
-        <tr>
-            <td>{{ ip }}</td>
-            <td>{{ ', '.join(sources) }}</td>
-        </tr>
+        <tr><td class="mono">{{ ip }}</td><td>{{ ', '.join(sources) }}</td></tr>
       {% endfor %}
-  </table>
+      </tbody>
+    </table>
+  </div>
   {% endif %}
 {% endblock %}

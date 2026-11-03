@@ -101,6 +101,11 @@ def country_history_callback():
     return render_template('country_asn_map.html', to_display=to_display)
 
 
+@app.route('/how-it-works', methods=['GET'])
+def how_it_works():
+    return render_template('how_it_works.html')
+
+
 @app.route('/ipasn', methods=['GET', 'POST'])
 def ipasn():
     d: Optional[Dict] = None
@@ -111,23 +116,34 @@ def ipasn():
 
     if not d or 'ip' not in d:
         return render_template('ipasn.html')
+    if isinstance(d['ip'], list):
+        ip = d['ip'][0]
     else:
-        if isinstance(d['ip'], list):
-            ip = d['ip'][0]
-        else:
-            ip = d['ip']
-    ipasn = get_ipasn()
-    response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(),
-                           aggregate=True, ip=ip)
+        ip = d['ip']
+    ip = ip.strip()
+    if not ip:
+        return render_template('ipasn.html', error='Please enter an IP address or a prefix.')
+    try:
+        ipasn = get_ipasn()
+        response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(),
+                               aggregate=True, ip=ip)
+    except KeyError:
+        return render_template('ipasn.html', ip=ip, error=f'No ASN history found for "{ip}" in the last 60 days.')
+    except Exception as e:
+        return render_template('ipasn.html', ip=ip, error=f'IP ASN History service unreachable: {e}')
+    if 'response' not in response:
+        return render_template('ipasn.html', ip=ip,
+                               error=response.get('error', f'No result for "{ip}". Is it a valid IP address?'))
     for r in response['response']:
         r['asn_descriptions'] = []
-        asn_descriptions = bgpranking.get_asn_descriptions(asn=r['asn'], all_descriptions=True)['response']
+        asn_descriptions = bgpranking.get_asn_descriptions(asn=r['asn'], all_descriptions=True).get('response') or {}
         for timestamp in sorted(asn_descriptions.keys()):
             if r['first_seen'] <= timestamp <= r['last_seen']:
                 r['asn_descriptions'].append(asn_descriptions[timestamp])
-
-        if not r['asn_descriptions'] and timestamp <= r['last_seen']:
-            r['asn_descriptions'].append(asn_descriptions[timestamp])
+        if not r['asn_descriptions'] and asn_descriptions:
+            last = sorted(asn_descriptions.keys())[-1]
+            if last <= r['last_seen']:
+                r['asn_descriptions'].append(asn_descriptions[last])
 
     return render_template('ipasn.html', ipasn_details=response['response'],
                            **response['meta'])
