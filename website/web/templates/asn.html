@@ -7,7 +7,7 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src='{{ url_for('static', filename='linegraph.js') }}'></script>
+    <script src='{{ url_for('static', filename='linegraph.js', v=asset_version) }}'></script>
     <script>linegraph('/json/asn_history');</script>
 {% endblock %}
 
@@ -37,9 +37,9 @@
       </table>
     </div>
     <div class="panel">
-      <h2><i class="fa fa-history" aria-hidden="true"></i> Name history</h2>
+      <h2><i class="fa fa-history" aria-hidden="true"></i> ASN Descriptions</h2>
       <table class="table">
-        <thead><tr><th>Since</th><th>Description</th></tr></thead>
+        <thead><tr><th>Timestamp</th><th>ASN Description</th></tr></thead>
         <tbody>
         {% for timestamp in asn_descriptions.keys()|sort %}
           <tr><td class="mono">{{ timestamp }}</td><td>{{ asn_descriptions[timestamp] }}</td></tr>
@@ -55,7 +55,7 @@
   <div class="panel">
     <h2><i class="fa fa-bug" aria-hidden="true"></i> Malicious IPs in the prefix</h2>
     <table class="table">
-      <thead><tr><th>IP</th><th>Reported by</th></tr></thead>
+      <thead><tr><th>IP</th><th>Source(s)</th></tr></thead>
       <tbody>
       {% for ip, sources in prefix_ips %}
         <tr><td class="mono">{{ ip }}</td><td>{{ ', '.join(sources) }}</td></tr>

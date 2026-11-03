@@ -9,7 +9,7 @@
       {% block styles %}
         {{ bootstrap.load_css() }}
         <link rel="stylesheet" href="{{ url_for('static', filename='fa/css/font-awesome.min.css') }}">
-        <link rel="stylesheet" href="{{ url_for('static', filename='bgpranking.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='bgpranking.css', v=asset_version) }}">
       {% endblock %}
     {% endblock %}
   </head>

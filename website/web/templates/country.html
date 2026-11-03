@@ -2,7 +2,7 @@
 
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='linegraph_country.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='linegraph_country.css', v=asset_version) }}">
 {% endblock %}
 
 {% block title %}Countries – BGP Ranking{% endblock %}
@@ -12,7 +12,7 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src='{{ url_for('static', filename='linegraph_country.js') }}'></script>
+    <script src='{{ url_for('static', filename='linegraph_country.js', v=asset_version) }}'></script>
     {% if country %}<script>linegraph('/json/country_history');</script>{% endif %}
 {% endblock %}
 
