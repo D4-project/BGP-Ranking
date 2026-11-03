@@ -25,6 +25,7 @@ function linegraph(call_path) {
 
     // Get the data
     d3.json(call_path, {credentials: 'same-origin'}).then(function(data) {
+      hideChartLoader();
       x.domain(d3.extent(data.response, function(d) { return parseTime(d[0]); }));
       y.domain(d3.extent(data.response, function(d) { return d[1]; }));
 
@@ -36,6 +37,8 @@ function linegraph(call_path) {
       context.lineWidth = 1.5;
       context.strokeStyle = "#315e73";
       context.stroke();
+    }).catch(function () {
+      hideChartLoader('Could not load the ranking history.');
     });
 
     function xAxis() {
@@ -96,4 +99,12 @@ function linegraph(call_path) {
       context.fillText("Rank", -10, 10);
       context.restore();
     }
+}
+
+// Remove the loading overlay of the chart, optionally replacing it with a message.
+function hideChartLoader(message) {
+  document.querySelectorAll('.chart > .chart-loader').forEach(function (el) {
+    if (message) { el.classList.add('failed'); el.innerHTML = '<span>' + message + '</span>'; }
+    else { el.remove(); }
+  });
 }

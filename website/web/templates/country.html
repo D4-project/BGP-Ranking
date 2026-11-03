@@ -21,11 +21,11 @@
   {% if country %}
   <div class="panel">
     <h2 title="Combined rank of the autonomous systems registered in each country"><i class="fa fa-line-chart" aria-hidden="true"></i> Rank history <i class="fa fa-info-circle rank-help" aria-hidden="true"></i></h2>
-    <div class="chart"><svg width="1024" height="800" viewBox="0 0 1024 800"></svg></div>
+    <div class="chart"><div class="chart-loader" role="status"><span class="loader-ring"></span><span>Loading the ranking history…</span></div><svg width="1024" height="800" viewBox="0 0 1024 800"></svg></div>
   </div>
   <div class="panel">
     <h2><i class="fa fa-server" aria-hidden="true"></i> Autonomous systems</h2>
-    <div id="asn_details"><p class="empty"><i class="fa fa-spinner fa-spin" aria-hidden="true"></i> Loading…</p></div>
+    <div id="asn_details"><div class="chart-loader inline" role="status"><span class="loader-ring"></span><span>Loading autonomous systems…</span></div></div>
   </div>
   {% else %}
   <div class="panel">

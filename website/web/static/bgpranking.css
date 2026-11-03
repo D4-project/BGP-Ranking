@@ -406,3 +406,20 @@ a.feature:hover { box-shadow: 0 10px 25px rgba(32, 56, 68, .11); transform: tran
 .method-weights .table { margin-top: .75rem; }
 .method-src { color: var(--muted); font-size: .8rem; margin: .6rem 0 0; }
 @media (max-width: 800px) { .method-grid, .method-formulas { grid-template-columns: 1fr; } }
+
+/* Loaders (charts and async tables) */
+.chart { position: relative; min-height: 14rem; }
+.chart-loader {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .9rem;
+  background: rgba(255, 255, 255, .88); color: var(--muted); font-size: .9rem; font-weight: 600;
+}
+.chart-loader.inline { position: static; padding: 2.5rem 1rem; background: none; }
+.chart-loader.failed { color: var(--red-dark); }
+.loader-ring {
+  width: 2.6rem; height: 2.6rem; border-radius: 50%;
+  border: 3px solid var(--soft); border-top-color: var(--red); border-right-color: var(--primary);
+  animation: loader-spin .9s cubic-bezier(.55, .15, .45, .85) infinite;
+}
+@keyframes loader-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .loader-ring { animation-duration: 2.5s; } }

@@ -19,6 +19,7 @@ function linegraph(call_path) {
 		.y(function(d) { return y(d.rank); });
 
 	d3.json(call_path, {credentials: 'same-origin'}).then(data => {
+	  hideChartLoader();
 	  if (!data || !data.response || !Object.keys(data.response).length) {
 		d3.select('#asn_details').html('<p class="empty">No data for the selected countries.</p>');
 		return;
@@ -82,6 +83,15 @@ function linegraph(call_path) {
             d3.select('#asn_details').html(data);
         });
     }).catch(function () {
+      hideChartLoader('Could not load the ranking history.');
       d3.select('#asn_details').html('<p class="empty">Could not load the ranking for these countries.</p>');
     });
 };
+
+// Remove the loading overlay of the chart, optionally replacing it with a message.
+function hideChartLoader(message) {
+  document.querySelectorAll('.chart > .chart-loader').forEach(function (el) {
+    if (message) { el.classList.add('failed'); el.innerHTML = '<span>' + message + '</span>'; }
+    else { el.remove(); }
+  });
+}
