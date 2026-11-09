@@ -1,40 +1,97 @@
-<p>
-    <form class="form-group" style="width:250px; display:inline-block;" action="" method=post>
-        <input name="date" class="form-control my-1 mr-sm-2" type="date" value="{{ date }}">
-        <button type="submit" class="btn btn-primary my-1">Set date</button>
-    </form>
-    <form class="form-group" style="width:270px; display:inline-block;" action="" method=post>
-        <select name="ipversion" class="selectpicker">
-            <option value="v4" {% if ipversion == 'v4' %} selected="selected"{% endif %}>v4</option>
-            <option value="v6" {% if ipversion == 'v6' %} selected="selected"{% endif %}>v6</option>
-        </select>
-        <button type="submit" class="btn btn-primary my-1">IP version</button>
-    </form>
-    <form class="form-group" style="width:280px; display:inline-block;" action="" method=post>
-      <select name="source" class="selectpicker" data-live-search="true" multiple>
-        <option value="_all" data-tokens="all" {% if not source %} selected="selected"{% endif %}>all</option>
-        {% for s in sources %}
-        <option value="{{ s }}" data-tokens="{{ s }}" {% if s in source %} selected="selected"{% endif %}>{{ s }}</option>
-        {% endfor %}
-      </select>
-      <input type="submit" class="btn btn-primary my-1"value="Set source">
-    </form>
-    <form class="form-group" style="width:270px; display:inline-block;" action="{{ url_for('asn_details') }}" method=post>
-        <input type=number name=asn class="form-control my-1 mr-sm-2">
-        <button type="submit" class="btn btn-primary my-1">Search ASN</button>
-    </form>
-    <form class="form-group"style="width:300px; display:inline-block;" action="{{ url_for('country') }}" method=post>
-      <select name="country" class="selectpicker" data-live-search="true" multiple>
-        <option value="_all" data-tokens="all" {% if not country %} selected="selected"{% endif %}>all</option>
-        {% for cc, name in countries %}
-        <option value="{{ cc }}" data-tokens="{{ cc }} {{ name }}" {% if cc in country %} selected="selected"{% endif %}>{{ name }}</option>
-        {% endfor %}
-    </select>
-    <input type="submit" class="btn btn-primary my-1"value="Set country">
-    </form>
-    <form class="form-group" style="width:270px; display:inline-block;" action="{{ url_for('ipasn') }}" method=post>
-        <input type=string name=ip class="form-control my-1 mr-sm-2">
-        <button type="submit" class="btn btn-primary my-1">Search an IP</button>
-    </form>
-<p>
-<br/>
+<div class="toolbar">
+  <form action="" method=get class="tb-item">
+    <label for="f-date"><i class="fa fa-calendar" aria-hidden="true"></i> Date</label>
+    <input id="f-date" name="date" class="form-control" type="date" value="{{ date }}" onchange="this.form.submit()">
+  </form>
+
+  <form action="" method=get class="tb-item">
+    <span class="tb-label"><i class="fa fa-sitemap" aria-hidden="true"></i> IP version</span>
+    <div class="segmented">
+      <button name="ipversion" value="v4" class="{{ 'on' if ipversion != 'v6' }}">IPv4</button>
+      <button name="ipversion" value="v6" class="{{ 'on' if ipversion == 'v6' }}">IPv6</button>
+    </div>
+  </form>
+
+  <form action="" method=get class="tb-item picker" data-field="source">
+    <span class="tb-label"><i class="fa fa-database" aria-hidden="true"></i> Sources</span>
+    <details class="dropdown-lite">
+      <summary class="form-control">{% if source %}{{ source if source is string else (source|length ~ ' selected') }}{% else %}All sources{% endif %}</summary>
+      <div class="dropdown-lite-panel">
+        {% if sources|length > 8 %}<input class="form-control filter-input" placeholder="&#xf002;  Filter…" style="font-family:'Raleway',FontAwesome">{% endif %}
+        <div class="opts">
+          {% for s in sources %}
+          <label class="opt"><input type="checkbox" name="source" value="{{ s }}" {% if s in source %}checked{% endif %}> {{ s }}</label>
+          {% else %}
+          <p class="opt-empty">No source has data for this date.</p>
+          {% endfor %}
+        </div>
+        <div class="dropdown-lite-actions">
+          <button type="button" class="link-btn" data-clear><i class="fa fa-undo" aria-hidden="true"></i> All sources</button>
+          <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-check" aria-hidden="true"></i> Apply</button>
+        </div>
+      </div>
+    </details>
+  </form>
+
+  {% if show_country %}
+  <form action="{{ url_for('country') }}" method=get class="tb-item picker" data-field="country">
+    <span class="tb-label"><i class="fa fa-flag" aria-hidden="true"></i> Countries</span>
+    <details class="dropdown-lite">
+      {% set clist = ([country] if country is string else country) if country else [] %}
+      <summary class="form-control" title="{{ ', '.join(clist) }}">{% if not clist %}Choose countries{% elif clist|length <= 3 %}{{ ', '.join(clist) }}{% else %}{{ clist|length }} countries selected{% endif %}</summary>
+      <div class="dropdown-lite-panel">
+        <input class="form-control filter-input" placeholder="&#xf002;  Filter countries…" style="font-family:'Raleway',FontAwesome">
+        <div class="opts">
+          {% for cc, name in countries %}
+          <label class="opt" data-search="{{ cc|lower }} {{ name|lower }}"><input type="checkbox" name="country" value="{{ cc }}" {% if cc in country %}checked{% endif %}> {{ name }} <span class="cc">{{ cc }}</span></label>
+          {% endfor %}
+        </div>
+        <div class="dropdown-lite-actions">
+          <button type="button" class="link-btn" data-clear><i class="fa fa-undo" aria-hidden="true"></i> Clear selection</button>
+          <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-check" aria-hidden="true"></i> Apply</button>
+        </div>
+      </div>
+    </details>
+  </form>
+  {% endif %}
+  <button type="button" class="reset-filters" id="reset-filters" hidden title="{{ 'Clear the countries and go back to yesterday, IPv4 and all sources' if request.endpoint == 'country' else 'Back to yesterday, IPv4 and all sources' }}">
+    <i class="fa fa-times-circle" aria-hidden="true"></i> Reset filters
+  </button>
+  {% if toolbar_summary %}
+  <div class="tb-summary">
+    <span class="tb-summary-n">{{ toolbar_summary.count }}</span>
+    <span>{{ toolbar_summary.label }}<br><small>{{ date }} · {{ 'IPv6' if ipversion == 'v6' else 'IPv4' }}{% if source %} · {{ source if source is string else source|length ~ ' sources' }}{% endif %}</small></span>
+    <a href="{{ url_for('how_it_works') }}" class="tb-summary-help" title="How is the rank computed?"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+  </div>
+  {% endif %}
+</div>
+<script>
+  document.querySelectorAll('.picker').forEach(function (form) {
+    var field = form.dataset.field;
+    // Nothing ticked means "all": the backend expects the special value _all.
+    form.addEventListener('submit', function () {
+      if (!form.querySelector('input[type=checkbox]:checked')) {
+        var h = document.createElement('input');
+        h.type = 'hidden'; h.name = field; h.value = '_all';
+        form.appendChild(h);
+      }
+    });
+    form.querySelector('[data-clear]').addEventListener('click', function () {
+      form.querySelectorAll('input[type=checkbox]').forEach(function (c) { c.checked = false; });
+      form.requestSubmit();
+    });
+    var f = form.querySelector('.filter-input');
+    if (f) f.addEventListener('input', function () {
+      var q = f.value.toLowerCase();
+      form.querySelectorAll('.opt').forEach(function (o) {
+        o.style.display = (o.dataset.search || o.textContent.toLowerCase()).indexOf(q) > -1 ? '' : 'none';
+      });
+    });
+  });
+  // Close an open dropdown when clicking elsewhere.
+  document.addEventListener('click', function (e) {
+    document.querySelectorAll('details.dropdown-lite[open]').forEach(function (d) {
+      if (!d.contains(e.target)) d.removeAttribute('open');
+    });
+  });
+</script>

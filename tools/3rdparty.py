@@ -8,6 +8,7 @@ from bgpranking.default import get_homedir
 d3js_version = '7'
 bootstrap_select_version = "1.14.0-beta3"
 jquery_version = "3.7.1"
+echarts_version = "5.5.1"
 
 if __name__ == '__main__':
     dest_dir = get_homedir() / 'website' / 'web' / 'static'
@@ -31,5 +32,10 @@ if __name__ == '__main__':
     with (dest_dir / 'jquery.min.js').open('wb') as f:
         f.write(jquery.content)
         print(f'Downloaded jquery v{jquery_version}.')
+
+    echarts = requests.get(f'https://cdn.jsdelivr.net/npm/echarts@{echarts_version}/dist/echarts.min.js')
+    with (dest_dir / 'echarts.min.js').open('wb') as f:
+        f.write(echarts.content)
+        print(f'Downloaded echarts v{echarts_version}.')
 
     print('All 3rd party modules for the website were downloaded.')

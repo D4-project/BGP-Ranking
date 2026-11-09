@@ -2,31 +2,73 @@
 
 {% block title %}BGP Ranking{% endblock %}
 
+{% block page_head %}
+<section class="home">
+  <h1>BGP Ranking</h1>
+  <p class="home-lead">Trust ranking of autonomous systems.</p>
+  <form class="home-search" id="home-search" data-live action="{{ url_for('ipasn') }}" method="get" role="search" onsubmit="return bgpSearch(this)">
+    <input class="form-control" name="ip" required placeholder="Search an AS number or an IP address" aria-label="AS number or IP address" id="home-q" autofocus>
+    <button class="btn btn-primary" type="submit"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
+  </form>
+  <p class="search-hint" data-for="home-search">An AS number (5577 or AS5577), an IP address (8.8.8.8) or a prefix (143.255.153.0/24)</p>
+  <nav class="home-links" aria-label="Sections">
+    <a href="#ranking"><i class="fa fa-trophy" aria-hidden="true"></i> Global ranking</a>
+    <a href="{{ url_for('country') }}"><i class="fa fa-globe" aria-hidden="true"></i> Countries</a>
+    <a href="{{ url_for('ipasn') }}"><i class="fa fa-map-marker" aria-hidden="true"></i> IP lookup</a>
+    <a href="{{ url_for('how_it_works') }}"><i class="fa fa-question-circle" aria-hidden="true"></i> How it works</a>
+    <a href="/doc/"><i class="fa fa-code" aria-hidden="true"></i> API</a>
+  </nav>
+</section>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script>
+    // Typewriter placeholder: cycles through example queries until the user types.
+    (function () {
+      var input = document.getElementById('home-q');
+      if (!input || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var examples = ['8.8.8.8', 'AS5577', '1.1.1.1', '143.255.153.0/24', 'AS15169', '2001:4860:4860::8888', '9.9.9.9'];
+      var i = 0, pos = 0, deleting = false, timer;
+      function tick() {
+        if (input.value) { input.placeholder = 'Search an AS number or an IP address'; timer = setTimeout(tick, 800); return; }
+        var word = examples[i];
+        pos += deleting ? -1 : 1;
+        input.placeholder = word.slice(0, pos) + '\u258F';
+        var delay = deleting ? 35 : 85;
+        if (!deleting && pos === word.length) { deleting = true; delay = 1400; }
+        else if (deleting && pos === 0) { deleting = false; i = (i + 1) % examples.length; delay = 350; }
+        timer = setTimeout(tick, delay);
+      }
+      timer = setTimeout(tick, 600);
+    })();
+  </script>
+{% endblock %}
+
 {% block content %}
-  <a href="https://github.com/D4-project/BGP-Ranking">
-      <img style="position: absolute; top: 0; right: 0; border: 0;" src="{{ url_for('static', filename='forkme_right_darkblue_121621.png') }}" alt="Fork me on GitHub">
-  </a>
-  <center>
-    <h1>BGP Ranking</h1></br></br>
-    <button data-html="true" type="button" class="btn btn-secondary" data-container="body"
-        data-toggle="popover" data-placement="bottom"
-                              data-content="<center><b>sum</b>(IP * weight of the list) </br><hr><b>sum</b>(IP announced by the ASN)</center>">
-       <h4>How is this ranking computed?</h4>
-    </button>
-  </center>
-  {% include ['top_forms.html'] %}
-  <table class="table">
-      <tr>
-          <th>ASN</th>
-          <th>Rank</th>
-          <th>Description</th>
-      </tr>
-      {% for asn, rank, description in ranks %}
-        <tr>
-            <td><a href="{{ url_for('asn_details', asn=asn) }}">{{ asn }}</a></td>
-            <td>{{ rank }}</td>
-            <td>{{ description }}</td>
-        </tr>
-      {% endfor %}
-  </table>
+  <section id="ranking" class="home-ranking">
+    <div class="home-ranking-head">
+      <h2><i class="fa fa-list-ol" aria-hidden="true"></i> Top autonomous systems</h2>
+    </div>
+    {% set toolbar_summary = {'count': ranks|length, 'label': 'autonomous systems shown (most malicious first)'} %}
+    {% include ['top_forms.html'] %}
+    <div class="panel">
+      <table class="table">
+        <thead><tr><th class="pos">#</th><th>ASN</th><th>Description</th><th class="num" title="Rank = sum(IP × weight of the list) / sum(IP announced by the AS). 0 = nothing reported, higher is worse.">Rank <i class="fa fa-info-circle rank-help" aria-hidden="true"></i></th></tr></thead>
+        <tbody>
+        {% for asn, rank, description in ranks %}
+          <tr>
+            <td class="pos">{{ loop.index }}</td>
+            <td class="mono"><a href="{{ url_for('asn_details', asn=asn) }}">AS{{ asn }}</a></td>
+            <td>{% if description is string and description.strip(', ') %}{{ description }}{% else %}<span class="no-desc">No description known</span>{% endif %}</td>
+            <td class="num">{{ rank }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="4" class="empty"><i class="fa fa-inbox" aria-hidden="true"></i> No ranking available for {{ date }}. Pick another date above.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
 {% endblock %}

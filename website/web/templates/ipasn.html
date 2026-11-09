@@ -1,49 +1,54 @@
 {% extends "main.html" %}
 
-{% block head %}
-    {{ super() }}
-{% endblock %}
+{% block title %}IP lookup – BGP Ranking{% endblock %}
+{% block eyebrow %}Lookup{% endblock %}
+{% block search_value %}{{ ip }}{% endblock %}
+{% block page_title %}IP lookup{% endblock %}
 
-
-{% block title %} IP-ASN History {% endblock %}
-
-{% block scripts %}
-    {{ super() }}
-{% endblock %}
 
 {% block content %}
-  <center>
-      <h1>IP-ASN History</h1>
-  </center>
-  <p>
-  <form class="form-group" style="width:250px; display:inline-block;" action="" method=post>
-    <label for="ip">IP Address</label>
-    <input name="ip" class="form-control my-1 mr-sm-2" value="{{ ip }}"/>
-    <button type="submit" class="btn btn-primary my-1">Search</button>
-  </form>
-  </p>
+  <div class="panel lookup-panel">
+    <form id="ip-form" class="lookup-form" data-live data-mode="ip" action="{{ url_for('ipasn') }}" method="get" onsubmit="return bgpSearch(this)">
+      <label for="ip-input">IP address or prefix</label>
+      <div class="lookup-row">
+        <input id="ip-input" class="form-control mono" name="ip" value="{{ ip or '' }}" required placeholder="8.8.8.8 · 143.255.153.0/24 · 2001:db8::1" autocomplete="off">
+        <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Look up</button>
+      </div>
+    </form>
+    <p class="search-hint" data-for="ip-form">An IP address is required: IPv4 (8.8.8.8), IPv6 (2001:db8::1) or a prefix (143.255.153.0/24)</p>
+  </div>
+
+  {% if error %}<div class="alert-red"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ error }}</div>{% endif %}
+
   {% if ipasn_details %}
-  <table class="table">
-      <tr>
-          <th>First Seen</th>
-          <th>Last Seen</th>
-          <th>ASN</th>
-          <th>ASN Description</th>
-          <th>Prefix</th>
-      </tr>
+  <div class="panel">
+    <h2><i class="fa fa-map-marker" aria-hidden="true"></i> {{ ip }}</h2>
+    <table class="table">
+      <thead><tr><th>First Seen</th><th>Last Seen</th><th title="AS0 means the address was not announced">ASN <i class="fa fa-info-circle rank-help" aria-hidden="true"></i></th><th>ASN Description</th><th>Prefix</th></tr></thead>
+      <tbody>
       {% for entry in ipasn_details %}
       <tr>
-          <td>{{ entry['first_seen'] }}</td>
-          <td>{{ entry['last_seen'] }}</td>
-          <td><a href="{{ url_for('asn_details', asn=entry['asn']) }}">{{ entry['asn'] }}</td>
-          <td>
-              {% for asn_description in entry['asn_descriptions'] %}
-                {{ asn_description }} </br>
-              {% endfor %}
-          </td>
-          <td><a href="{{ url_for('asn_details', asn=entry['asn'], prefix=entry['prefix']) }}">{{ entry['prefix'] }}</td>
+        <td class="mono">{{ entry['first_seen'] }}</td>
+        <td class="mono">{{ entry['last_seen'] }}</td>
+        <td class="mono"><a href="{{ url_for('asn_details', asn=entry['asn']) }}">AS{{ entry['asn'] }}</a></td>
+        <td>{% for asn_description in entry['asn_descriptions'] %}{{ asn_description }}<br>{% else %}–{% endfor %}</td>
+        <td class="mono"><a href="{{ url_for('asn_details', asn=entry['asn'], prefix=entry['prefix']) }}">{{ entry['prefix'] }}</a></td>
       </tr>
       {% endfor %}
-  </table>
+      </tbody>
+    </table>
+  </div>
+  {% elif not error %}
+  <div class="panel">
+    {% if ip %}
+    <p class="empty"><i class="fa fa-search" aria-hidden="true"></i>No announcement found for <span class="mono">{{ ip }}</span> during the last 60 days.</p>
+    {% else %}
+    <div class="awaiting" aria-hidden="true">
+      <table class="table"><thead><tr><th>First Seen</th><th>Last Seen</th><th>ASN</th><th>ASN Description</th><th>Prefix</th></tr></thead>
+      <tbody>{% for _ in range(3) %}<tr><td><span class="ph"></span></td><td><span class="ph"></span></td><td><span class="ph short"></span></td><td><span class="ph long"></span></td><td><span class="ph"></span></td></tr>{% endfor %}</tbody></table>
+    </div>
+    <p class="empty awaiting-msg"><i class="fa fa-lock" aria-hidden="true"></i>Results appear here once you enter a valid IP address above.</p>
+    {% endif %}
+  </div>
   {% endif %}
 {% endblock %}

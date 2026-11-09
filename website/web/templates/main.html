@@ -2,27 +2,256 @@
 <html lang="en">
   <head>
     {% block head %}
-    <!-- Required meta tags -->
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <script>
+      // Theme: "auto" follows the browser (prefers-color-scheme); "light"/"dark" are forced from the footer switch.
+      (function () {
+        var t = 'auto';
+        try { t = localStorage.getItem('bgpr-theme') || 'auto'; } catch (e) {}
+        var dark = t === 'dark' || (t === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        if (t !== 'auto') document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+      })();
+    </script>
+    <title>{% block title %}BGP Ranking{% endblock %}</title>
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
       {% block styles %}
         {{ bootstrap.load_css() }}
-        <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-select.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='fa/css/font-awesome.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='bgpranking.css', v=asset_version) }}">
       {% endblock %}
     {% endblock %}
   </head>
   <body>
-    <div class="container">
-      {% block content %}{% endblock%}
-    </div>
+    <header class="site-header">
+      <nav class="topbar wrap" aria-label="Main navigation">
+        <a class="topbar-brand" href="{{ url_for('index') }}">
+          <img src="{{ url_for('static', filename='img/circl-logo.png') }}" alt="CIRCL" width="70" height="26">
+          <span>BGP Ranking</span>
+        </a>
+        <div class="topbar-links">
+          <a class="{{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('index') }}"><i class="fa fa-trophy" aria-hidden="true"></i> Ranking</a>
+          <a class="{{ 'active' if request.endpoint == 'country' }}" href="{{ url_for('country') }}"><i class="fa fa-globe" aria-hidden="true"></i> Countries</a>
+          <a class="{{ 'active' if request.endpoint == 'ipasn' }}" href="{{ url_for('ipasn') }}"><i class="fa fa-map-marker" aria-hidden="true"></i> IP lookup</a>
+          <a class="{{ 'active' if request.endpoint == 'how_it_works' }}" href="{{ url_for('how_it_works') }}"><i class="fa fa-question-circle" aria-hidden="true"></i> How it works</a>
+          <a href="/doc/"><i class="fa fa-code" aria-hidden="true"></i> API</a>
+        </div>
+      </nav>
+    </header>
+
+    {% block hero %}{% endblock %}
+    <main class="wrap page">
+      {% block page_head %}
+      <header class="page-header">
+        <div class="page-header-text">
+          <p class="crumb"><a href="{{ url_for('index') }}"><i class="fa fa-home" aria-hidden="true"></i>Home</a> <span>/</span> {% block eyebrow %}BGP Ranking{% endblock %}</p>
+          <h1>{% block page_title %}{{ self.title() }}{% endblock %}</h1>
+          {% block page_lead %}{% endblock %}
+        </div>
+        <form class="page-search" id="page-search" data-live action="{{ url_for('ipasn') }}" method="get" role="search" onsubmit="return bgpSearch(this)">
+          <i class="fa fa-search" aria-hidden="true"></i>
+          <input class="form-control" name="ip" required value="{% block search_value %}{% endblock %}" placeholder="AS number or IP address" aria-label="Search an AS number or an IP address">
+        </form>
+      </header>
+      {% endblock %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-main">
+          <div class="footer-brand"><img src="{{ url_for('static', filename='img/circl-logo.png') }}" alt="CIRCL"></div>
+          <div class="footer-about">
+            <h2>About BGP Ranking</h2>
+            <p>BGP Ranking collects datasets of compromised systems and malicious infrastructure, aggregates them per autonomous system and ranks ASes from the most to the least malicious. It is developed by CIRCL as part of the D4 Project.</p>
+            <a href="/doc/"><i class="fa fa-book" aria-hidden="true"></i> API documentation <span aria-hidden="true">&rarr;</span></a>
+          </div>
+          <div class="footer-connect">
+            <h2>Links</h2>
+            <a href="https://github.com/D4-project/BGP-Ranking"><i class="fa fa-github" aria-hidden="true"></i> GitHub <span aria-hidden="true">&nearr;</span></a>
+            <a href="https://www.d4-project.org/"><i class="fa fa-cubes" aria-hidden="true"></i> D4 Project <span aria-hidden="true">&nearr;</span></a>
+            <a href="https://www.circl.lu/"><i class="fa fa-shield" aria-hidden="true"></i> circl.lu <span aria-hidden="true">&nearr;</span></a>
+          </div>
+        </div>
+        <div class="footer-legal">
+          <p>BGP Ranking is free software released under the GNU Affero General Public License v3.
+            <span class="theme-switch" role="group" aria-label="Color theme">
+              <button type="button" data-theme-choice="auto" title="Follow the browser setting" aria-label="Automatic theme"><i class="fa fa-adjust" aria-hidden="true"></i></button>
+              <button type="button" data-theme-choice="light" title="Light" aria-label="Light theme"><i class="fa fa-sun-o" aria-hidden="true"></i></button>
+              <button type="button" data-theme-choice="dark" title="Dark" aria-label="Dark theme"><i class="fa fa-moon-o" aria-hidden="true"></i></button>
+            </span>
+          </p>
+          <p>&copy; 2010&ndash;2026 CIRCL Computer Incident Response Center Luxembourg.</p>
+        </div>
+      </div>
+    </footer>
+
+    {# Active filters, mirrored into the URL so a page can be shared, bookmarked or reloaded as is. #}
+    {% set url_state = {
+      'date': date if date is defined else None,
+      'ipversion': ipversion if ipversion is defined else None,
+      'source': source if source is defined else None,
+      'country': (country if country is defined else None) if request.endpoint == 'country' else None,
+      'asn': (asn if asn is defined else None) if request.endpoint == 'asn_details' else None,
+      'prefix': request.args.get('prefix') if request.endpoint == 'asn_details' else None,
+      'ip': (ip if ip is defined else None) if request.endpoint == 'ipasn' else None
+    } %}
+    <script>
+      (function () {
+        var st = {{ url_state|tojson }};
+        var d = new Date(); d.setDate(d.getDate() - 1);
+        var yesterday = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        var q = new URLSearchParams();
+        function add(k, v) { (Array.isArray(v) ? v : [v]).forEach(function (x) { if (x !== null && x !== undefined && x !== '') q.append(k, x); }); }
+        add('asn', st.asn); add('prefix', st.prefix); add('ip', st.ip); add('country', st.country);
+        // Filters only when they differ from the defaults (yesterday, IPv4, all sources).
+        var active = false;
+        if (st.date && st.date !== yesterday) { add('date', st.date); active = true; }
+        if (st.ipversion && st.ipversion !== 'v4') { add('ipversion', st.ipversion); active = true; }
+        if (st.source && st.source.length) { add('source', st.source); active = true; }
+        if (st.country && st.country.length) active = true;
+        var url = location.pathname + (q.toString() ? '?' + q.toString() : '') + location.hash;
+        if (url !== location.pathname + location.search + location.hash) history.replaceState(null, '', url);
+        // "Reset filters" button in the filter bar, shown only when a filter is active.
+        var reset = document.getElementById('reset-filters');
+        if (reset && active) {
+          reset.hidden = false;
+          reset.addEventListener('click', function () {
+            var r = new URLSearchParams();
+            add2(r, 'asn', st.asn);
+            if (st.country !== null) r.append('country', '_all');  // Countries page: also clear the selected countries
+            r.append('date', yesterday); r.append('ipversion', 'v4'); r.append('source', '_all');
+            location.href = location.pathname + '?' + r.toString();
+          });
+        }
+        function add2(p, k, v) { (Array.isArray(v) ? v : [v]).forEach(function (x) { if (x) p.append(k, x); }); }
+      })();
+    </script>
+    <button type="button" class="to-top" id="to-top" title="Back to top" aria-label="Back to top"><i class="fa fa-arrow-up" aria-hidden="true"></i></button>
+    <script>
+      // "Back to top" button: shown once the page has been scrolled a bit.
+      (function () {
+        var b = document.getElementById('to-top');
+        function toggle() { b.classList.toggle('show', window.scrollY > 400); }
+        window.addEventListener('scroll', toggle, {passive: true});
+        b.addEventListener('click', function () {
+          var smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({top: 0, behavior: smooth ? 'smooth' : 'auto'});
+        });
+        toggle();
+      })();
+    </script>
+    <script>
+      (function () {
+        var root = document.documentElement, mq = window.matchMedia('(prefers-color-scheme: dark)');
+        function current() { try { return localStorage.getItem('bgpr-theme') || 'auto'; } catch (e) { return 'auto'; } }
+        function apply(t) {
+          if (t === 'auto') root.removeAttribute('data-theme'); else root.setAttribute('data-theme', t);
+          var dark = t === 'dark' || (t === 'auto' && mq.matches);
+          root.setAttribute('data-bs-theme', dark ? 'dark' : 'light');
+          document.querySelectorAll('[data-theme-choice]').forEach(function (b) { b.classList.toggle('on', b.dataset.themeChoice === t); });
+          document.dispatchEvent(new CustomEvent('bgpr-theme'));
+        }
+        document.querySelectorAll('[data-theme-choice]').forEach(function (b) {
+          b.addEventListener('click', function () {
+            try { localStorage.setItem('bgpr-theme', b.dataset.themeChoice); } catch (e) {}
+            apply(b.dataset.themeChoice);
+          });
+        });
+        mq.addEventListener('change', function () { if (current() === 'auto') apply('auto'); });
+        apply(current());
+      })();
+    </script>
     {% block scripts %}
-      {{ bootstrap.load_js() }}
       <script src='{{ url_for('static', filename='jquery.min.js') }}'></script>
-      <script src='{{ url_for('static', filename='bootstrap-select.min.js') }}'></script>
+      {{ bootstrap.load_js() }}
       <script src='{{ url_for('static', filename='d3.v7.min.js') }}'></script>
       <script>
-          $(document).ready(function(){
-              $('[data-toggle="popover"]').popover();
-          });
+        // Valid IPv4 address, optionally with a /0-32 prefix length.
+        function isIPv4(v) {
+          var m = v.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})(?:\/(\d{1,2}))?$/);
+          if (!m) return false;
+          for (var i = 1; i <= 4; i++) { if (+m[i] > 255 || (m[i].length > 1 && m[i][0] === '0')) return false; }
+          return m[5] === undefined || +m[5] <= 32;
+        }
+        // Valid IPv6 address, optionally with a /0-128 prefix length (parsed by the browser's URL parser).
+        function isIPv6(v) {
+          var parts = v.split('/');
+          if (parts.length > 2 || parts[0].indexOf(':') === -1) return false;
+          if (parts.length === 2 && !(/^\d{1,3}$/.test(parts[1]) && +parts[1] <= 128)) return false;
+          try { new URL('http://[' + parts[0] + ']/'); return true; } catch (e) { return false; }
+        }
+        // A number (or "AS1234") opens the ASN page, a well-formed IP or prefix is looked up,
+        // anything else is refused before being sent.
+        function bgpSearch(form) {
+          var input = form.querySelector('input');
+          var raw = input.value.trim();
+          var ipOnly = form.dataset.mode === 'ip';
+          input.setCustomValidity('');
+          if (!raw) {
+            input.value = '';
+            input.reportValidity();
+            input.focus();
+            return false;
+          }
+          var asn = raw.replace(/^as\s*/i, '');
+          if (!ipOnly && /^\d+$/.test(asn)) {
+            if (+asn > 4294967295) {
+              input.setCustomValidity('An AS number must be between 0 and 4294967295.');
+              input.reportValidity();
+              return false;
+            }
+            form.action = '{{ url_for('asn_details') }}';
+            input.name = 'asn';
+            input.value = asn;
+            return true;
+          }
+          if (isIPv4(raw) || isIPv6(raw)) {
+            input.value = raw;
+            return true;
+          }
+          input.setCustomValidity(ipOnly ? 'Enter a valid IP address or prefix (8.8.8.8, 143.255.153.0/24, 2001:db8::1).' : 'Enter an AS number (5577, AS5577) or a valid IP address / prefix (8.8.8.8, 143.255.153.0/24, 2001:db8::1).');
+          input.reportValidity();
+          input.focus();
+          return false;
+        }
+        // What a search field contains: 'asn', 'ip', 'prefix', 'bad' or '' (empty).
+        function classify(raw, ipOnly) {
+          var v = raw.trim();
+          if (!v) return '';
+          var asn = v.replace(/^as\s*/i, '');
+          if (!ipOnly && /^\d+$/.test(asn) && +asn <= 4294967295) return 'asn';
+          if (isIPv4(v) || isIPv6(v)) return v.indexOf('/') > -1 ? 'prefix' : 'ip';
+          return 'bad';
+        }
+        // Live feedback on search forms marked data-live: the button stays greyed out
+        // until the value is valid, and the hint line says what was recognised.
+        document.querySelectorAll('form[data-live]').forEach(function (form) {
+          var input = form.querySelector('input'), btn = form.querySelector('button[type=submit]');
+          var hint = form.parentNode.querySelector('.search-hint[data-for="' + form.id + '"]');
+          var ipOnly = form.dataset.mode === 'ip';
+          var base = hint ? hint.innerHTML : '';
+          var says = {
+            asn: '<i class="fa fa-check" aria-hidden="true"></i> AS number: opens the page of this autonomous system',
+            ip: '<i class="fa fa-check" aria-hidden="true"></i> IP address: shows which AS announced it',
+            prefix: '<i class="fa fa-check" aria-hidden="true"></i> Prefix: shows which AS announced it',
+            bad: '<i class="fa fa-times" aria-hidden="true"></i> ' + (ipOnly ? 'Not a valid IP address or prefix yet' : 'Not a valid AS number or IP address yet')
+          };
+          function update() {
+            var st = classify(input.value, ipOnly);
+            form.dataset.state = st || 'empty';
+            if (btn) btn.disabled = !st || st === 'bad';
+            if (hint) { hint.innerHTML = st ? says[st] : base; hint.dataset.state = st || 'empty'; }
+          }
+          input.addEventListener('input', update);
+          update();
+        });
+        // Clear the error as soon as the user edits the field again.
+        document.addEventListener('input', function (e) {
+          if (e.target.matches && e.target.matches('input[name="ip"], input[name="asn"]')) e.target.setCustomValidity('');
+        });
       </script>
     {% endblock %}
   </body>

@@ -26,6 +26,8 @@ app.config['SECRET_KEY'] = get_secret_key()
 
 Bootstrap5(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600  # cache static files (logo, fonts, icons) for 1 hour
+app.jinja_env.globals['asset_version'] = '38'  # bump when CSS/JS change, so browsers drop their cached copy
 
 bgpranking = BGPRanking()
 
@@ -67,6 +69,9 @@ def asn_details():
 
 @app.route('/country', methods=['GET', 'POST'])
 def country():
+    # Same as index(): an ASN left in the session from a previous page would make
+    # load_session() drop the selected country.
+    session.pop('asn', None)
     load_session()
     sources = bgpranking.get_sources(date=session['date'])['response']
     return render_template('country.html', sources=sources, countries=get_country_codes(), **session)
@@ -101,6 +106,11 @@ def country_history_callback():
     return render_template('country_asn_map.html', to_display=to_display)
 
 
+@app.route('/how-it-works', methods=['GET'])
+def how_it_works():
+    return render_template('how_it_works.html')
+
+
 @app.route('/ipasn', methods=['GET', 'POST'])
 def ipasn():
     d: Optional[Dict] = None
@@ -111,23 +121,34 @@ def ipasn():
 
     if not d or 'ip' not in d:
         return render_template('ipasn.html')
+    if isinstance(d['ip'], list):
+        ip = d['ip'][0]
     else:
-        if isinstance(d['ip'], list):
-            ip = d['ip'][0]
-        else:
-            ip = d['ip']
-    ipasn = get_ipasn()
-    response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(),
-                           aggregate=True, ip=ip)
+        ip = d['ip']
+    ip = ip.strip()
+    if not ip:
+        return render_template('ipasn.html', error='Please enter an IP address or a prefix.')
+    try:
+        ipasn = get_ipasn()
+        response = ipasn.query(first=(date.today() - timedelta(days=60)).isoformat(),
+                               aggregate=True, ip=ip)
+    except KeyError:
+        return render_template('ipasn.html', ip=ip, error=f'No ASN history found for "{ip}" in the last 60 days.')
+    except Exception as e:
+        return render_template('ipasn.html', ip=ip, error=f'IP ASN History service unreachable: {e}')
+    if 'response' not in response:
+        return render_template('ipasn.html', ip=ip,
+                               error=response.get('error', f'No result for "{ip}". Is it a valid IP address?'))
     for r in response['response']:
         r['asn_descriptions'] = []
-        asn_descriptions = bgpranking.get_asn_descriptions(asn=r['asn'], all_descriptions=True)['response']
+        asn_descriptions = bgpranking.get_asn_descriptions(asn=r['asn'], all_descriptions=True).get('response') or {}
         for timestamp in sorted(asn_descriptions.keys()):
             if r['first_seen'] <= timestamp <= r['last_seen']:
                 r['asn_descriptions'].append(asn_descriptions[timestamp])
-
-        if not r['asn_descriptions'] and timestamp <= r['last_seen']:
-            r['asn_descriptions'].append(asn_descriptions[timestamp])
+        if not r['asn_descriptions'] and asn_descriptions:
+            last = sorted(asn_descriptions.keys())[-1]
+            if last <= r['last_seen']:
+                r['asn_descriptions'].append(asn_descriptions[last])
 
     return render_template('ipasn.html', ipasn_details=response['response'],
                            **response['meta'])
