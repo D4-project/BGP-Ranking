@@ -11,7 +11,7 @@ from datetime import datetime, date
 from pathlib import Path
 
 import aiohttp
-from bs4 import BeautifulSoup  # type: ignore
+from bs4 import BeautifulSoup
 from dateutil.parser import parse
 
 from bgpranking.default import AbstractManager, get_homedir, safe_create_dir
@@ -54,9 +54,12 @@ class ShadowServerFetcher():
         html_index = await self.__get_index()
         soup = BeautifulSoup(html_index, 'html.parser')
         treeview = soup.find(id='treemenu1')
+        if not treeview:
+            # unable to find entries
+            return None
         for y in treeview.select(':scope > li'):
             year = y.contents[0]
-            for m in y.contents[1].select(':scope > li'):
+            for m in y.contents[1].select(':scope > li'):  # type: ignore[attr-defined]
                 month = m.contents[0]
                 for d in m.contents[1].select(':scope > li'):
                     day = d.contents[0]

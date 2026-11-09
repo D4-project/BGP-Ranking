@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pkg_resources
-
 from collections import defaultdict
 from datetime import date, timedelta
+from importlib.metadata import version
 from typing import Dict, Any, Tuple, List, Optional
 
 from flask import Flask, render_template, request, session, redirect, url_for
@@ -30,6 +29,8 @@ app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600  # cache static files (logo, font
 app.jinja_env.globals['asset_version'] = '38'  # bump when CSS/JS change, so browsers drop their cached copy
 
 bgpranking = BGPRanking()
+
+pkg_version = version('bgpranking')
 
 
 # ############# Web UI #############
@@ -86,10 +87,10 @@ def country_history_callback():
     dates = []
     all_asns = set([])
     for country, foo in history_data.items():
-        for d, r_sum, details in foo:
+        for d, r_sum, details in foo:  # type: ignore[str-unpack]
             dates.append(d)
             for detail in details:
-                asn, r = detail
+                asn, r = detail  # type: ignore[str-unpack]
                 all_asns.add(asn)
                 mapping[asn][d] = r
 
@@ -161,6 +162,6 @@ def ipasn():
 api = Api(app, title='BGP Ranking API',
           description='API to query BGP Ranking.',
           doc='/doc/',
-          version=pkg_resources.get_distribution('bgpranking').version)
+          version=pkg_version)
 
 api.add_namespace(generic_api)
