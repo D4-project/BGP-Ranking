@@ -26,7 +26,7 @@ app.config['SECRET_KEY'] = get_secret_key()
 Bootstrap5(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600  # cache static files (logo, fonts, icons) for 1 hour
-app.jinja_env.globals['asset_version'] = '38'  # bump when CSS/JS change, so browsers drop their cached copy
+app.jinja_env.globals['asset_version'] = '39'  # bump when CSS/JS change, so browsers drop their cached copy
 
 bgpranking = BGPRanking()
 

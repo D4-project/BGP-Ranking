@@ -22,8 +22,7 @@
     <a href="#walkthrough">8. A typical investigation</a>
     <a href="#limits">9. Limits</a>
     <a href="#weights">10. Lists and weights</a>
-    <a href="#api">11. API</a>
-    <a href="#faq">12. FAQ</a>
+    <a href="#faq">11. FAQ</a>
   </nav>
 
   <div class="guide-body">
@@ -242,21 +241,8 @@
       <p class="method-src">Source: the <code>impact</code> value of each module in <code>config/modules/</code>.</p>
     </section>
 
-    <section id="api" class="panel">
-      <h2>11. API</h2>
-      <p>Everything shown here is available as JSON for your own tools. Full reference: <a href="/doc/">API documentation</a>.</p>
-      <pre class="code"><span class="c"># Rank of an AS on a given day</span>
-curl -X POST -d '{"asn": "5577", "date": "2026-10-28"}' {{ request.host_url }}json/asn
-
-<span class="c"># History of an AS over the last 30 days</span>
-curl -X POST -d '{"asn": "5577", "period": 30}' {{ request.host_url }}json/asn_history
-
-<span class="c"># Which AS announced an IP</span>
-curl {{ request.host_url }}ipasn_history/?ip=8.8.8.8</pre>
-    </section>
-
     <section id="faq" class="panel">
-      <h2>12. FAQ</h2>
+      <h2>11. FAQ</h2>
       <details class="faq"><summary>The ranking is empty for today, is it broken?</summary><p>No. The lists are collected and ranked during the day; pick an earlier date with the Date filter.</p></details>
       <details class="faq"><summary>Why is IPv6 empty or so small?</summary><p>Few lists report IPv6 addresses, and IPv6 networks are huge, so ranks are tiny. The chart shows the scale on its axis.</p></details>
       <details class="faq"><summary>What does AS0 mean in IP lookup?</summary><p>That nobody announced the address in BGP at that time: it was not reachable on the Internet.</p></details>
