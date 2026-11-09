@@ -7,16 +7,19 @@
 
 {% block scripts %}
     {{ super() }}
-    <script src='{{ url_for('static', filename='linegraph.js', v=asset_version) }}'></script>
-    <script>linegraph('/json/asn_history');</script>
+    <script src='{{ url_for('static', filename='echarts.min.js') }}'></script>
+    <script src='{{ url_for('static', filename='charts.js', v=asset_version) }}'></script>
+    <script>asnChart('/json/asn_history');</script>
 {% endblock %}
 
 {% block content %}
   {% include ['top_forms.html'] %}
 
   <div class="panel">
-    <h2><i class="fa fa-line-chart" aria-hidden="true"></i> Rank history</h2>
-    <div class="chart"><div class="chart-loader" role="status"><span class="loader-ring"></span><span>Loading the ranking history…</span></div><canvas width="960" height="500"></canvas></div>
+    <h2><i class="fa fa-line-chart" aria-hidden="true"></i> Rank history <i class="fa fa-question-circle chart-help" title="Each point is the rank of this AS for one day. Rank = malicious IPs seen in the AS, weighted by the reliability of their list, divided by the number of IPs the AS announces. 0 = nothing reported; the higher, the larger the share of the AS reported as malicious. Hover the curve for the exact value of a day; use 30 d / 60 d / All to change the period and the icons to switch between line and bars." aria-label="How to read this chart" tabindex="0"></i></h2>
+    <div class="chart-tools"><div class="chart-switches"><div class="segmented small" data-type-for="asn-chart"><button type="button" data-type="line" class="on" title="Line"><i class="fa fa-line-chart" aria-hidden="true"></i></button><button type="button" data-type="bar" title="Bars"><i class="fa fa-bar-chart" aria-hidden="true"></i></button><button type="button" data-type="scatter" title="Points only"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></button></div>
+      <div class="segmented small" data-range-for="asn-chart"><button type="button" data-days="30">30 d</button><button type="button" data-days="60">60 d</button><button type="button" data-days="0" class="on">All</button></div></div></div>
+    <div class="chart" id="asn-chart-wrap"><div class="chart-loader" role="status"><span class="loader-ring"></span><span>Loading the ranking history…</span></div><div id="asn-chart" class="echart"></div></div>
   </div>
 
   <div class="grid-2">
@@ -42,7 +45,7 @@
         <thead><tr><th>Timestamp</th><th>ASN Description</th></tr></thead>
         <tbody>
         {% for timestamp in asn_descriptions.keys()|sort %}
-          <tr><td class="mono">{{ timestamp }}</td><td>{{ asn_descriptions[timestamp] }}</td></tr>
+          <tr><td class="mono">{{ timestamp }}</td><td>{% if asn_descriptions[timestamp].strip(', ') %}{{ asn_descriptions[timestamp] }}{% else %}<span class="no-desc">Empty</span>{% endif %}</td></tr>
         {% else %}
           <tr><td colspan="2" class="empty">Unknown.</td></tr>
         {% endfor %}

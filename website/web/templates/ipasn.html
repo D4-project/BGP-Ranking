@@ -7,6 +7,17 @@
 
 
 {% block content %}
+  <div class="panel lookup-panel">
+    <form id="ip-form" class="lookup-form" data-live data-mode="ip" action="{{ url_for('ipasn') }}" method="get" onsubmit="return bgpSearch(this)">
+      <label for="ip-input">IP address or prefix</label>
+      <div class="lookup-row">
+        <input id="ip-input" class="form-control mono" name="ip" value="{{ ip or '' }}" required placeholder="8.8.8.8 · 143.255.153.0/24 · 2001:db8::1" autocomplete="off">
+        <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Look up</button>
+      </div>
+    </form>
+    <p class="search-hint" data-for="ip-form">An IP address is required: IPv4 (8.8.8.8), IPv6 (2001:db8::1) or a prefix (143.255.153.0/24)</p>
+  </div>
+
   {% if error %}<div class="alert-red"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> {{ error }}</div>{% endif %}
 
   {% if ipasn_details %}
@@ -32,7 +43,11 @@
     {% if ip %}
     <p class="empty"><i class="fa fa-search" aria-hidden="true"></i>No announcement found for <span class="mono">{{ ip }}</span> during the last 60 days.</p>
     {% else %}
-    <p class="empty"><i class="fa fa-map-marker" aria-hidden="true"></i>No search yet. Enter an IP address or a prefix in the search field above to see which autonomous systems announced it.</p>
+    <div class="awaiting" aria-hidden="true">
+      <table class="table"><thead><tr><th>First Seen</th><th>Last Seen</th><th>ASN</th><th>ASN Description</th><th>Prefix</th></tr></thead>
+      <tbody>{% for _ in range(3) %}<tr><td><span class="ph"></span></td><td><span class="ph"></span></td><td><span class="ph short"></span></td><td><span class="ph long"></span></td><td><span class="ph"></span></td></tr>{% endfor %}</tbody></table>
+    </div>
+    <p class="empty awaiting-msg"><i class="fa fa-lock" aria-hidden="true"></i>Results appear here once you enter a valid IP address above.</p>
     {% endif %}
   </div>
   {% endif %}

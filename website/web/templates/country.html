@@ -2,26 +2,29 @@
 
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="{{ url_for('static', filename='linegraph_country.css', v=asset_version) }}">
 {% endblock %}
 
 {% block title %}Countries – BGP Ranking{% endblock %}
 {% block eyebrow %}Countries{% endblock %}
-{% block page_title %}{% if country %}{{ country if country is string else ', '.join(country) }}{% else %}All countries{% endif %}{% endblock %}
+{% set clist = ([country] if country is string else country) if country else [] %}
+{% block page_title %}{% if not clist %}Countries{% elif clist|length <= 4 %}{{ ', '.join(clist) }}{% else %}<span title="{{ ', '.join(clist) }}">{{ ', '.join(clist[:3]) }} <small class="more-count">+{{ clist|length - 3 }} more</small></span>{% endif %}{% endblock %}
 
 
 {% block scripts %}
     {{ super() }}
-    <script src='{{ url_for('static', filename='linegraph_country.js', v=asset_version) }}'></script>
-    {% if country %}<script>linegraph('/json/country_history');</script>{% endif %}
+    <script src='{{ url_for('static', filename='echarts.min.js') }}'></script>
+    <script src='{{ url_for('static', filename='charts.js', v=asset_version) }}'></script>
+    {% if country %}<script>countryChart('/json/country_history');</script>{% endif %}
 {% endblock %}
 
 {% block content %}
   {% with show_country=True %}{% include ['top_forms.html'] %}{% endwith %}
   {% if country %}
   <div class="panel">
-    <h2 title="Combined rank of the autonomous systems registered in each country"><i class="fa fa-line-chart" aria-hidden="true"></i> Rank history <i class="fa fa-info-circle rank-help" aria-hidden="true"></i></h2>
-    <div class="chart"><div class="chart-loader" role="status"><span class="loader-ring"></span><span>Loading the ranking history…</span></div><svg width="1024" height="800" viewBox="0 0 1024 800"></svg></div>
+    <h2><i class="fa fa-line-chart" aria-hidden="true"></i> Rank history <i class="fa fa-question-circle chart-help" title="One line per country. A country rank is the sum of the ranks of the autonomous systems routed in it. 0 = nothing reported; higher is worse. Hover the chart to compare countries on a given day; use 30 d / 60 d / All to change the period and the icons to switch between line and bars." aria-label="How to read this chart" tabindex="0"></i></h2>
+    <div class="chart-tools"><div class="chart-switches"><div class="segmented small" data-type-for="country-chart"><button type="button" data-type="line" class="on" title="Line"><i class="fa fa-line-chart" aria-hidden="true"></i></button><button type="button" data-type="bar" title="Bars"><i class="fa fa-bar-chart" aria-hidden="true"></i></button><button type="button" data-type="scatter" title="Points only"><i class="fa fa-ellipsis-h" aria-hidden="true"></i></button></div>
+      <div class="segmented small" data-range-for="country-chart"><button type="button" data-days="30">30 d</button><button type="button" data-days="60">60 d</button><button type="button" data-days="0" class="on">All</button></div></div></div>
+    <div class="chart" id="country-chart-wrap"><div class="chart-loader" role="status"><span class="loader-ring"></span><span>Loading the ranking history…</span></div><div id="country-chart" class="echart"></div></div>
   </div>
   <div class="panel">
     <h2><i class="fa fa-server" aria-hidden="true"></i> Autonomous systems</h2>
@@ -29,7 +32,13 @@
   </div>
   {% else %}
   <div class="panel">
-    <p class="empty"><i class="fa fa-flag" aria-hidden="true"></i>Select one or more countries above to see their ranking.</p>
+    <p class="empty"><i class="fa fa-flag" aria-hidden="true"></i>No country selected. Pick one or more countries in the filter above, or start with one of these:</p>
+    <p class="quick-countries">
+      {% for cc, name in [('LU', 'Luxembourg'), ('FR', 'France'), ('DE', 'Germany'), ('NL', 'Netherlands'), ('US', 'United States'), ('RU', 'Russia'), ('CN', 'China'), ('BR', 'Brazil')] %}
+        <a href="{{ url_for('country', country=cc) }}">{{ name }}</a>
+      {% endfor %}
+      <a href="{{ url_for('country') }}?country=FR&country=DE&country=NL&country=LU">Compare FR, DE, NL, LU</a>
+    </p>
   </div>
   {% endif %}
 {% endblock %}

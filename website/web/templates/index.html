@@ -6,10 +6,11 @@
 <section class="home">
   <h1>BGP Ranking</h1>
   <p class="home-lead">Trust ranking of autonomous systems.</p>
-  <form class="home-search" action="{{ url_for('ipasn') }}" method="post" role="search" onsubmit="return bgpSearch(this)">
+  <form class="home-search" id="home-search" data-live action="{{ url_for('ipasn') }}" method="get" role="search" onsubmit="return bgpSearch(this)">
     <input class="form-control" name="ip" required placeholder="Search an AS number or an IP address" aria-label="AS number or IP address" id="home-q" autofocus>
     <button class="btn btn-primary" type="submit"><i class="fa fa-search" aria-hidden="true"></i> Search</button>
   </form>
+  <p class="search-hint" data-for="home-search">An AS number (5577 or AS5577), an IP address (8.8.8.8) or a prefix (143.255.153.0/24)</p>
   <nav class="home-links" aria-label="Sections">
     <a href="#ranking"><i class="fa fa-trophy" aria-hidden="true"></i> Global ranking</a>
     <a href="{{ url_for('country') }}"><i class="fa fa-globe" aria-hidden="true"></i> Countries</a>
@@ -48,8 +49,8 @@
   <section id="ranking" class="home-ranking">
     <div class="home-ranking-head">
       <h2><i class="fa fa-list-ol" aria-hidden="true"></i> Top autonomous systems</h2>
-      <span><i class="fa fa-calendar-o" aria-hidden="true"></i> {{ date }} · {{ 'IPv6' if ipversion == 'v6' else 'IPv4' }}</span>
     </div>
+    {% set toolbar_summary = {'count': ranks|length, 'label': 'autonomous systems shown (most malicious first)'} %}
     {% include ['top_forms.html'] %}
     <div class="panel">
       <table class="table">
@@ -59,7 +60,7 @@
           <tr>
             <td class="pos">{{ loop.index }}</td>
             <td class="mono"><a href="{{ url_for('asn_details', asn=asn) }}">AS{{ asn }}</a></td>
-            <td>{{ description }}</td>
+            <td>{% if description is string and description.strip(', ') %}{{ description }}{% else %}<span class="no-desc">No description known</span>{% endif %}</td>
             <td class="num">{{ rank }}</td>
           </tr>
         {% else %}

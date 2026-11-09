@@ -126,3 +126,5 @@ website/web/static/d3.*.js
 website/web/static/bootstrap-select.min.*
 
 *.pid
+website/web/static/jquery.min.js
+website/web/static/echarts.min.js

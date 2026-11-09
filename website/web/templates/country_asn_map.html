@@ -5,7 +5,7 @@
   {% for line in to_display_country[1:] %}
   <tr>
     <td class="mono"><a href="{{ url_for('asn_details', asn=line[0]) }}">AS{{ line[0] }}</a></td>
-    {% for rank in line[1:] %}<td class="num">{{ rank }}</td>{% endfor %}
+    {% for rank in line[1:] %}<td class="num">{% if rank is number and rank == 0 %}<span class="zero" title="Nothing reported">·</span>{% else %}{{ rank }}{% endif %}</td>{% endfor %}
   </tr>
   {% endfor %}
   </tbody>

@@ -1,72 +1,269 @@
 {% extends "main.html" %}
-{# Derived from bin/ranking.py and bgpranking/bgpranking.py. Weights mirror the "impact" value of each file in config/modules/. #}
+{# Explains what BGP Ranking is for and how to use it.
+   Computation details derived from bin/ranking.py and bgpranking/bgpranking.py;
+   weights mirror the "impact" value of each file in config/modules/. #}
 
 {% block title %}How it works – BGP Ranking{% endblock %}
 {% block eyebrow %}How it works{% endblock %}
-{% block page_title %}How the ranking is computed{% endblock %}
+{% block page_title %}How BGP Ranking works{% endblock %}
+{% block page_lead %}<p>What the tool is for, the few notions you need, how the rank is computed and how to read each page.</p>{% endblock %}
 
 {% block content %}
-<section class="method">
+<div class="guide">
+  <nav class="guide-toc" aria-label="On this page">
+    <p>On this page</p>
+    <a href="#purpose">1. What it is for</a>
+    <a href="#notions">2. Three notions</a>
+    <a href="#example">3. Why divide by size</a>
+    <a href="#pipeline">4. How a rank is computed</a>
+    <a href="#reading">5. Reading a rank</a>
+    <a href="#users">6. Who uses it</a>
+    <a href="#pages">7. The pages</a>
+    <a href="#walkthrough">8. A typical investigation</a>
+    <a href="#limits">9. Limits</a>
+    <a href="#weights">10. Lists and weights</a>
+    <a href="#api">11. API</a>
+    <a href="#faq">12. FAQ</a>
+  </nav>
 
-  <div class="method-grid">
-    <div class="method-step">
-      <span class="step-n">1</span>
-      <h3>Collect</h3>
-      <p>Public lists of malicious IP addresses (botnets, scanners, brute-force, C&amp;C servers…) are fetched several times a day. Each list has a <b>weight</b> reflecting how reliable and severe it is.</p>
-    </div>
-    <div class="method-step">
-      <span class="step-n">2</span>
-      <h3>Map</h3>
-      <p>Every IP is matched with the prefix and the autonomous system that announced it in BGP on that day (CAIDA data, through IP ASN History). IPs not announced by anyone (AS0) are ignored.</p>
-    </div>
-    <div class="method-step">
-      <span class="step-n">3</span>
-      <h3>Rank</h3>
-      <p>For each list, the malicious IPs of an AS are multiplied by the list weight and divided by the number of IPs the AS announces. The ranks of all lists are then added up.</p>
-    </div>
+  <div class="guide-body">
+
+    <section id="purpose" class="panel">
+      <h2>1. What it is for</h2>
+      <p class="guide-lead">BGP Ranking answers one question: <b>which networks of the Internet host the most malicious activity, relative to their size?</b></p>
+      <p>Every day, many organisations publish lists of IP addresses seen doing something malicious: scanning, brute-forcing SSH passwords, sending spam, hosting malware or controlling botnets. A list of IP addresses alone does not tell you <em>which network</em> is badly managed. BGP Ranking groups those addresses by the network that owns them and gives each network a score, every day, so you can compare networks and follow them over time.</p>
+      <p>It was created by <a href="https://www.circl.lu/">CIRCL</a> (the CERT of Luxembourg) and is developed within the <a href="https://www.d4-project.org/">D4 Project</a>.</p>
+    </section>
+
+    <section id="notions" class="panel">
+      <h2>2. Three notions</h2>
+      <div class="notions">
+        <div class="notion">
+          <span class="notion-tag">IP address</span>
+          <p>The address of one machine on the Internet, e.g. <code>8.8.8.8</code>. Think of it as a <b>house</b>.</p>
+        </div>
+        <div class="notion">
+          <span class="notion-tag">Prefix</span>
+          <p>A block of consecutive addresses, e.g. <code>8.8.8.0/24</code> (256 addresses). A <b>street</b>.</p>
+        </div>
+        <div class="notion">
+          <span class="notion-tag">Autonomous System (AS)</span>
+          <p>A network run by one organisation (ISP, hosting company, university…), identified by a number, e.g. <b>AS15169</b> = Google. It owns several prefixes. A <b>district</b>.</p>
+        </div>
+      </div>
+      <p><b>BGP</b> (Border Gateway Protocol) is how each AS tells the rest of the Internet “these prefixes are reachable through me”. It is what lets us know, for any IP address, which AS it belongs to on a given day.</p>
+
+      <figure class="diagram" aria-label="Two autonomous systems with their prefixes; a few addresses are reported as malicious">
+        <svg viewBox="0 0 760 230" role="img">
+          <g font-family="Raleway, sans-serif">
+            <rect x="10" y="20" width="350" height="190" rx="12" class="d-as"/>
+            <text x="28" y="48" class="d-title">AS 64500 — small hosting company</text>
+            <text x="28" y="66" class="d-sub">1 024 IP addresses</text>
+            <rect x="28" y="82" width="314" height="52" rx="8" class="d-prefix"/>
+            <text x="40" y="100" class="d-sub">prefix 192.0.2.0/24</text>
+            <rect x="28" y="144" width="314" height="52" rx="8" class="d-prefix"/>
+            <text x="40" y="162" class="d-sub">prefix 198.51.100.0/24</text>
+            <g class="d-ip"><circle cx="48" cy="118" r="5"/><circle cx="66" cy="118" r="5"/><circle cx="84" cy="118" r="5"/><circle cx="102" cy="118" r="5"/><circle cx="120" cy="118" r="5"/><circle cx="138" cy="118" r="5"/><circle cx="156" cy="118" r="5"/><circle cx="174" cy="118" r="5"/><circle cx="192" cy="118" r="5"/><circle cx="210" cy="118" r="5"/><circle cx="228" cy="118" r="5"/><circle cx="246" cy="118" r="5"/><circle cx="264" cy="118" r="5"/><circle cx="282" cy="118" r="5"/><circle cx="300" cy="118" r="5"/><circle cx="318" cy="118" r="5"/></g>
+            <g class="d-bad"><circle cx="66" cy="118" r="5"/><circle cx="138" cy="118" r="5"/><circle cx="192" cy="118" r="5"/><circle cx="282" cy="118" r="5"/></g>
+            <g class="d-ip"><circle cx="48" cy="180" r="5"/><circle cx="66" cy="180" r="5"/><circle cx="84" cy="180" r="5"/><circle cx="102" cy="180" r="5"/><circle cx="120" cy="180" r="5"/><circle cx="138" cy="180" r="5"/><circle cx="156" cy="180" r="5"/><circle cx="174" cy="180" r="5"/><circle cx="192" cy="180" r="5"/><circle cx="210" cy="180" r="5"/><circle cx="228" cy="180" r="5"/><circle cx="246" cy="180" r="5"/><circle cx="264" cy="180" r="5"/><circle cx="282" cy="180" r="5"/><circle cx="300" cy="180" r="5"/><circle cx="318" cy="180" r="5"/></g>
+            <g class="d-bad"><circle cx="120" cy="180" r="5"/><circle cx="246" cy="180" r="5"/></g>
+
+            <rect x="400" y="20" width="350" height="190" rx="12" class="d-as"/>
+            <text x="418" y="48" class="d-title">AS 64508 — large ISP</text>
+            <text x="418" y="66" class="d-sub">4 million IP addresses</text>
+            <rect x="418" y="82" width="314" height="114" rx="8" class="d-prefix"/>
+            <text x="430" y="100" class="d-sub">many prefixes…</text>
+            <g class="d-ip">
+              <circle cx="438" cy="122" r="5"/><circle cx="456" cy="122" r="5"/><circle cx="474" cy="122" r="5"/><circle cx="492" cy="122" r="5"/><circle cx="510" cy="122" r="5"/><circle cx="528" cy="122" r="5"/><circle cx="546" cy="122" r="5"/><circle cx="564" cy="122" r="5"/><circle cx="582" cy="122" r="5"/><circle cx="600" cy="122" r="5"/><circle cx="618" cy="122" r="5"/><circle cx="636" cy="122" r="5"/><circle cx="654" cy="122" r="5"/><circle cx="672" cy="122" r="5"/><circle cx="690" cy="122" r="5"/><circle cx="708" cy="122" r="5"/>
+              <circle cx="438" cy="146" r="5"/><circle cx="456" cy="146" r="5"/><circle cx="474" cy="146" r="5"/><circle cx="492" cy="146" r="5"/><circle cx="510" cy="146" r="5"/><circle cx="528" cy="146" r="5"/><circle cx="546" cy="146" r="5"/><circle cx="564" cy="146" r="5"/><circle cx="582" cy="146" r="5"/><circle cx="600" cy="146" r="5"/><circle cx="618" cy="146" r="5"/><circle cx="636" cy="146" r="5"/><circle cx="654" cy="146" r="5"/><circle cx="672" cy="146" r="5"/><circle cx="690" cy="146" r="5"/><circle cx="708" cy="146" r="5"/>
+              <circle cx="438" cy="170" r="5"/><circle cx="456" cy="170" r="5"/><circle cx="474" cy="170" r="5"/><circle cx="492" cy="170" r="5"/><circle cx="510" cy="170" r="5"/><circle cx="528" cy="170" r="5"/><circle cx="546" cy="170" r="5"/><circle cx="564" cy="170" r="5"/><circle cx="582" cy="170" r="5"/><circle cx="600" cy="170" r="5"/><circle cx="618" cy="170" r="5"/><circle cx="636" cy="170" r="5"/><circle cx="654" cy="170" r="5"/><circle cx="672" cy="170" r="5"/><circle cx="690" cy="170" r="5"/><circle cx="708" cy="170" r="5"/>
+            </g>
+            <g class="d-bad"><circle cx="510" cy="146" r="5"/><circle cx="654" cy="122" r="5"/></g>
+          </g>
+        </svg>
+        <figcaption><span class="dot dot-bad"></span> reported as malicious &nbsp; <span class="dot"></span> not reported. The small AS has fewer bad addresses in total, but a much larger <em>share</em> of its addresses is bad.</figcaption>
+      </figure>
+    </section>
+
+    <section id="example" class="panel">
+      <h2>3. Why divide by size</h2>
+      <p>On the same day, imagine:</p>
+      <div class="compare">
+        <div class="compare-card">
+          <p class="compare-name">Network A — small hosting</p>
+          <p>1 000 IP addresses, <b>50</b> reported</p>
+          <p class="compare-share bad">5 % of the network</p>
+        </div>
+        <div class="compare-vs">vs</div>
+        <div class="compare-card">
+          <p class="compare-name">Network B — national ISP</p>
+          <p>10 000 000 IP addresses, <b>500</b> reported</p>
+          <p class="compare-share">0.005 % of the network</p>
+        </div>
+      </div>
+      <p>B has ten times more bad addresses, yet <b>A is a thousand times worse</b> in proportion. Counting addresses would always put the biggest networks on top; dividing by the size of the network shows where abuse is concentrated, which is what matters to decide whom to contact or what to watch.</p>
+    </section>
+
+    <section id="pipeline" class="panel">
+      <h2>4. How a rank is computed</h2>
+      <div class="method-grid">
+        <div class="method-step">
+          <span class="step-n">1</span>
+          <h3>Collect</h3>
+          <p>Public lists of malicious IP addresses are fetched several times a day. Each list has a <b>weight</b> reflecting how reliable and severe it is (see <a href="#weights">section 10</a>).</p>
+        </div>
+        <div class="method-step">
+          <span class="step-n">2</span>
+          <h3>Map</h3>
+          <p>Each IP address is matched with the prefix and the AS that announced it in BGP <em>on that day</em> (CAIDA data, through IP ASN History). Addresses announced by nobody (AS0) are ignored.</p>
+        </div>
+        <div class="method-step">
+          <span class="step-n">3</span>
+          <h3>Rank</h3>
+          <p>For each list, the malicious IPs of an AS are multiplied by the list weight and divided by the number of IPs the AS announces. The ranks obtained for every list are added up.</p>
+        </div>
+      </div>
+      <div class="method-formulas">
+        <div class="method-formula">
+          <span class="formula-label">AS rank (for one list)</span>
+          <div class="fraction big"><span>malicious IPs in the AS × weight of the list</span><span>IPs announced by the AS</span></div>
+        </div>
+        <div class="method-formula">
+          <span class="formula-label">Prefix rank</span>
+          <div class="fraction big"><span>malicious IPs in the prefix × weight of the list</span><span>size of the prefix</span></div>
+        </div>
+        <div class="method-formula">
+          <span class="formula-label">Country rank</span>
+          <div class="fraction big"><span>sum of the ranks of the ASes routed in the country</span><span>&nbsp;</span></div>
+        </div>
+      </div>
+      <p>The <b>global rank</b> of an AS is the sum of its ranks over all lists. Choosing sources in the filters recomputes it with those lists only. IPv4 and IPv6 are ranked separately. The ranking runs every hour for the current day.</p>
+    </section>
+
+    <section id="reading" class="panel">
+      <h2>5. Reading a rank</h2>
+      <ul class="scale">
+        <li><span class="scale-v">0</span><span>Nothing from this network appeared in the selected lists that day.</span></li>
+        <li><span class="scale-v">small</span><span>A few reported addresses compared with the size of the network (most large ISPs).</span></li>
+        <li><span class="scale-v">high</span><span>A large share of the network is reported: abuse is concentrated there, or the network is very small.</span></li>
+      </ul>
+      <p>Ranks have <b>no unit and no upper limit</b>: compare them with each other (same day, same IP version, same sources) rather than reading them in absolute terms. On a chart, a <b>peak</b> usually means a campaign or a compromised machine; a <b>high, flat line</b> means abuse that lasts.</p>
+      <p>IPv6 ranks look tiny (around 10<sup>-18</sup>) because an IPv6 network contains astronomically many addresses; charts then show values multiplied by a power of ten, written on the axis (e.g. “×10<sup>-18</sup>”).</p>
+    </section>
+
+    <section id="users" class="panel">
+      <h2>6. Who uses it</h2>
+      <table class="table">
+        <thead><tr><th>Who</th><th>Their question</th><th>Where to look</th></tr></thead>
+        <tbody>
+          <tr><td>A CERT / CSIRT</td><td>Which networks are problematic right now? Whom should we notify?</td><td><a href="{{ url_for('index') }}">Ranking</a></td></tr>
+          <tr><td>A SOC analyst with a suspicious IP in the logs</td><td>Who owns this address? Is that network known for abuse?</td><td><a href="{{ url_for('ipasn') }}">IP lookup</a>, then the AS page</td></tr>
+          <tr><td>An ISP or hosting company</td><td>How does our own network score? Since when is it getting worse?</td><td>The page of their AS</td></tr>
+          <tr><td>A researcher or policy maker</td><td>How do countries compare and evolve?</td><td><a href="{{ url_for('country') }}">Countries</a></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="pages" class="panel">
+      <h2>7. The pages</h2>
+      <div class="pages-grid">
+        <a class="page-card" href="{{ url_for('index') }}">
+          <span class="page-card-q">Who are the worst networks today?</span>
+          <h3><i class="fa fa-trophy" aria-hidden="true"></i> Ranking</h3>
+          <p>The most malicious ASes of the selected day, worst first. Click an AS to open its page.</p>
+        </a>
+        <div class="page-card">
+          <span class="page-card-q">How does this network behave?</span>
+          <h3><i class="fa fa-server" aria-hidden="true"></i> AS page</h3>
+          <p>Its rank over time, the prefixes involved on the selected day, the exact IP addresses of a prefix with the lists that reported them, and the history of its name. Open it by searching an AS number.</p>
+        </div>
+        <a class="page-card" href="{{ url_for('ipasn') }}">
+          <span class="page-card-q">Who owns this address?</span>
+          <h3><i class="fa fa-map-marker" aria-hidden="true"></i> IP lookup</h3>
+          <p>Which AS and prefix announced an IP over the last 60 days. It tells you <em>who owns</em> the address, not whether it is malicious: open the AS to see its reputation.</p>
+        </a>
+        <a class="page-card" href="{{ url_for('country') }}">
+          <span class="page-card-q">How is this country doing?</span>
+          <h3><i class="fa fa-globe" aria-hidden="true"></i> Countries</h3>
+          <p>The combined rank of all the ASes of one or more countries, and which of their ASes had activity. Large countries take time: the server ranks thousands of ASes for each day.</p>
+        </a>
+      </div>
+      <h3 class="guide-h3">Filters</h3>
+      <ul class="guide-list">
+        <li><b>Date</b> — the day to look at. Lists are collected during the day, so the most recent day may still be incomplete; the default is yesterday.</li>
+        <li><b>IPv4 / IPv6</b> — the two address families are ranked separately.</li>
+        <li><b>Sources</b> — count only some lists, e.g. only SSH brute-force lists to focus on one kind of abuse.</li>
+        <li><b>Search</b> — type an AS number (<code>5577</code> or <code>AS5577</code>) to open its page, or an IP address / prefix to look it up.</li>
+      </ul>
+    </section>
+
+    <section id="walkthrough" class="panel">
+      <h2>8. A typical investigation</h2>
+      <ol class="walk">
+        <li><b>A suspicious address</b> shows up in your firewall logs: <code>203.0.113.42</code>.</li>
+        <li>Paste it in the <b>search</b> field: IP lookup shows it is announced by, say, <b>AS64500</b>.</li>
+        <li>Open <b>AS64500</b>: its rank has been high for weeks and several of its prefixes appear, so the network hosts abuse on a regular basis.</li>
+        <li>Click the prefix that contains your address: the list of reported IPs tells you whether this exact machine was already reported, and by which lists.</li>
+        <li>Decide: block the prefix, raise the alert level, or contact the network's abuse desk.</li>
+      </ol>
+    </section>
+
+    <section id="limits" class="panel">
+      <h2>9. Limits — read this before drawing conclusions</h2>
+      <ul class="guide-list">
+        <li><b>A rank is not proof of guilt.</b> It says “a lot of activity from this network was reported”, not “this organisation is criminal”.</li>
+        <li><b>Legitimate scanners rank high.</b> Research projects that scan the whole Internet (Shadowserver, internet measurement projects…) are reported by scanner lists, so they often appear near the top.</li>
+        <li><b>Very small networks are sensitive:</b> a handful of compromised machines is enough to give them a high rank.</li>
+        <li><b>It depends on the lists.</b> Activity that no list reports is invisible, and a list that stops publishing makes ranks drop.</li>
+        <li><b>Shared infrastructure:</b> on cloud or hosting networks, one customer's machine can pull the whole network up.</li>
+      </ul>
+    </section>
+
+    <section id="weights" class="panel">
+      <h2>10. Lists and weights</h2>
+      <p>The weight says how much an address reported by a list counts. Reliable lists of confirmed malware infrastructure weigh more than broad lists of scanners.</p>
+      <table class="table">
+        <thead><tr><th>List</th><th class="num">Weight</th></tr></thead>
+        <tbody>
+          {% for name, w in [
+            ('abuse.ch SSL blacklist', 7), ('blocklist.de strong IPs', 6),
+            ('abuse.ch ThreatFox', 5), ('Feodo Tracker', 5), ('Emerging Threats compromised', 5),
+            ('CI Army', 5), ('malc0de', 5), ('Malware Domain List', 5),
+            ('Clean MX (malware, phishing, portals)', 5),
+            ('blocklist.de bots / FTP / IMAP / SIP / SSH', 3), ('GreenSnow', 3),
+            ('CoinBlockerLists (mining servers)', 3), ('bsdly POP3 gropers', 3),
+            ('DShield top IPs', 1),
+            ('blocklist.de Apache / mail', 0.1), ('DShield daily sources', 0.1),
+            ('AlienVault reputation', 0.01)] %}
+          <tr><td>{{ name }}</td><td class="num">{{ w }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <p class="method-src">Source: the <code>impact</code> value of each module in <code>config/modules/</code>.</p>
+    </section>
+
+    <section id="api" class="panel">
+      <h2>11. API</h2>
+      <p>Everything shown here is available as JSON for your own tools. Full reference: <a href="/doc/">API documentation</a>.</p>
+      <pre class="code"><span class="c"># Rank of an AS on a given day</span>
+curl -X POST -d '{"asn": "5577", "date": "2026-10-28"}' {{ request.host_url }}json/asn
+
+<span class="c"># History of an AS over the last 30 days</span>
+curl -X POST -d '{"asn": "5577", "period": 30}' {{ request.host_url }}json/asn_history
+
+<span class="c"># Which AS announced an IP</span>
+curl {{ request.host_url }}ipasn_history/?ip=8.8.8.8</pre>
+    </section>
+
+    <section id="faq" class="panel">
+      <h2>12. FAQ</h2>
+      <details class="faq"><summary>The ranking is empty for today, is it broken?</summary><p>No. The lists are collected and ranked during the day; pick an earlier date with the Date filter.</p></details>
+      <details class="faq"><summary>Why is IPv6 empty or so small?</summary><p>Few lists report IPv6 addresses, and IPv6 networks are huge, so ranks are tiny. The chart shows the scale on its axis.</p></details>
+      <details class="faq"><summary>What does AS0 mean in IP lookup?</summary><p>That nobody announced the address in BGP at that time: it was not reachable on the Internet.</p></details>
+      <details class="faq"><summary>Why does the country page take so long?</summary><p>A country's rank is the sum of all its ASes. For a large country the server ranks thousands of ASes for each of the 30 days.</p></details>
+      <details class="faq"><summary>An AS has no prefixes listed although its rank is above 0.</summary><p>Prefixes are listed for the selected day only; the rank chart covers many days. Change the date to a day with a peak.</p></details>
+    </section>
+
   </div>
-
-  <div class="method-formulas">
-    <div class="method-formula">
-      <span class="formula-label">AS rank (per list)</span>
-      <div class="fraction big"><span>malicious IPs in the AS × weight of the list</span><span>IPs announced by the AS</span></div>
-    </div>
-    <div class="method-formula">
-      <span class="formula-label">Prefix rank</span>
-      <div class="fraction big"><span>malicious IPs in the prefix × weight of the list</span><span>size of the prefix</span></div>
-    </div>
-    <div class="method-formula">
-      <span class="formula-label">Country rank</span>
-      <div class="fraction big"><span>sum of the ranks of the ASes routed in the country</span><span>&nbsp;</span></div>
-    </div>
-  </div>
-
-  <ul class="method-notes">
-    <li><b>Global rank</b> of an AS = sum of its ranks over all the selected lists. Filtering sources recomputes it with those lists only.</li>
-    <li><b>Reading it:</b> 0 means nothing was reported. Because the count is divided by the size of the AS, a small network with a few bad IPs can rank higher than a large one with many.</li>
-    <li><b>IPv4 and IPv6</b> are ranked separately. The ranking runs every hour for the current day (and the previous day before noon).</li>
-  </ul>
-
-  <details class="method-weights">
-    <summary>Weight of each list</summary>
-    <table class="table">
-      <thead><tr><th>List</th><th class="num">Weight</th></tr></thead>
-      <tbody>
-        {% for name, w in [
-          ('abuse.ch SSL blacklist', 7), ('blocklist.de strong IPs', 6),
-          ('abuse.ch ThreatFox', 5), ('Feodo Tracker', 5), ('Emerging Threats compromised', 5),
-          ('CI Army', 5), ('malc0de', 5), ('Malware Domain List', 5),
-          ('Clean MX (malware, phishing, portals)', 5),
-          ('blocklist.de bots / FTP / IMAP / SIP / SSH', 3), ('GreenSnow', 3),
-          ('CoinBlockerLists (mining servers)', 3), ('bsdly POP3 gropers', 3),
-          ('DShield top IPs', 1),
-          ('blocklist.de Apache / mail', 0.1), ('DShield daily sources', 0.1),
-          ('AlienVault reputation', 0.01)] %}
-        <tr><td>{{ name }}</td><td class="num">{{ w }}</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-    <p class="method-src">Source: the <code>impact</code> value of each module in <code>config/modules/</code>.</p>
-  </details>
-</section>
+</div>
 {% endblock %}

@@ -27,7 +27,7 @@ app.config['SECRET_KEY'] = get_secret_key()
 Bootstrap5(app)
 app.config['BOOTSTRAP_SERVE_LOCAL'] = True
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 3600  # cache static files (logo, fonts, icons) for 1 hour
-app.jinja_env.globals['asset_version'] = '3'  # bump when CSS/JS change, so browsers drop their cached copy
+app.jinja_env.globals['asset_version'] = '38'  # bump when CSS/JS change, so browsers drop their cached copy
 
 bgpranking = BGPRanking()
 
@@ -69,6 +69,9 @@ def asn_details():
 
 @app.route('/country', methods=['GET', 'POST'])
 def country():
+    # Same as index(): an ASN left in the session from a previous page would make
+    # load_session() drop the selected country.
+    session.pop('asn', None)
     load_session()
     sources = bgpranking.get_sources(date=session['date'])['response']
     return render_template('country.html', sources=sources, countries=get_country_codes(), **session)

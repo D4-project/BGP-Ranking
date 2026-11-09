@@ -1,10 +1,10 @@
 <div class="toolbar">
-  <form action="" method=post class="tb-item">
+  <form action="" method=get class="tb-item">
     <label for="f-date"><i class="fa fa-calendar" aria-hidden="true"></i> Date</label>
     <input id="f-date" name="date" class="form-control" type="date" value="{{ date }}" onchange="this.form.submit()">
   </form>
 
-  <form action="" method=post class="tb-item">
+  <form action="" method=get class="tb-item">
     <span class="tb-label"><i class="fa fa-sitemap" aria-hidden="true"></i> IP version</span>
     <div class="segmented">
       <button name="ipversion" value="v4" class="{{ 'on' if ipversion != 'v6' }}">IPv4</button>
@@ -12,7 +12,7 @@
     </div>
   </form>
 
-  <form action="" method=post class="tb-item picker" data-field="source">
+  <form action="" method=get class="tb-item picker" data-field="source">
     <span class="tb-label"><i class="fa fa-database" aria-hidden="true"></i> Sources</span>
     <details class="dropdown-lite">
       <summary class="form-control">{% if source %}{{ source if source is string else (source|length ~ ' selected') }}{% else %}All sources{% endif %}</summary>
@@ -34,10 +34,11 @@
   </form>
 
   {% if show_country %}
-  <form action="{{ url_for('country') }}" method=post class="tb-item picker" data-field="country">
+  <form action="{{ url_for('country') }}" method=get class="tb-item picker" data-field="country">
     <span class="tb-label"><i class="fa fa-flag" aria-hidden="true"></i> Countries</span>
     <details class="dropdown-lite">
-      <summary class="form-control">{% if country %}{{ country if country is string else ', '.join(country) }}{% else %}All countries{% endif %}</summary>
+      {% set clist = ([country] if country is string else country) if country else [] %}
+      <summary class="form-control" title="{{ ', '.join(clist) }}">{% if not clist %}Choose countries{% elif clist|length <= 3 %}{{ ', '.join(clist) }}{% else %}{{ clist|length }} countries selected{% endif %}</summary>
       <div class="dropdown-lite-panel">
         <input class="form-control filter-input" placeholder="&#xf002;  Filter countries…" style="font-family:'Raleway',FontAwesome">
         <div class="opts">
@@ -46,12 +47,22 @@
           {% endfor %}
         </div>
         <div class="dropdown-lite-actions">
-          <button type="button" class="link-btn" data-clear><i class="fa fa-undo" aria-hidden="true"></i> All countries</button>
+          <button type="button" class="link-btn" data-clear><i class="fa fa-undo" aria-hidden="true"></i> Clear selection</button>
           <button type="submit" class="btn btn-primary btn-sm"><i class="fa fa-check" aria-hidden="true"></i> Apply</button>
         </div>
       </div>
     </details>
   </form>
+  {% endif %}
+  <button type="button" class="reset-filters" id="reset-filters" hidden title="{{ 'Clear the countries and go back to yesterday, IPv4 and all sources' if request.endpoint == 'country' else 'Back to yesterday, IPv4 and all sources' }}">
+    <i class="fa fa-times-circle" aria-hidden="true"></i> Reset filters
+  </button>
+  {% if toolbar_summary %}
+  <div class="tb-summary">
+    <span class="tb-summary-n">{{ toolbar_summary.count }}</span>
+    <span>{{ toolbar_summary.label }}<br><small>{{ date }} · {{ 'IPv6' if ipversion == 'v6' else 'IPv4' }}{% if source %} · {{ source if source is string else source|length ~ ' sources' }}{% endif %}</small></span>
+    <a href="{{ url_for('how_it_works') }}" class="tb-summary-help" title="How is the rank computed?"><i class="fa fa-question-circle" aria-hidden="true"></i></a>
+  </div>
   {% endif %}
 </div>
 <script>
