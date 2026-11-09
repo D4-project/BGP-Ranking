@@ -31,7 +31,8 @@
           <img src="{{ url_for('static', filename='img/circl-logo.png') }}" alt="CIRCL" width="70" height="26">
           <span>BGP Ranking</span>
         </a>
-        <div class="topbar-links">
+        <button type="button" class="topbar-toggle" id="topbar-toggle" aria-controls="topbar-links" aria-expanded="false" aria-label="Menu"><i class="fa fa-bars" aria-hidden="true"></i></button>
+        <div class="topbar-links" id="topbar-links">
           <a class="{{ 'active' if request.endpoint == 'index' }}" href="{{ url_for('index') }}"><i class="fa fa-trophy" aria-hidden="true"></i> Ranking</a>
           <a class="{{ 'active' if request.endpoint == 'country' }}" href="{{ url_for('country') }}"><i class="fa fa-globe" aria-hidden="true"></i> Countries</a>
           <a class="{{ 'active' if request.endpoint == 'ipasn' }}" href="{{ url_for('ipasn') }}"><i class="fa fa-map-marker" aria-hidden="true"></i> IP lookup</a>
@@ -127,6 +128,20 @@
           });
         }
         function add2(p, k, v) { (Array.isArray(v) ? v : [v]).forEach(function (x) { if (x) p.append(k, x); }); }
+      })();
+    </script>
+    <script>
+      // Phone menu: the links fold into a drop-down list opened by the menu button.
+      (function () {
+        var nav = document.querySelector('.topbar'), btn = document.getElementById('topbar-toggle');
+        function set(open) {
+          nav.classList.toggle('open', open);
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          btn.querySelector('.fa').className = 'fa ' + (open ? 'fa-times' : 'fa-bars');
+        }
+        btn.addEventListener('click', function () { set(!nav.classList.contains('open')); });
+        document.addEventListener('click', function (e) { if (!nav.contains(e.target)) set(false); });
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') set(false); });
       })();
     </script>
     <button type="button" class="to-top" id="to-top" title="Back to top" aria-label="Back to top"><i class="fa fa-arrow-up" aria-hidden="true"></i></button>
