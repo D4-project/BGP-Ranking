@@ -1,0 +1,6 @@
+{
+  "url": "https://netapi.com/api2/?method=compromised&dataset_type=ip",
+  "vendor": "netapi",
+  "name": "honeypot",
+  "impact": 3
+}

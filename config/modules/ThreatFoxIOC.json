@@ -1,5 +1,4 @@
 {
-  "url": "https://threatfox.abuse.ch/export/json/ip-port/recent/",
   "vendor": "abuse.ch",
   "name": "threatfox",
   "impact": 5,
